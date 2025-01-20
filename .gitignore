@@ -36,6 +36,7 @@
 *.dll
 
 # Build and object files
+/x64/
 /.vs/
 /*.log
 *.pdb
