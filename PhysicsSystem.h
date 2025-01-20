@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PxPhysicsAPI.h"
+#include "Transform.h"
 #include <vector>
 #include <iostream>
 
@@ -8,6 +9,7 @@ class PhysicsSystem
 {
 	public:
 		std::vector<physx::PxRigidDynamic*> rigidDynamicList;
+		std::vector<Transform*> transformList;
 
 		//PhysX management class instances.
 		physx::PxDefaultAllocator gAllocator;
@@ -22,6 +24,5 @@ class PhysicsSystem
 		PhysicsSystem();
 
 		physx::PxVec3 getPos(int i);
-
-
+		void updateTransforms();
 };

@@ -59,11 +59,15 @@ PhysicsSystem::PhysicsSystem()
 
 			rigidDynamicList.push_back(body);
 
+			transformList.push_back(new Transform());
+
 			body->attachShape(*shape);
 			physx::PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
 			gScene->addActor(*body);
 		}
 	}
+	
+	updateTransforms();
 
 	// Clean up
 	shape->release();
@@ -73,4 +77,21 @@ physx::PxVec3 PhysicsSystem::getPos(int i)
 {
 	physx::PxVec3 position = rigidDynamicList[i]->getGlobalPose().p;
 	return position;
+}
+
+void PhysicsSystem::updateTransforms()
+{
+	for (int i = 0; i < transformList.size(); i++)
+	{
+		// store positions
+		transformList[i]->pos.x = rigidDynamicList[i]->getGlobalPose().p.x;
+		transformList[i]->pos.y = rigidDynamicList[i]->getGlobalPose().p.y;
+		transformList[i]->pos.z = rigidDynamicList[i]->getGlobalPose().p.z;
+
+		// store rotations
+		transformList[i]->rot.x = rigidDynamicList[i]->getGlobalPose().q.x;
+		transformList[i]->rot.y = rigidDynamicList[i]->getGlobalPose().q.y;
+		transformList[i]->rot.z = rigidDynamicList[i]->getGlobalPose().q.z;
+		transformList[i]->rot.w = rigidDynamicList[i]->getGlobalPose().q.w;
+	}
 }
