@@ -34,3 +34,12 @@
 # Project libraries
 *.lib
 *.dll
+
+# Build and object files
+/.vs/
+/*.log
+*.pdb
+*.ipdb
+*.iobj
+*.tlog
+*.user
