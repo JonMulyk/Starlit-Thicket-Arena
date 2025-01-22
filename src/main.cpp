@@ -8,6 +8,8 @@
 #include "Entity.h"
 #include "RenderingSystem.h"
 
+
+
 void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -20,6 +22,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
+
 
 int main()
 {
@@ -53,18 +56,31 @@ int main()
 	}
 	*/
 
+	//
+		// build and compile our shader program
+	// ------------------------------------
+
 	RenderingSystem* renderer = new RenderingSystem(800, 600);
 	glfwSetFramebufferSizeCallback(renderer->getWindow(), framebuffer_size_callback);
-	
+
+	Shader shader("./assets/shaders/VertShader.vert", "./assets/shaders/FragShader.frag");
 
 	while (!glfwWindowShouldClose(renderer->getWindow()))
 	{
-		glClearColor(1.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		renderer->processInput();
 
-		glfwPollEvents();
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+	
+		//renderer->shader.use();
+		shader.use();
+		glBindVertexArray(renderer->getVAO());
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
 		glfwSwapBuffers(renderer->getWindow());
+		glfwPollEvents();
 	}
+
 
 	glfwTerminate();
 

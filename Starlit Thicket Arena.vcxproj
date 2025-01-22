@@ -147,17 +147,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\boilerplate\Shader.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PhysicsSystem.cpp" />
     <ClCompile Include="src\RenderingSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\boilerplate\Shader.h" />
     <ClInclude Include="src\Entity.h" />
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\PhysicsSystem.h" />
     <ClInclude Include="src\RenderingSystem.h" />
     <ClInclude Include="src\Transform.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\FragShader.frag" />
+    <None Include="assets\shaders\VertShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -30,6 +30,52 @@ RenderingSystem::RenderingSystem(const int width, const int height)
 	}
 
 	glViewport(0, 0, windowWidth, windowHeight);
+
+	// Shader
+//	Shader shader("../assets/shaders/VertShader.vert", "../assets/shaders/FragShader.frag");
+	//this->shader("", "");
+
+	float vertices[] = {
+	-0.5f, -0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f,
+	 0.0f,  0.5f, 0.0f
+	};
+
+	glGenVertexArrays(1, &this->VAO);
+	glGenBuffers(1, &this->VBO);
+
+	glBindVertexArray(this->VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
+}
+
+
+unsigned int RenderingSystem::getVAO()
+{
+	return this->VAO;
+}
+
+void RenderingSystem::setVAO(const unsigned int vaoValue)
+{
+	this->VAO = vaoValue;
+}
+
+unsigned int RenderingSystem::getVBO()
+{
+	return this->VBO;
+}
+
+void RenderingSystem::setVBO(const unsigned int vboValue)
+{
+	this->VBO = vboValue;
 }
 
 GLFWwindow* RenderingSystem::getWindow() const
