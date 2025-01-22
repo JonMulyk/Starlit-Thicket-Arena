@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 
+
 RenderingSystem::RenderingSystem(const int width, const int height)
 	: windowWidth(width), windowHeight(height)
 {
@@ -12,14 +13,16 @@ RenderingSystem::RenderingSystem(const int width, const int height)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Starlit Thicket Arena", NULL, NULL);
-	if (window == NULL)
+	this->setWindow(width, height);
+
+	if (this->getWindow() == NULL)
 	{
 		glfwTerminate();
 		throw std::exception("Failed to create GLFW window\n"); //FUTURE -> create custom exception here
 	}
 
-	glfwMakeContextCurrent(window);
+	glfwMakeContextCurrent(this->getWindow());
+
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -28,3 +31,22 @@ RenderingSystem::RenderingSystem(const int width, const int height)
 
 	glViewport(0, 0, windowWidth, windowHeight);
 }
+
+GLFWwindow* RenderingSystem::getWindow() const
+{
+	return window;
+}
+
+void RenderingSystem::setWindow(const int width, const int height)
+{
+	this->window = glfwCreateWindow(800, 600, "Starlit Thicket Arena", NULL, NULL);
+}
+
+void RenderingSystem::processInput()
+{
+	if (glfwGetKey(this->getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	{
+		glfwSetWindowShouldClose(this->getWindow(), true);
+	}
+}
+

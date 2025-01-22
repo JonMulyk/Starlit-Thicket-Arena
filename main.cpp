@@ -6,6 +6,7 @@
 #include "PxPhysicsAPI.h"
 #include "PhysicsSystem.h"
 #include "Entity.h"
+#include "RenderingSystem.h"
 
 void processInput(GLFWwindow* window)
 {
@@ -52,38 +53,17 @@ int main()
 	}
 	*/
 
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Starlit Thicket Arena", NULL, NULL);
-	if (window == NULL)
+	RenderingSystem* renderer = new RenderingSystem(800, 600);
+	glfwSetFramebufferSizeCallback(renderer->getWindow(), framebuffer_size_callback);
+	
+
+	while (!glfwWindowShouldClose(renderer->getWindow()))
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-
-	glfwMakeContextCurrent(window);
-
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return -1;
-	}
-
-	while (!glfwWindowShouldClose(window))
-	{
-		processInput(window);
-
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(1.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glfwPollEvents();
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(renderer->getWindow());
 	}
 
 	glfwTerminate();
