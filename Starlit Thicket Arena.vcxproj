@@ -150,11 +150,13 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
+    <ClCompile Include="RenderingSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="PhysicsSystem.h" />
+    <ClInclude Include="RenderingSystem.h" />
     <ClInclude Include="Transform.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
