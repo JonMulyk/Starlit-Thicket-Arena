@@ -30,3 +30,27 @@
 *.exe
 *.out
 *.app
+
+# Project libraries
+physx/*.lib
+physx/*.dll
+
+# ignore .dll and .lib files in these paths as well
+physx/release/
+physx/debug/
+
+x64/*.dll
+x64/*.lib
+
+!*.dll
+!*.lib
+
+# Build and object files
+/x64/
+/.vs/
+/*.log
+*.pdb
+*.ipdb
+*.iobj
+*.tlog
+*.user
