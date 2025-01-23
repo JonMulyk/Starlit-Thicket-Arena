@@ -8,12 +8,25 @@
 RenderingSystem::RenderingSystem(const int width, const int height, const std::string vertexPath, const std::string fragPath)
 	: windowWidth(width), windowHeight(height)
 {
+	initializeGLFW();
+	initializeShaders(vertexPath, fragPath);
+	initializeTextRenderer();
+	initializeRenderData();
+}
+
+
+RenderingSystem::~RenderingSystem()
+{
+}
+
+void RenderingSystem::initializeGLFW()
+{
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	this->setWindow(width, height);
+	this->setWindow(windowWidth, windowHeight);
 
 	if (this->getWindow() == NULL)
 	{
@@ -30,11 +43,19 @@ RenderingSystem::RenderingSystem(const int width, const int height, const std::s
 	}
 
 	glViewport(0, 0, windowWidth, windowHeight);
-	
+
+}
+
+
+void RenderingSystem::initializeShaders(const std::string& vertexPath, const std::string& fragPath)
+{
 	// Initialize Shader
 	Shader shader(vertexPath.c_str(), fragPath.c_str());
 	ourShader = shader;
-	
+}
+
+void RenderingSystem::initializeTextRenderer()
+{
 	// Initialize Text Renderer
 	Shader textShaderTmp("./assets/shaders/textShader.vert", "./assets/shaders/textShader.frag");
 	textShader = textShaderTmp;
@@ -44,8 +65,10 @@ RenderingSystem::RenderingSystem(const int width, const int height, const std::s
 	glm::mat4 textProjection = glm::ortho(0.0f, static_cast<float>(1440), 0.0f, static_cast<float>(1440));
 	textShader.use();
 	glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(textProjection));
+}
 
-
+void RenderingSystem::initializeRenderData()
+{
 	float vertices[] = {
 		// positions         // colors
 		 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
@@ -69,11 +92,7 @@ RenderingSystem::RenderingSystem(const int width, const int height, const std::s
 	glEnableVertexAttribArray(1);
 
 	//unsigned int testTriangleVAO = initVAO(vertices, sizeof(vertices));
-}
 
-
-RenderingSystem::~RenderingSystem()
-{
 }
 
 unsigned int RenderingSystem::getVAO()

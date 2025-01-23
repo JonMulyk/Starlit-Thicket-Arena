@@ -23,6 +23,11 @@ class RenderingSystem
 
 		std::map<char, Character> charactersArial;
 
+		void initializeGLFW();
+		void initializeShaders(const std::string& vertexPath, const std::string& fragPath);
+		void initializeTextRenderer();
+		void initializeRenderData();
+
 	public:
 		RenderingSystem(const int width, const int height, const std::string vertexPath, const std::string fragPath);
 		virtual ~RenderingSystem();
