@@ -27,8 +27,6 @@ class RenderingSystem
 		unsigned int getVBO();
 		void setVBO(const unsigned int value);
 
-		//Shader getShader();
-
 		GLFWwindow* getWindow() const;
 		void setWindow(const int width, const int height);
 

@@ -7,6 +7,7 @@
 #include "PhysicsSystem.h"
 #include "Entity.h"
 #include "RenderingSystem.h"
+#include "Text.h"
 
 
 void processInput(GLFWwindow* window)
