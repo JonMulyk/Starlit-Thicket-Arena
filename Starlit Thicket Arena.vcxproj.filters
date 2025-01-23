@@ -59,9 +59,14 @@
     <ClInclude Include="src\boilerplate\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\FragShader.frag" />
     <None Include="assets\shaders\VertShader.vert" />
+    <None Include="assets\shaders\textShader.vert" />
+    <None Include="assets\shaders\textShader.frag" />
   </ItemGroup>
 </Project>

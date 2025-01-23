@@ -160,10 +160,13 @@
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\PhysicsSystem.h" />
     <ClInclude Include="src\RenderingSystem.h" />
+    <ClInclude Include="src\Text.h" />
     <ClInclude Include="src\Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\FragShader.frag" />
+    <None Include="assets\shaders\textShader.frag" />
+    <None Include="assets\shaders\textShader.vert" />
     <None Include="assets\shaders\VertShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
