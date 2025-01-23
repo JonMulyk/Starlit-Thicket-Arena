@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "boilerplate/Shader.h"
+#include <string>
 
 
 class RenderingSystem
@@ -17,8 +18,9 @@ class RenderingSystem
 		unsigned int VBO;
 
 	public:
-		RenderingSystem(const int width, const int height);
-		//Shader shader;
+		RenderingSystem(const int width, const int height, const std::string vertexPath, const std::string fragPath);
+		virtual ~RenderingSystem();
+		Shader *ourShader;
 	
 		unsigned int getVAO();
 		void setVAO(const unsigned int value);

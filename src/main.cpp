@@ -33,9 +33,9 @@ int main()
 	double accumulator = 0.0;
 	
 	// System Init
-	RenderingSystem* renderer = new RenderingSystem(800, 600);
+	RenderingSystem* renderer = new RenderingSystem(800, 600, "./assets/shaders/VertShader.vert", "./assets/shaders/FragShader.frag");
 	glfwSetFramebufferSizeCallback(renderer->getWindow(), framebuffer_size_callback);
-	Shader shader("./assets/shaders/VertShader.vert", "./assets/shaders/FragShader.frag");
+	//Shader shader();
 
 	PhysicsSystem* physicsSystem = new PhysicsSystem();
 	
@@ -73,7 +73,6 @@ int main()
 		std::cout << entityList[50].transform->pos.y << std::endl;
 
 		renderer->updateRenderer();
-		shader.use();
 	}
 
 
