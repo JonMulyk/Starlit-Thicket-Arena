@@ -32,4 +32,5 @@ class RenderingSystem
 
 
 		void processInput();
+		void updateRenderer();
 };

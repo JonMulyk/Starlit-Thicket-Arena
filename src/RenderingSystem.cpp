@@ -111,3 +111,17 @@ void RenderingSystem::processInput()
 	}
 }
 
+void RenderingSystem::updateRenderer()
+{
+	processInput();
+
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	//ourShader.use();
+	glBindVertexArray(getVAO());
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	glfwSwapBuffers(getWindow());
+	glfwPollEvents();
+}

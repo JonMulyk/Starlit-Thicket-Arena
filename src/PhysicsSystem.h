@@ -25,4 +25,5 @@ class PhysicsSystem
 
 		physx::PxVec3 getPos(int i);
 		void updateTransforms();
+		void updatePhysics(double dt);
 };

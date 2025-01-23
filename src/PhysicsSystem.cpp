@@ -95,3 +95,10 @@ void PhysicsSystem::updateTransforms()
 		transformList[i]->rot.w = rigidDynamicList[i]->getGlobalPose().q.w;
 	}
 }
+
+void PhysicsSystem::updatePhysics(double dt) {
+	gScene->simulate(dt);
+	gScene->fetchResults(true);
+
+	updateTransforms();
+}

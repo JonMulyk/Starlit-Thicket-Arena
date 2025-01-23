@@ -9,7 +9,6 @@
 #include "RenderingSystem.h"
 
 
-
 void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -26,59 +25,55 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 int main()
 {
-	/* PHYSICS CODE COMMENTED OUT FOR NOW
-	PhysicsSystem physicsSys;
+	// Time and Frame Vars
+	double t = 0.0;
+	const double dt = 1.0 / 60.0;
 
-	// std::cout << physicsSys.rigidDynamicList.size() << std::endl;
+	double currentTime = glfwGetTime();
+	double accumulator = 0.0;
+	
+	// System Init
+	RenderingSystem* renderer = new RenderingSystem(800, 600);
+	glfwSetFramebufferSizeCallback(renderer->getWindow(), framebuffer_size_callback);
+	Shader shader("./assets/shaders/VertShader.vert", "./assets/shaders/FragShader.frag");
 
-	// Simulate at 60fps
-
+	PhysicsSystem* physicsSystem = new PhysicsSystem();
+	
+	// Simple box example
 	std::vector<Entity> entityList;
-	entityList.reserve(465);
-
-	for (int i = 0; i < 465; i++)
+	unsigned int reserveNum = 465;
+	entityList.reserve(reserveNum);
+	for (int i = 0; i < reserveNum; i++)
 	{
 		entityList.emplace_back();
 		entityList.back().name = "box";
-		entityList.back().transform = physicsSys.transformList[i];
+		entityList.back().transform = physicsSystem->transformList[i];
 		entityList.back().model = NULL;
 	}
 
-	while (1)
-	{
-		physicsSys.gScene->simulate(1.0f / 60.0f);
-		physicsSys.gScene->fetchResults(true);
-		physicsSys.updateTransforms();
-
-		physx::PxVec3 objPos = physicsSys.getPos(50);
-		std::cout << "x: " << objPos.x << " y: " << objPos.y << " z: " << objPos.z << std::endl;
-		std::cout << entityList[50].transform->pos.y << std::endl;
-	}
-	*/
-
-	//
-		// build and compile our shader program
-	// ------------------------------------
-
-	RenderingSystem* renderer = new RenderingSystem(800, 600);
-	glfwSetFramebufferSizeCallback(renderer->getWindow(), framebuffer_size_callback);
-
-	Shader shader("./assets/shaders/VertShader.vert", "./assets/shaders/FragShader.frag");
-
+	// Main Game Loop
 	while (!glfwWindowShouldClose(renderer->getWindow()))
 	{
-		renderer->processInput();
+		// New time trackers
+		double newTime = glfwGetTime();
+		double frameTime = newTime - currentTime;
+		currentTime = newTime;
+		accumulator += frameTime;
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-	
-		//renderer->shader.use();
+		// Physics System Loop
+		while (accumulator >= dt)
+		{
+			physicsSystem->updatePhysics(dt);
+			accumulator -= dt;
+			t += dt;
+		}
+
+		physx::PxVec3 objPos = physicsSystem->getPos(50);
+		std::cout << "x: " << objPos.x << " y: " << objPos.y << " z: " << objPos.z << std::endl;
+		std::cout << entityList[50].transform->pos.y << std::endl;
+
+		renderer->updateRenderer();
 		shader.use();
-		glBindVertexArray(renderer->getVAO());
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		glfwSwapBuffers(renderer->getWindow());
-		glfwPollEvents();
 	}
 
 
