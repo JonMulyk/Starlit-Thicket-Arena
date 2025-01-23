@@ -34,6 +34,17 @@ RenderingSystem::RenderingSystem(const int width, const int height, const std::s
 	// Initialize Shader
 	Shader shader(vertexPath.c_str(), fragPath.c_str());
 	ourShader = shader;
+	
+	// Initialize Text Renderer
+	Shader textShaderTmp("./assets/shaders/textShader.vert", "./assets/shaders/textShader.frag");
+	textShader = textShaderTmp;
+	charactersArial = initFont("./assets/fonts/Arial.ttf");
+	initTextVAO(&textVAO, &textVBO);
+
+	glm::mat4 textProjection = glm::ortho(0.0f, static_cast<float>(1440), 0.0f, static_cast<float>(1440));
+	textShader.use();
+	glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(textProjection));
+
 
 	float vertices[] = {
 		// positions         // colors
@@ -110,10 +121,17 @@ void RenderingSystem::updateRenderer()
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	
-//	ourShader->use();
+	// Render Triangle
 	ourShader.use();
 	glBindVertexArray(getVAO());
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	// Render Text
+	textShader.use();
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	RenderText(textShader, textVAO, textVBO, "hello!", 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f), charactersArial);
+
 
 	glfwSwapBuffers(getWindow());
 	glfwPollEvents();
