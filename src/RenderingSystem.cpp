@@ -32,11 +32,8 @@ RenderingSystem::RenderingSystem(const int width, const int height, const std::s
 	glViewport(0, 0, windowWidth, windowHeight);
 	
 	// Initialize Shader
-	ourShader = new Shader(vertexPath.c_str(), fragPath.c_str());
-	if (ourShader == NULL)
-	{
-		throw std::exception("Failed to create shader"); //FUTURE -> create custom exception here
-	}
+	Shader shader(vertexPath.c_str(), fragPath.c_str());
+	ourShader = shader;
 
 	float vertices[] = {
 		// positions         // colors
@@ -70,10 +67,6 @@ RenderingSystem::RenderingSystem(const int width, const int height, const std::s
 
 RenderingSystem::~RenderingSystem()
 {
-	if (ourShader)
-	{
-		delete ourShader;
-	}
 }
 
 unsigned int RenderingSystem::getVAO()
@@ -121,7 +114,8 @@ void RenderingSystem::updateRenderer()
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	
-	ourShader->use();
+//	ourShader->use();
+	ourShader.use();
 	glBindVertexArray(getVAO());
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
