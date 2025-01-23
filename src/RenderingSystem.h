@@ -20,7 +20,7 @@ class RenderingSystem
 	public:
 		RenderingSystem(const int width, const int height, const std::string vertexPath, const std::string fragPath);
 		virtual ~RenderingSystem();
-		Shader *ourShader;
+		Shader ourShader;
 	
 		unsigned int getVAO();
 		void setVAO(const unsigned int value);
