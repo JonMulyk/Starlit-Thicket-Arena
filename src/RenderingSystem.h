@@ -2,8 +2,11 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include "boilerplate/Shader.h"
+#include "boilerplate/Texture.h"
 #include "Text.h"
+
 #include <string>
 #include <map>
 

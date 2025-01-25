@@ -148,6 +148,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\boilerplate\Shader.cpp" />
+    <ClCompile Include="src\boilerplate\stb_image.cpp" />
+    <ClCompile Include="src\boilerplate\Texture.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PhysicsSystem.cpp" />
@@ -156,6 +158,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\boilerplate\Shader.h" />
+    <ClInclude Include="src\boilerplate\stb_image.h" />
+    <ClInclude Include="src\boilerplate\Texture.h" />
     <ClInclude Include="src\Entity.h" />
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\PhysicsSystem.h" />
