@@ -28,4 +28,8 @@ public:
     void setMat4(const std::string& name, glm::mat4 value) const;
 
     void checkCompileErrors(unsigned int shader, std::string type);
+
 };
+
+unsigned int initVAO(float* vertices, int size);
+void initTextVAO(unsigned int* VAO, unsigned int* VBO);

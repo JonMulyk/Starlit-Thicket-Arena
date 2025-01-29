@@ -7,6 +7,7 @@
 #include "PhysicsSystem.h"
 #include "Entity.h"
 #include "RenderingSystem.h"
+#include "Text.h"
 
 
 void processInput(GLFWwindow* window)
@@ -38,6 +39,7 @@ int main()
 	//Shader shader();
 
 	PhysicsSystem* physicsSystem = new PhysicsSystem();
+
 	
 	// Simple box example
 	std::vector<Entity> entityList;
