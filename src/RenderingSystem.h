@@ -7,6 +7,7 @@
 #include "boilerplate/Texture.h"
 #include "boilerplate/Camera.h"
 #include "Text.h"
+#include "Entity.h"
 
 #include <string>
 #include <map>
@@ -57,7 +58,7 @@ class RenderingSystem
 	public:
 		RenderingSystem(const int width, const int height, const std::string vertexPath, const std::string fragPath);
 		virtual ~RenderingSystem();
-		Shader ourShader;
+		Shader shader;
 		Shader textShader;
 
 		unsigned int texture1;
@@ -73,6 +74,7 @@ class RenderingSystem
 
 
 		void processInput();
+		void updateRenderer(std::vector<Entity> entityList);
 
 		// Callbacks
 		static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);

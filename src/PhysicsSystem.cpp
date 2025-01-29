@@ -67,7 +67,7 @@ PhysicsSystem::PhysicsSystem()
 		}
 	}
 	
-	updateTransforms();
+	//updateTransforms();
 
 	// Clean up
 	shape->release();
@@ -79,8 +79,21 @@ physx::PxVec3 PhysicsSystem::getPos(int i)
 	return position;
 }
 
-void PhysicsSystem::updateTransforms()
+void PhysicsSystem::updateTransforms(std::vector<Entity> entityList)
 {
+	for (int i = 0; i < entityList.size(); i++)
+	{
+		entityList.at(i).transform->pos.x = rigidDynamicList[i]->getGlobalPose().p.x;
+		entityList.at(i).transform->pos.y = rigidDynamicList[i]->getGlobalPose().p.y;
+		entityList.at(i).transform->pos.z = rigidDynamicList[i]->getGlobalPose().p.z;
+
+		entityList.at(i).transform->rot.x = rigidDynamicList[i]->getGlobalPose().q.x;
+		entityList.at(i).transform->rot.y = rigidDynamicList[i]->getGlobalPose().q.y;
+		entityList.at(i).transform->rot.z = rigidDynamicList[i]->getGlobalPose().q.z;
+		entityList.at(i).transform->rot.w = rigidDynamicList[i]->getGlobalPose().q.w;
+	}
+
+	/*
 	for (int i = 0; i < transformList.size(); i++)
 	{
 		// store positions
@@ -94,11 +107,12 @@ void PhysicsSystem::updateTransforms()
 		transformList[i]->rot.z = rigidDynamicList[i]->getGlobalPose().q.z;
 		transformList[i]->rot.w = rigidDynamicList[i]->getGlobalPose().q.w;
 	}
+	*/
 }
 
-void PhysicsSystem::updatePhysics(double dt) {
+void PhysicsSystem::updatePhysics(double dt, std::vector<Entity> entityList) {
 	gScene->simulate(dt);
 	gScene->fetchResults(true);
 
-	updateTransforms();
+	updateTransforms(entityList);
 }

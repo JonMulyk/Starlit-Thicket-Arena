@@ -103,8 +103,8 @@ void RenderingSystem::initializeGLFW()
 void RenderingSystem::initializeShaders(const std::string& vertexPath, const std::string& fragPath)
 {
 	// Initialize Shader
-	Shader shader(vertexPath.c_str(), fragPath.c_str());
-	ourShader = shader;
+	Shader tempShader(vertexPath.c_str(), fragPath.c_str());
+	shader = tempShader;
 }
 
 void RenderingSystem::initializeTextRenderer()
@@ -124,13 +124,50 @@ void RenderingSystem::initializeRenderData()
 {
 	/*
 	float vertices[] = {
-		// positions          // colors           // texture coords
-		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 	*/
+
 
 	/*
 	float vertices[] = {
@@ -182,10 +219,10 @@ void RenderingSystem::initializeRenderData()
 	texture2 = generateTexture("./assets/textures/wall.jpg", true);
 	
 	// Render Triangle
-	ourShader.use();
+	shader.use();
 	
-	ourShader.setInt("texture1", 0);
-	ourShader.setInt("texture2", 1);
+	shader.setInt("texture1", 0);
+	shader.setInt("texture2", 1);
 
 	
 	this->VAO = initTextureVAO(vertices, sizeof(vertices));
@@ -285,6 +322,7 @@ void RenderingSystem::scroll_callback(GLFWwindow* window, double xoffset, double
 	// Retrieve the instance of RenderingSystem from the window user pointer
 	RenderingSystem* renderingSystem = static_cast<RenderingSystem*>(glfwGetWindowUserPointer(window));
 
+void RenderingSystem::updateRenderer(std::vector<Entity> entityList)
 	if (renderingSystem) {
 		renderingSystem->camera.ProcessMouseScroll(static_cast<float>(yoffset));
 	}
@@ -389,18 +427,52 @@ void RenderingSystem::updateRenderer()
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	
-	ourShader.use();
-	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture1);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texture2);
 
-	glBindVertexArray(this->VAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	shader.use();
 
-	//glBindVertexArray(getVAO());
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	glEnable(GL_DEPTH_TEST);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glBindVertexArray(this->VAO);
+
+	//projection matrix
+	/*
+	glm::mat4 projection = glm::perspective(
+		glm::radians(camera.zoom),
+		(static_cast<float>(this->windowWidth) /  static_cast<float>(this->windowHeight)), 
+		0.1f, 
+		100.0f
+	);
+	shader.setMat4("projection", projection);
+	*/
+
+	// camera / view transformation
+	//glm::mat4 view = camera.GetViewMatrix
+	//shader.setMat4("view", view);
+
+	// Render Physics
+	for (int i = 0; i < entityList.size(); i++)
+	{
+		glm::vec3 pos = entityList.at(i).transform->pos;
+		glm::quat rot = entityList.at(i).transform->rot;
+
+		glm::mat4 model = glm::mat4(1.0f);				// initial matrix
+		model = glm::translate(model, pos);				// translate
+		model = model * glm::mat4_cast(rot);			// rotate
+		model = glm::scale(model, glm::vec3(1.0f));		// scale
+		shader.setMat4("model", model);					// pass to shader
+
+		// GL calls
+		glDrawArrays(GL_TRIANGLES, 0, 36);				// Draw for each 
+		glActiveTexture(GL_TEXTURE0);					// texture 1
+		glBindTexture(GL_TEXTURE_2D, texture1);			
+		glActiveTexture(GL_TEXTURE1);					// texture 2
+		glBindTexture(GL_TEXTURE_2D, texture2);			
+		glBindVertexArray(this->VAO);					// VAO for each
+	}
 
 	// Render Text
 	textShader.use();
@@ -409,7 +481,7 @@ void RenderingSystem::updateRenderer()
 	RenderText(textShader, textVAO, textVBO, "hello!", 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f), charactersArial);
 
 
-	glfwSwapBuffers(getWindow());
 	glfwPollEvents();
+	glfwSwapBuffers(getWindow());
 }
 */
