@@ -33,3 +33,5 @@ public:
 
 unsigned int initVAO(float* vertices, int size);
 void initTextVAO(unsigned int* VAO, unsigned int* VBO);
+unsigned int initTextureVAO(float* vertices, int size);
+

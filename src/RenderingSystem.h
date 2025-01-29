@@ -2,8 +2,11 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include "boilerplate/Shader.h"
+#include "boilerplate/Texture.h"
 #include "Text.h"
+
 #include <string>
 #include <map>
 
@@ -33,7 +36,10 @@ class RenderingSystem
 		virtual ~RenderingSystem();
 		Shader ourShader;
 		Shader textShader;
-	
+
+		unsigned int texture1;
+		unsigned int texture2;
+
 		unsigned int getVAO();
 		void setVAO(const unsigned int value);
 		unsigned int getVBO();
