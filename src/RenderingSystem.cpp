@@ -76,29 +76,20 @@ void RenderingSystem::initializeRenderData()
 		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
 		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
 	};
+
+	// Texture loading
+	texture1 = generateTexture("./assets/textures/container.jpg", true);
+	texture2 = generateTexture("./assets/textures/wall.jpg", true);
 	
+	// Render Triangle
+	ourShader.use();
+	
+	ourShader.setInt("texture1", 0);
+	ourShader.setInt("texture2", 1);
 
+	
 	this->VAO = initTextureVAO(vertices, sizeof(vertices));
-	/*
-	glGenVertexArrays(1, &this->VAO);
-	glGenBuffers(1, &this->VBO);
 
-	glBindVertexArray(this->VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-	*/
-
-	//unsigned int testTriangleVAO = initVAO(vertices, sizeof(vertices));
 
 }
 
@@ -147,10 +138,13 @@ void RenderingSystem::updateRenderer()
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	
-	// Render Triangle
 	ourShader.use();
 	
-	glBindTexture(GL_TEXTURE_2D, generateTexture("./assets/textures/container.jpg", true));
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+
 	glBindVertexArray(this->VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

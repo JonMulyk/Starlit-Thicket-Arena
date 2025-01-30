@@ -36,7 +36,10 @@ class RenderingSystem
 		virtual ~RenderingSystem();
 		Shader ourShader;
 		Shader textShader;
-	
+
+		unsigned int texture1;
+		unsigned int texture2;
+
 		unsigned int getVAO();
 		void setVAO(const unsigned int value);
 		unsigned int getVBO();
