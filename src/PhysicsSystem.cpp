@@ -92,22 +92,6 @@ void PhysicsSystem::updateTransforms(std::vector<Entity> entityList)
 		entityList.at(i).transform->rot.z = rigidDynamicList[i]->getGlobalPose().q.z;
 		entityList.at(i).transform->rot.w = rigidDynamicList[i]->getGlobalPose().q.w;
 	}
-
-	/*
-	for (int i = 0; i < transformList.size(); i++)
-	{
-		// store positions
-		transformList[i]->pos.x = rigidDynamicList[i]->getGlobalPose().p.x;
-		transformList[i]->pos.y = rigidDynamicList[i]->getGlobalPose().p.y;
-		transformList[i]->pos.z = rigidDynamicList[i]->getGlobalPose().p.z;
-
-		// store rotations
-		transformList[i]->rot.x = rigidDynamicList[i]->getGlobalPose().q.x;
-		transformList[i]->rot.y = rigidDynamicList[i]->getGlobalPose().q.y;
-		transformList[i]->rot.z = rigidDynamicList[i]->getGlobalPose().q.z;
-		transformList[i]->rot.w = rigidDynamicList[i]->getGlobalPose().q.w;
-	}
-	*/
 }
 
 void PhysicsSystem::updatePhysics(double dt, std::vector<Entity> entityList) {

@@ -69,10 +69,6 @@ int main()
 			t += dt;
 		}
 
-		//physx::PxVec3 objPos = physicsSystem->getPos(50);
-		//std::cout << "x: " << objPos.x << " y: " << objPos.y << " z: " << objPos.z << std::endl;
-		//std::cout << entityList[50].transform->pos.y << std::endl;
-
 		renderer->updateRenderer(entityList);
 	}
 

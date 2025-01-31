@@ -65,6 +65,9 @@ RenderingSystem::RenderingSystem(const int width, const int height, const std::s
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 }
@@ -122,7 +125,6 @@ void RenderingSystem::initializeTextRenderer()
 
 void RenderingSystem::initializeRenderData()
 {
-	/*
 	float vertices[] = {
 	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -166,53 +168,8 @@ void RenderingSystem::initializeRenderData()
 	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
-	*/
 
 
-	/*
-	float vertices[] = {
-		-0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 0.0f,
-
-		-0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 0.0f,
-
-		 0.5f,  0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	 0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 1.0f
-	};
 
 	// Texture loading
 	texture1 = generateTexture("./assets/textures/container.jpg", true);
@@ -220,20 +177,20 @@ void RenderingSystem::initializeRenderData()
 	
 	// Render Triangle
 	shader.use();
-	
+
 	shader.setInt("texture1", 0);
 	shader.setInt("texture2", 1);
-
-	
 	this->VAO = initTextureVAO(vertices, sizeof(vertices));
-	*/
+
+	/*
 	std::vector<float> vertices, normals, texcoords;
 	if (!loadOBJ("./assets/models/GTree.obj", vertices, normals, texcoords))
 	{
 		throw std::runtime_error("Failed to load OBJ file.");
 	}
+	*/
 
-
+	/*
 	for (size_t i = 0; i < vertices.size(); i += 3) {
 		vertices[i + 1] -= 1.0f;
 	}
@@ -262,6 +219,7 @@ void RenderingSystem::initializeRenderData()
 
 	this->setVAO(vao);
 	this->setVBO(vbo);
+	*/
 
 }
 
@@ -292,7 +250,7 @@ GLFWwindow* RenderingSystem::getWindow() const
 
 void RenderingSystem::setWindow(const int width, const int height)
 {
-	this->window = glfwCreateWindow(800, 600, "Starlit Thicket Arena", NULL, NULL);
+	this->window = glfwCreateWindow(width, height, "Starlit Thicket Arena", NULL, NULL);
 }
 
 void RenderingSystem::processInput()
@@ -322,7 +280,6 @@ void RenderingSystem::scroll_callback(GLFWwindow* window, double xoffset, double
 	// Retrieve the instance of RenderingSystem from the window user pointer
 	RenderingSystem* renderingSystem = static_cast<RenderingSystem*>(glfwGetWindowUserPointer(window));
 
-void RenderingSystem::updateRenderer(std::vector<Entity> entityList)
 	if (renderingSystem) {
 		renderingSystem->camera.ProcessMouseScroll(static_cast<float>(yoffset));
 	}
@@ -364,63 +321,7 @@ void RenderingSystem::framebuffer_size_callback(GLFWwindow* window, int width, i
 }
 
 
-void RenderingSystem::updateRenderer()
-{
-	processInput();
-
-	// color for window
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-
-	ourShader.use();
-
-
-	glEnable(GL_DEPTH_TEST);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glBindVertexArray(VAO);
-
-
-	// pass projection matrix to shader (note that in this case it could change every frame)
-	glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)800 / (float)600, 0.1f, 100.0f);
-	ourShader.setMat4("projection", projection);
-
-	// camera/view transformation
-	glm::mat4 view = camera.GetViewMatrix();
-	ourShader.setMat4("view", view);
-
-	// Render 10 cubes
-	for (unsigned int i = 0; i < 10; i++)
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, cubePositions[i]);
-		float angle = 20.0f * i;
-		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-		ourShader.setMat4("model", model);
-
-		glDrawArrays(GL_TRIANGLES, 0, 50000);
-	}
-
-	// Render our text
-	textShader.use();
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	RenderText(textShader, textVAO, textVBO, "hello!", 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f), charactersArial);
-
-
-
-	// check and call events and swap the buffers
-	glfwPollEvents();
-	glfwSwapBuffers(window);
-}
-
-
-/*
-void RenderingSystem::updateRenderer()
+void RenderingSystem::updateRenderer(std::vector<Entity> entityList)
 {
 	processInput();
 
@@ -437,21 +338,18 @@ void RenderingSystem::updateRenderer()
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glBindVertexArray(this->VAO);
-
-	//projection matrix
-	/*
+	
 	glm::mat4 projection = glm::perspective(
-		glm::radians(camera.zoom),
+		glm::radians(this->camera.Zoom),
 		(static_cast<float>(this->windowWidth) /  static_cast<float>(this->windowHeight)), 
 		0.1f, 
 		100.0f
 	);
 	shader.setMat4("projection", projection);
-	*/
 
 	// camera / view transformation
-	//glm::mat4 view = camera.GetViewMatrix
-	//shader.setMat4("view", view);
+	glm::mat4 view = this->camera.GetViewMatrix();
+	shader.setMat4("view", view);
 
 	// Render Physics
 	for (int i = 0; i < entityList.size(); i++)
@@ -484,4 +382,3 @@ void RenderingSystem::updateRenderer()
 	glfwPollEvents();
 	glfwSwapBuffers(getWindow());
 }
-*/

@@ -141,6 +141,7 @@ void initTextVAO(unsigned int* VAO, unsigned int* VBO) {
     glBindVertexArray(0);
 }
 
+
 unsigned int initTextureVAO(float* vertices, int size) 
 {
     unsigned int VAO, VBO, EBO;
