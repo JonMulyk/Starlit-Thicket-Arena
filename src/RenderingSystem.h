@@ -10,10 +10,12 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 class RenderingSystem
 {
 	private:
+		std::vector<float> vertices;
 		int windowWidth;
 		int windowHeight;
 

@@ -1,9 +1,55 @@
+#define TINYOBJLOADER_IMPLEMENTATION
 #include "RenderingSystem.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
+#include "tiny_obj_loader.h"
 
+bool loadOBJ(const std::string& path, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& texcoords)
+{
+	tinyobj::attrib_t attrib;
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> materials;
+	std::string warn, err;
+
+	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str()))
+	{
+		std::cerr << "Failed to load OBJ: " << warn + err << std::endl;
+		return false;
+	}
+
+	for (const auto& shape : shapes)
+	{
+		for (const auto& index : shape.mesh.indices)
+		{
+			// Ensure vertex index is within bounds
+			if (index.vertex_index >= 0 && index.vertex_index < attrib.vertices.size() / 3)
+			{
+				vertices.push_back(attrib.vertices[3 * index.vertex_index + 0]);
+				vertices.push_back(attrib.vertices[3 * index.vertex_index + 1]);
+				vertices.push_back(attrib.vertices[3 * index.vertex_index + 2]);
+			}
+
+			// Check and add normals if present
+			if (index.normal_index >= 0 && index.normal_index < attrib.normals.size() / 3)
+			{
+				normals.push_back(attrib.normals[3 * index.normal_index + 0]);
+				normals.push_back(attrib.normals[3 * index.normal_index + 1]);
+				normals.push_back(attrib.normals[3 * index.normal_index + 2]);
+			}
+
+			// Check and add texture coordinates if present
+			if (index.texcoord_index >= 0 && index.texcoord_index < attrib.texcoords.size() / 2)
+			{
+				texcoords.push_back(attrib.texcoords[2 * index.texcoord_index + 0]);
+				texcoords.push_back(attrib.texcoords[2 * index.texcoord_index + 1]);
+			}
+		}
+	}
+
+	return true;
+}
 
 
 RenderingSystem::RenderingSystem(const int width, const int height, const std::string vertexPath, const std::string fragPath)
@@ -86,6 +132,7 @@ void RenderingSystem::initializeRenderData()
 	};
 	*/
 
+	/*
 	float vertices[] = {
 		-0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	0.0f, 0.0f,
 		 0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f,	1.0f, 0.0f,
@@ -142,7 +189,42 @@ void RenderingSystem::initializeRenderData()
 
 	
 	this->VAO = initTextureVAO(vertices, sizeof(vertices));
+	*/
+	std::vector<float> vertices, normals, texcoords;
+	if (!loadOBJ("./assets/models/GTree.obj", vertices, normals, texcoords))
+	{
+		throw std::runtime_error("Failed to load OBJ file.");
+	}
 
+
+	for (size_t i = 0; i < vertices.size(); i += 3) {
+		vertices[i + 1] -= 1.0f;
+	}
+
+	float scale = 0.5f;
+	for (size_t i = 0; i < vertices.size(); i += 3) {
+		vertices[i] *= scale;     // x
+		vertices[i + 1] *= scale; // y
+		vertices[i + 2] *= scale; // z
+	}
+
+	unsigned int vao, vbo;
+	glGenVertexArrays(1, &vao);
+	glGenBuffers(1, &vbo);
+
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	this->setVAO(vao);
+	this->setVBO(vbo);
 
 }
 
@@ -282,7 +364,7 @@ void RenderingSystem::updateRenderer()
 		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 		ourShader.setMat4("model", model);
 
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, 50000);
 	}
 
 	// Render our text
