@@ -125,6 +125,7 @@ void RenderingSystem::initializeTextRenderer()
 
 void RenderingSystem::initializeRenderData()
 {
+	// vertices for a cube
 	float vertices[] = {
 	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -169,18 +170,19 @@ void RenderingSystem::initializeRenderData()
 	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
-
-
 	// Texture loading
 	texture1 = generateTexture("./assets/textures/container.jpg", true);
 	texture2 = generateTexture("./assets/textures/wall.jpg", true);
-	
+		
 	// Render Triangle
 	shader.use();
 
 	shader.setInt("texture1", 0);
 	shader.setInt("texture2", 1);
+
 	this->VAO = initTextureVAO(vertices, sizeof(vertices));
+
+
 
 	/*
 	std::vector<float> vertices, normals, texcoords;
