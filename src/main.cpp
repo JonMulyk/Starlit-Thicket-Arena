@@ -34,7 +34,7 @@ int main()
 	double accumulator = 0.0;
 	
 	// System Init
-	RenderingSystem* renderer = new RenderingSystem(800, 600, "./assets/shaders/VertShader.vert", "./assets/shaders/FragShader.frag");
+	RenderingSystem* renderer = new RenderingSystem(800, 600, "./assets/shaders/CameraShader.vert", "./assets/shaders/FragShader.frag");
 	glfwSetFramebufferSizeCallback(renderer->getWindow(), framebuffer_size_callback);
 	//Shader shader();
 
@@ -45,7 +45,7 @@ int main()
 	std::vector<Entity> entityList;
 	unsigned int reserveNum = 465;
 	entityList.reserve(reserveNum);
-	for (int i = 0; i < reserveNum; i++)
+	for (unsigned int i = 0; i < reserveNum; i++)
 	{
 		entityList.emplace_back();
 		entityList.back().name = "box";
