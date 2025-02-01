@@ -1,7 +1,12 @@
-#include <iostream>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
-#include "PxPhysicsAPI.h"
+#include <iostream>
 #include "TimeSeconds.h"
+#include "InitManager.h"
+#include "Windowing.h"
+#include "Input.h"
+#include "Shader.h"
 
 /*
 m for members
@@ -13,15 +18,20 @@ i for indexesand iterators
 e for events
 */
 
-
 int main() {
-	glfwInit();
+	InitManager::initGLFW();
+
+	Windowing window(1000, 800);
+	Input input(window);
+	Shader shader("./project/assets/shaders/CameraShader.vert", "./project/assets/shaders/FragShader.frag");
+
 	TimeSeconds timer;
 
 	// Main loop
-	while (true) {
+	while (!window.shouldClose()) {
+		input.poll();
+
 		timer.tick();
-		std::cout << double(timer.getAccumultor()) << std::endl;
 
 		// Use fixed time steps for updates
 		while (timer.getAccumultor() >= timer.timeStep) {
@@ -35,9 +45,8 @@ int main() {
 	return 0;
 }
 
-
-
 /*
+#include "PxPhysicsAPI.h"
 int main()
 {
 	//PhysX management class instances.

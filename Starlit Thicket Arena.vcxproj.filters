@@ -27,6 +27,21 @@
     <ClCompile Include="project\src\TimeSeconds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="project\src\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="project\src\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="project\src\Windowing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="project\src\Input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="project\src\InitManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="project\assets\shaders\FragShader.frag" />
@@ -36,16 +51,19 @@
     <None Include="project\assets\shaders\CameraShader.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="project\include\Entity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="project\include\Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="project\include\Windowing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\TimeSeconds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\InitManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

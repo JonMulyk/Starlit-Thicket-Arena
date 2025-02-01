@@ -159,12 +159,18 @@
     <None Include="project\assets\shaders\VertShader.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="project\src\glad.c" />
+    <ClCompile Include="project\src\InitManager.cpp" />
+    <ClCompile Include="project\src\Input.cpp" />
     <ClCompile Include="project\src\main.cpp" />
+    <ClCompile Include="project\src\Shader.cpp" />
     <ClCompile Include="project\src\TimeSeconds.cpp" />
+    <ClCompile Include="project\src\Windowing.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="project\include\Entity.h" />
-    <ClInclude Include="project\include\Model.h" />
+    <ClInclude Include="project\include\InitManager.h" />
+    <ClInclude Include="project\include\Input.h" />
+    <ClInclude Include="project\include\Shader.h" />
     <ClInclude Include="project\include\TimeSeconds.h" />
     <ClInclude Include="project\include\Windowing.h" />
   </ItemGroup>
