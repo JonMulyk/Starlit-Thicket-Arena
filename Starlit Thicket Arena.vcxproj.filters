@@ -21,74 +21,32 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="project\src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\PhysicsSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RenderingSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boilerplate\Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Text.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boilerplate\stb_image.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boilerplate\Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boilerplate\Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\boilerplate\Camera.cpp">
+    <ClCompile Include="project\src\TimeSeconds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\PhysicsSystem.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Model.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Transform.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Entity.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RenderingSystem.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\boilerplate\Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Text.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\boilerplate\stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\boilerplate\Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\boilerplate\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <None Include="project\assets\shaders\FragShader.frag" />
+    <None Include="project\assets\shaders\VertShader.vert" />
+    <None Include="project\assets\shaders\textShader.vert" />
+    <None Include="project\assets\shaders\textShader.frag" />
+    <None Include="project\assets\shaders\CameraShader.vert" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="assets\shaders\FragShader.frag" />
-    <None Include="assets\shaders\VertShader.vert" />
-    <None Include="assets\shaders\textShader.vert" />
-    <None Include="assets\shaders\textShader.frag" />
-    <None Include="assets\shaders\CameraShader.vert" />
+    <ClInclude Include="project\include\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\Windowing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\TimeSeconds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -78,9 +78,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -116,14 +119,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)physx\include;$(SolutionDir)libraries\glfw-3.4.bin.WIN64\include;$(SolutionDir)libraries\glm;$(SolutionDir)libraries\freetype-2.13.3\include;$(SolutionDir)libraries;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib\physx\include;$(SolutionDir)lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)lib\glm;$(SolutionDir)lib\freetype-2.13.3\include;$(SolutionDir)lib;$(SolutionDir)project\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)physx\debug;$(SolutionDir)libraries\glfw-3.4.bin.WIN64\lib-vc2019;$(SolutionDir)libraries\freetype-2.13.3\objs\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\physx\debug;$(SolutionDir)lib\glfw-3.4.bin.WIN64\lib-vc2019;$(SolutionDir)lib\freetype-2.13.3\objs\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>freetype.lib;glfw3_mt.lib;glfw3dll.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;PhysXVehicle2_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;SnippetRender_static_64.lib;SnippetUtils_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(SolutionDir)build\$(Platform)\$(Configuration)\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,7 +138,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)physx\include;$(SolutionDir)libraries\glfw-3.4.bin.WIN64\include;$(SolutionDir)libraries\glm;$(SolutionDir)libraries\freetype-2.13.3\include;$(SolutionDir)libraries;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lib\physx\include;$(SolutionDir)lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)lib\glm;$(SolutionDir)lib\freetype-2.13.3\include;$(SolutionDir)lib;$(SolutionDir)project\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -142,38 +146,27 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)physx\release;$(SolutionDir)libraries\glfw-3.4.bin.WIN64\lib-vc2019;$(SolutionDir)libraries\freetype-2.13.3\objs\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\physx\release;$(SolutionDir)lib\glfw-3.4.bin.WIN64\lib-vc2019;$(SolutionDir)lib\freetype-2.13.3\objs\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>freetype.lib;glfw3_mt.lib;glfw3dll.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;PhysXVehicle2_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(SolutionDir)build\$(Platform)\$(Configuration)\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\boilerplate\Shader.cpp" />
-    <ClCompile Include="src\boilerplate\stb_image.cpp" />
-    <ClCompile Include="src\boilerplate\Texture.cpp" />
-    <ClCompile Include="src\glad.c" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\PhysicsSystem.cpp" />
-    <ClCompile Include="src\RenderingSystem.cpp" />
-    <ClCompile Include="src\Text.cpp" />
+    <None Include="project\assets\shaders\CameraShader.vert" />
+    <None Include="project\assets\shaders\FragShader.frag" />
+    <None Include="project\assets\shaders\textShader.frag" />
+    <None Include="project\assets\shaders\textShader.vert" />
+    <None Include="project\assets\shaders\VertShader.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\boilerplate\Camera.h" />
-    <ClInclude Include="src\boilerplate\Shader.h" />
-    <ClInclude Include="src\boilerplate\stb_image.h" />
-    <ClInclude Include="src\boilerplate\Texture.h" />
-    <ClInclude Include="src\Entity.h" />
-    <ClInclude Include="src\Model.h" />
-    <ClInclude Include="src\PhysicsSystem.h" />
-    <ClInclude Include="src\RenderingSystem.h" />
-    <ClInclude Include="src\Text.h" />
-    <ClInclude Include="src\Transform.h" />
+    <ClCompile Include="project\src\main.cpp" />
+    <ClCompile Include="project\src\TimeSeconds.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="assets\shaders\CameraShader.vert" />
-    <None Include="assets\shaders\FragShader.frag" />
-    <None Include="assets\shaders\textShader.frag" />
-    <None Include="assets\shaders\textShader.vert" />
-    <None Include="assets\shaders\VertShader.vert" />
+    <ClInclude Include="project\include\Entity.h" />
+    <ClInclude Include="project\include\Model.h" />
+    <ClInclude Include="project\include\TimeSeconds.h" />
+    <ClInclude Include="project\include\Windowing.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
