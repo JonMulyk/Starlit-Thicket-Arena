@@ -166,6 +166,7 @@
     <ClCompile Include="project\src\Shader.cpp" />
     <ClCompile Include="project\src\TimeSeconds.cpp" />
     <ClCompile Include="project\src\Windowing.cpp" />
+    <ClCompile Include="project\src\TTF.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="project\include\InitManager.h" />
@@ -173,6 +174,7 @@
     <ClInclude Include="project\include\Shader.h" />
     <ClInclude Include="project\include\TimeSeconds.h" />
     <ClInclude Include="project\include\Windowing.h" />
+    <ClInclude Include="project\include\TTF.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

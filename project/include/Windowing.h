@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <string>
+#include <glm.hpp>
 #include <exception> // for std::exception
 
 class Windowing {
@@ -14,6 +15,11 @@ public:
     // Constructor and destructor
     Windowing(int width, int height, std::string name = "Starlit Thicket Arena");
     ~Windowing();
+
+    // Clear the window
+    void clear(glm::vec4 c = glm::vec4(1, 1, 1, 1));
+
+    void swapBuffer();
 
     // Returns whether the window should close.
     bool shouldClose();

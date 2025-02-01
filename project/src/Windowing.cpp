@@ -36,9 +36,17 @@ bool Windowing::shouldClose() {
     return glfwWindowShouldClose(m_window);
 }
 
-Windowing::operator GLFWwindow* () const {
-    return m_window;
+void Windowing::swapBuffer() {
+    glfwSwapBuffers(m_window);
 }
+
+void Windowing::clear(glm::vec4 c) {
+    // color for window
+    glClearColor(c.r, c.g, c.b, c.a);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+Windowing::operator GLFWwindow* () const { return m_window; }
 
 void Windowing::frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
     Windowing* p_window = static_cast<Windowing*>(glfwGetWindowUserPointer(window));
@@ -46,5 +54,6 @@ void Windowing::frameBufferSizeCallback(GLFWwindow* window, int width, int heigh
         p_window->m_width = width;
         p_window->m_height = height;
     }
+
     glViewport(0, 0, width, height);
 }

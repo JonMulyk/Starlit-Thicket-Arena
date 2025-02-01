@@ -10,17 +10,16 @@
 #include <iostream>
 
 
-class Shader
-{
+class Shader {
+private:
+    GLint ID;
 public:
-    // the program ID
-    unsigned int ID;
-
-    Shader() : ID(0) {} // Default constructor 
     // constructor reads and builds the shader
     Shader(const char* vertexPath, const char* fragmentPath);
+
     // use/activate the shader
     void use();
+
     // utility uniform functions
     void setBool(const std::string& name, bool value) const;
     void setInt(const std::string& name, int value) const;
@@ -29,9 +28,6 @@ public:
 
     void checkCompileErrors(unsigned int shader, std::string type);
 
+    operator GLint() const;
 };
-
-unsigned int initVAO(float* vertices, int size);
-void initTextVAO(unsigned int* VAO, unsigned int* VBO);
-unsigned int initTextureVAO(float* vertices, int size);
 

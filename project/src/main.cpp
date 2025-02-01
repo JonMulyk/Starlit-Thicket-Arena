@@ -7,6 +7,7 @@
 #include "Windowing.h"
 #include "Input.h"
 #include "Shader.h"
+#include "TTF.h"
 
 /*
 m for members
@@ -24,12 +25,16 @@ int main() {
 	Windowing window(1000, 800);
 	Input input(window);
 	Shader shader("./project/assets/shaders/CameraShader.vert", "./project/assets/shaders/FragShader.frag");
+	TTF arial("./project/assets/shaders/textShader.vert", "./project/assets/shaders/textShader.frag", "./project/assets/fonts/Arial.ttf");
 
 	TimeSeconds timer;
 
 	// Main loop
 	while (!window.shouldClose()) {
+		window.clear();
 		input.poll();
+
+		arial.render("hello!", 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
 
 		timer.tick();
 
@@ -40,6 +45,7 @@ int main() {
 		}
 
 		// render here using timer.getFrameTime() if needed
+		glfwSwapBuffers(window);
 	}
 
 	return 0;
