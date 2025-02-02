@@ -34,9 +34,8 @@ int main()
 	double accumulator = 0.0;
 	
 	// System Init
-	RenderingSystem* renderer = new RenderingSystem(800, 600, "./assets/shaders/VertShader.vert", "./assets/shaders/FragShader.frag");
+	RenderingSystem* renderer = new RenderingSystem(800, 600, "./assets/shaders/CameraShader.vert", "./assets/shaders/FragShader.frag");
 	glfwSetFramebufferSizeCallback(renderer->getWindow(), framebuffer_size_callback);
-	//Shader shader();
 
 	PhysicsSystem* physicsSystem = new PhysicsSystem();
 
@@ -45,7 +44,7 @@ int main()
 	std::vector<Entity> entityList;
 	unsigned int reserveNum = 465;
 	entityList.reserve(reserveNum);
-	for (int i = 0; i < reserveNum; i++)
+	for (unsigned int i = 0; i < reserveNum; i++)
 	{
 		entityList.emplace_back();
 		entityList.back().name = "box";
@@ -65,16 +64,12 @@ int main()
 		// Physics System Loop
 		while (accumulator >= dt)
 		{
-			physicsSystem->updatePhysics(dt);
+			physicsSystem->updatePhysics(dt, entityList);
 			accumulator -= dt;
 			t += dt;
 		}
 
-		physx::PxVec3 objPos = physicsSystem->getPos(50);
-		std::cout << "x: " << objPos.x << " y: " << objPos.y << " z: " << objPos.z << std::endl;
-		std::cout << entityList[50].transform->pos.y << std::endl;
-
-		renderer->updateRenderer();
+		renderer->updateRenderer(entityList);
 	}
 
 

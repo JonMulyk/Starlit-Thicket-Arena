@@ -157,6 +157,7 @@
     <ClCompile Include="src\Text.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\boilerplate\Camera.h" />
     <ClInclude Include="src\boilerplate\Shader.h" />
     <ClInclude Include="src\boilerplate\stb_image.h" />
     <ClInclude Include="src\boilerplate\Texture.h" />
@@ -168,6 +169,7 @@
     <ClInclude Include="src\Transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\shaders\CameraShader.vert" />
     <None Include="assets\shaders\FragShader.frag" />
     <None Include="assets\shaders\textShader.frag" />
     <None Include="assets\shaders\textShader.vert" />

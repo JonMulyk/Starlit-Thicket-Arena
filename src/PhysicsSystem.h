@@ -2,6 +2,7 @@
 
 #include "PxPhysicsAPI.h"
 #include "Transform.h"
+#include "Entity.h"
 #include <vector>
 #include <iostream>
 
@@ -24,6 +25,6 @@ class PhysicsSystem
 		PhysicsSystem();
 
 		physx::PxVec3 getPos(int i);
-		void updateTransforms();
-		void updatePhysics(double dt);
+		void updateTransforms(std::vector<Entity> entityList);
+		void updatePhysics(double dt, std::vector<Entity> entityList);
 };

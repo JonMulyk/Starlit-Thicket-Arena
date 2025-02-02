@@ -45,6 +45,12 @@
     <ClCompile Include="src\boilerplate\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\boilerplate\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\boilerplate\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\PhysicsSystem.h">
@@ -74,11 +80,15 @@
     <ClInclude Include="src\boilerplate\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\boilerplate\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\FragShader.frag" />
     <None Include="assets\shaders\VertShader.vert" />
     <None Include="assets\shaders\textShader.vert" />
     <None Include="assets\shaders\textShader.frag" />
+    <None Include="assets\shaders\CameraShader.vert" />
   </ItemGroup>
 </Project>
