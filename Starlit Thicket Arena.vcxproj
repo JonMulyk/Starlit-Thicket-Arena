@@ -163,7 +163,6 @@
     <ClCompile Include="project\src\InitManager.cpp" />
     <ClCompile Include="project\src\Input.cpp" />
     <ClCompile Include="project\src\main.cpp" />
-    <ClCompile Include="project\src\Render.cpp" />
     <ClCompile Include="project\src\Shader.cpp" />
     <ClCompile Include="project\src\Texture.cpp" />
     <ClCompile Include="project\src\TimeSeconds.cpp" />
