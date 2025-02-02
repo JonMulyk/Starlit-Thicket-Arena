@@ -18,6 +18,10 @@ void TimeSeconds::advance() {
     m_elapsedTime += timeStep;
 }
 
+double TimeSeconds::getFPS() const {
+    return 1.0 / m_frameTime;
+}
+
 double TimeSeconds::getCurrentTime() const {
     return m_currentTime;
 }

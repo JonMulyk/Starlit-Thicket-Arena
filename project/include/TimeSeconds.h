@@ -21,6 +21,9 @@ public:
     // Call repeatedly until the accumulator is less than the time step.
     void advance();
 
+    // helpers
+    double getFPS() const;
+
     // Getters
     double getCurrentTime() const;
     double getFrameTime() const;

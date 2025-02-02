@@ -17,7 +17,7 @@ public:
     ~Windowing();
 
     // Clear the window
-    void clear(glm::vec4 c = glm::vec4(1, 1, 1, 1));
+    void clear(glm::vec4 c = glm::vec4(.2f, .1f, .3f, 1));
 
     void swapBuffer();
 

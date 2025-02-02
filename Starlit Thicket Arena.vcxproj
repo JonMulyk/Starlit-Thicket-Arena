@@ -163,18 +163,26 @@
     <ClCompile Include="project\src\InitManager.cpp" />
     <ClCompile Include="project\src\Input.cpp" />
     <ClCompile Include="project\src\main.cpp" />
+    <ClCompile Include="project\src\Render.cpp" />
     <ClCompile Include="project\src\Shader.cpp" />
+    <ClCompile Include="project\src\Texture.cpp" />
     <ClCompile Include="project\src\TimeSeconds.cpp" />
     <ClCompile Include="project\src\Windowing.cpp" />
     <ClCompile Include="project\src\TTF.cpp" />
+    <ClCompile Include="project\src\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="project\include\BufferObject.h" />
     <ClInclude Include="project\include\InitManager.h" />
     <ClInclude Include="project\include\Input.h" />
+    <ClInclude Include="project\include\Model.h" />
+    <ClInclude Include="project\include\Render.h" />
     <ClInclude Include="project\include\Shader.h" />
+    <ClInclude Include="project\include\Texture.h" />
     <ClInclude Include="project\include\TimeSeconds.h" />
     <ClInclude Include="project\include\Windowing.h" />
     <ClInclude Include="project\include\TTF.h" />
+    <ClInclude Include="project\include\stb_image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

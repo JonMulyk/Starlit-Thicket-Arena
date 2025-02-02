@@ -1,7 +1,6 @@
 #include "Shader.h"
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
-{
+Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
     std::string fragmentCode;
@@ -45,35 +44,39 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
     glCompileShader(fragment);
     checkCompileErrors(fragment, "FRAGMENT");
     // shader Program
-    ID = glCreateProgram();
-    glAttachShader(ID, vertex);
-    glAttachShader(ID, fragment);
-    glLinkProgram(ID);
-    checkCompileErrors(ID, "PROGRAM");
+    m_id = glCreateProgram();
+    glAttachShader(m_id, vertex);
+    glAttachShader(m_id, fragment);
+    glLinkProgram(m_id);
+    checkCompileErrors(m_id, "PROGRAM");
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 }
 
+
+Shader::~Shader() {
+    glDeleteShader(m_id);
+
+}
 void Shader::use() {
-    glUseProgram(ID);
+    glUseProgram(m_id);
 }
 
-void Shader::setBool(const std::string& name, bool value) const
-{
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+void Shader::setBool(const std::string& name, bool value) const {
+    glUniform1i(glGetUniformLocation(m_id, name.c_str()), (int)value);
 }
 
 void Shader::setInt(const std::string& name, int value) const {
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+    glUniform1i(glGetUniformLocation(m_id, name.c_str()), value);
 }
 
 void Shader::setFloat(const std::string& name, float value) const {
-    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+    glUniform1f(glGetUniformLocation(m_id, name.c_str()), value);
 }
 
 void Shader::setMat4(const std::string& name, glm::mat4 value) const {
-    int modelLoc = glGetUniformLocation(ID, name.c_str());
+    int modelLoc = glGetUniformLocation(m_id, name.c_str());
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(value));
 }
 
@@ -101,4 +104,4 @@ void Shader::checkCompileErrors(unsigned int shader, std::string type)
     }
 }
 
-Shader::operator GLint() const { return ID; }
+Shader::operator GLint() const { return m_id; }

@@ -7,7 +7,11 @@
 #include "Windowing.h"
 #include "Input.h"
 #include "Shader.h"
+#include "Texture.h"
 #include "TTF.h"
+#include "Model.h"
+
+#include <glm.hpp>
 
 /*
 m for members
@@ -17,34 +21,109 @@ v for volatile
 s for static
 i for indexesand iterators
 e for events
+r for reference
 */
+
+Model createSquare() {
+	Model m;
+
+	m.vertices = {
+		glm::vec3(-0.5f, -0.5f, 0.0f),
+		glm::vec3(0.5f, -0.5f, 0.0f),
+		glm::vec3(0.5f,  0.5f, 0.0f),
+		glm::vec3(0.5f,  0.5f, 0.0f),
+		glm::vec3(-0.5f,  0.5f, 0.0f),
+		glm::vec3(-0.5f, -0.5f, 0.0f)
+	};
+
+	m.colors = {
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f)
+	};
+
+	m.textures = {
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec2(0.0f, 1.0f),
+		glm::vec2(0.0f, 0.0f),
+	};
+
+	m.load();
+
+	return m;
+}
 
 int main() {
 	InitManager::initGLFW();
 
+	TimeSeconds timer;
 	Windowing window(1000, 800);
 	Input input(window);
-	Shader shader("./project/assets/shaders/CameraShader.vert", "./project/assets/shaders/FragShader.frag");
-	TTF arial("./project/assets/shaders/textShader.vert", "./project/assets/shaders/textShader.frag", "./project/assets/fonts/Arial.ttf");
+	Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
+	TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
+	Texture t("project/assets/textures/container.jpg");
 
-	TimeSeconds timer;
+	Model m;
+
+	m.vertices = {
+		glm::vec3(-0.5f, -0.5f, 0.0f),
+		glm::vec3(0.5f, -0.5f, 0.0f),
+		glm::vec3(0.5f,  0.5f, 0.0f),
+		glm::vec3(0.5f,  0.5f, 0.0f),
+		glm::vec3(-0.5f,  0.5f, 0.0f),
+		glm::vec3(-0.5f, -0.5f, 0.0f)
+	};
+
+	m.colors = {
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f)
+	};
+
+	m.textures = {
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec2(0.0f, 1.0f),
+		glm::vec2(0.0f, 0.0f),
+	};
+
+	m.load();
+
+	std::cout << m.vertices[0].x << std::endl;
+	std::cout << t.getHeight() << std::endl;
 
 	// Main loop
 	while (!window.shouldClose()) {
 		window.clear();
+
 		input.poll();
-
-		arial.render("hello!", 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
-
 		timer.tick();
+
+
+		arial.render("FPS: " + std::to_string(timer.getFPS()), 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
+
+		shader.use();
+
+		t.bind();
+		m.bind();
+		m.draw();
 
 		// Use fixed time steps for updates
 		while (timer.getAccumultor() >= timer.timeStep) {
 			timer.advance();
-			// update your game logic here using timer.getElapsedTime()
 		}
 
-		// render here using timer.getFrameTime() if needed
 		glfwSwapBuffers(window);
 	}
 
