@@ -42,7 +42,7 @@ int main() {
 
     // Entity Setup
     std::vector<Entity> entityList;
-    unsigned int reserveNum = 6;
+    unsigned int reserveNum = 55;
     entityList.reserve(reserveNum);
     for (unsigned int i = 0; i < reserveNum; i++) {
         entityList.emplace_back(Entity("box", m2, physicsSystem->transformList[i]));
