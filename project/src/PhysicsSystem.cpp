@@ -46,7 +46,7 @@ PhysicsSystem::PhysicsSystem()
 	// Define a box
 	float halfLen = 0.5f;
 	physx::PxShape* shape = gPhysics->createShape(physx::PxBoxGeometry(halfLen, halfLen, halfLen), *gMaterial);
-	physx::PxU32 size = 30;
+	physx::PxU32 size = 3;
 	physx::PxTransform tran(physx::PxVec3(0));
 
 	// Create a pyramid of physics-enabled boxes

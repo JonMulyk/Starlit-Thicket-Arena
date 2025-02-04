@@ -14,91 +14,58 @@
 #include "PhysicsSystem.h"
 #include "Entity.h"
 #include "Camera.h"
-
-/*
-m for members
-c for constants / read onlys
-p for pointer(and pp for pointer to pointer)
-v for volatile
-s for static
-i for indexesand iterators
-e for events
-r for reference
-*/
+#include "RenderingSystem.h"
 
 int main() {
-	InitManager::initGLFW();
+    InitManager::initGLFW();
 
-	TimeSeconds timer;
-	Windowing window(1000, 800);
-	Input input(window);
-	Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
-	TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
-	Texture texture("project/assets/textures/container.jpg", true);
-	Camera camera;
+    TimeSeconds timer;
+    Camera camera;
+    Windowing window(1000, 800);
 
-	PhysicsSystem* physicsSystem = new PhysicsSystem();
+    Input input(window, camera, timer);
+    Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
+    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
+    Texture texture1("project/assets/textures/container.jpg", true);
+    Texture texture2("project/assets/textures/wall.jpg", true);
 
-	// Model shit
-	std::vector<float> verts, coord;
-	InitManager::getCube(verts, coord);
-	Model m(shader, texture, verts, verts, coord);
+    PhysicsSystem* physicsSystem = new PhysicsSystem();
 
-	// Simple box example
-	std::vector<Entity> entityList;
-	unsigned int reserveNum = 465;
-	entityList.reserve(reserveNum);
-	for (unsigned int i = 0; i < reserveNum; i++) {
-		entityList.emplace_back(Entity("box", m, physicsSystem->transformList[i]));
-	}
+    // Create Rendering System
+    RenderingSystem renderer(shader, camera, window, arial);
 
+    // Model Setup
+    std::vector<float> verts, coord;
+    InitManager::getCube(verts, coord);
+    Model m2(shader, texture2, verts, verts, coord);
+    Model m1(shader, texture2, "project/assets/models/GTree.obj");
 
-	// Main loop
-	while (!window.shouldClose()) {
-		window.clear();
-		timer.tick();
-		input.poll();
+    // Entity Setup
+    std::vector<Entity> entityList;
+    unsigned int reserveNum = 6;
+    entityList.reserve(reserveNum);
+    for (unsigned int i = 0; i < reserveNum; i++) {
+        entityList.emplace_back(Entity("box", m2, physicsSystem->transformList[i]));
+    }
 
-		// Use fixed time steps for updates
-		while (timer.getAccumultor() >= timer.dt) {
-			physicsSystem->updatePhysics(timer.dt, entityList);
-			timer.advance();
-		}
+    // Main Loop
+    while (!window.shouldClose()) {
+        window.clear();
+        timer.tick();
+        input.poll();
 
-		// set rotation
-		shader.use();
+        // Update physics
+        while (timer.getAccumultor() >= timer.dt) {
+            physicsSystem->updatePhysics(timer.dt, entityList);
+            timer.advance();
+        }
 
-		glm::mat4 projection = glm::perspective(
-			glm::radians(camera.Zoom),
-			float(window.getWidth()) / float(window.getHeight()),
-			0.1f,
-			100.0f
-		);
-		shader.setMat4("projection", projection);
+        // Render Entities & Text
+        renderer.renderEntities(entityList);
+        renderer.renderText("FPS: " + std::to_string(timer.getFPS()), 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
 
-		// camera / view transformation
-		glm::mat4 view = camera.GetViewMatrix();
-		shader.setMat4("view", view);
+        glfwSwapBuffers(window);
+    }
 
-		// Render Physics
-		for (int i = 0; i < entityList.size(); i++)
-		{
-			glm::vec3 pos = entityList.at(i).transform->pos;
-			glm::quat rot = entityList.at(i).transform->rot;
-
-			glm::mat4 model = glm::mat4(1.0f);				// initial matrix
-			model = glm::translate(model, pos);				// translate
-			model = model * glm::mat4_cast(rot);			// rotate
-			model = glm::scale(model, glm::vec3(1.0f));		// scale
-			shader.setMat4("model", model);					// pass to shader
-
-			entityList.at(i).model.draw();
-		}
-
-		arial.render("FPS" + std::to_string(timer.getFPS()), 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
-
-		glfwSwapBuffers(window);
-	}
-
-	return 0;
+    return 0;
 }

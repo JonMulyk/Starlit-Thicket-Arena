@@ -1,4 +1,6 @@
 #pragma once
+#include "tiny_obj_loader.h"
+#include <exception>
 
 #include <vector>
 #include <iostream>
@@ -14,6 +16,8 @@ public:
         std::vector<float> normals,
         std::vector<float> textCoords
     );
+
+    Model(Shader& shader, Texture& texture, std::string model_path);
     
     void draw();
 
@@ -27,4 +31,7 @@ private:
 
 	GLuint VAO;
 	GLuint VBO[3];
+
+    void createBuffer();
+    void loadOBJ(const std::string& path);
 };

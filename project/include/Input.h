@@ -1,16 +1,23 @@
 #pragma once
 
+#include "Camera.h"
 #include "Windowing.h"
+#include "TimeSeconds.h"
 #include <GLFW/glfw3.h>
 
 class Input {
 private:
-    bool mouse_pressed;
+    TimeSeconds& r_timer;
+    Camera& r_camera;
     Windowing& r_window;
+
+    bool firstMouse = true;
+    double prevPosX = 0;
+    double prevPosY = 0;
 
 public:
     // Constructor
-    Input(Windowing& window);
+    Input(Windowing& window, Camera& camera, TimeSeconds& timer);
 
     // Polls for and processes events
     void poll();

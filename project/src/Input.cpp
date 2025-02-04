@@ -1,8 +1,8 @@
 #include "Input.h"
 #include <iostream>
 
-Input::Input(Windowing& window)
-    : mouse_pressed(false), r_window(window)
+Input::Input(Windowing& window, Camera& camera, TimeSeconds& timer)
+    : r_window(window), r_camera(camera), r_timer(timer)
 {
     // Set the user pointer to this instance so that callbacks can retrieve it.
     glfwSetWindowUserPointer(r_window, this);
@@ -22,22 +22,76 @@ void Input::poll() {
 
 void Input::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     Input* p_input = static_cast<Input*>(glfwGetWindowUserPointer(window));
+    
+    if (p_input == nullptr) {
+        return;
+    }
+
+    Camera& camera = p_input->r_camera;
+    double deltaTime = p_input->r_timer.getFrameTime()*1000;
+
+    if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+        if (key == GLFW_KEY_W) {
+            camera.ProcessKeyboard(Camera::FORWARD, deltaTime);
+        }
+        if (key == GLFW_KEY_S) {
+            camera.ProcessKeyboard(Camera::BACKWARD, deltaTime);
+        }
+        if (key == GLFW_KEY_A) {
+            camera.ProcessKeyboard(Camera::LEFT, deltaTime);
+        }
+        if (key == GLFW_KEY_D) {
+            camera.ProcessKeyboard(Camera::RIGHT, deltaTime);
+        }
+        if (key == GLFW_KEY_ESCAPE) {
+            glfwSetWindowShouldClose(window, true);
+        }
+    }
+
+    /*
     // Debug output for key events
     std::cout << "key: " << key
         << "\tscancode: " << scancode
         << "\taction: " << action
         << "\tmods: " << mods << std::endl;
+     */
 }
 
 void Input::cursorPosCallback(GLFWwindow* window, double x_position, double y_position) {
     Input* p_input = static_cast<Input*>(glfwGetWindowUserPointer(window));
+
+    if (p_input == nullptr) {
+        return;
+    }
+
+    if (p_input->firstMouse) {
+        p_input->prevPosX = x_position;
+        p_input->prevPosX = y_position;
+        p_input->firstMouse = false;
+    }
+
+    float xoffset = x_position - p_input->prevPosX;
+    float yoffset = p_input->prevPosY - y_position; // Y-coordinates go from bottom to top
+
+    p_input->prevPosX = x_position;
+    p_input->prevPosY = y_position;
+
+    p_input->r_camera.ProcessMouseMovement(xoffset, yoffset);
+
+    /*
     // Debug output for cursor position events
     std::cout << "x-pos: " << x_position
         << "\ty-pos: " << y_position << std::endl;
+    */
 }
 
 void Input::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     Input* p_input = static_cast<Input*>(glfwGetWindowUserPointer(window));
+
+    if (p_input == nullptr) {
+        return;
+    }
+
     // Debug output for mouse button events
     std::cout << "button: " << button
         << "\taction: " << action
@@ -46,7 +100,16 @@ void Input::mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 
 void Input::scrollCallback(GLFWwindow* window, double x_offset, double y_offset) {
     Input* p_input = static_cast<Input*>(glfwGetWindowUserPointer(window));
+
+    if (p_input == nullptr) {
+        return;
+    }
+
+    p_input->r_camera.ProcessMouseScroll(y_offset);
+
+    /*
     // Debug output for scroll events
     std::cout << "x-offset: " << x_offset
         << "\ty-offset: " << y_offset << std::endl;
+    */
 }

@@ -39,7 +39,8 @@ int Texture::getWidth() const{ return m_width; }
 int Texture::getHeight() const{ return m_height; }
 
 void Texture::bind() {
-	glActiveTexture(GL_TEXTURE1);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_id);
 }
+
 void Texture::unbind() { glBindTexture(GL_TEXTURE_2D, 0); }
