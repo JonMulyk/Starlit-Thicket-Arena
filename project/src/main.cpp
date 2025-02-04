@@ -73,6 +73,7 @@ int main() {
 		// Use fixed time steps for updates
 		while (timer.getAccumultor() >= timer.timeStep) {
 			timer.advance();
+			// physics.update()
 		}
 
 		glfwSwapBuffers(window);
