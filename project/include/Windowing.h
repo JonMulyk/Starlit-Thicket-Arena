@@ -7,8 +7,6 @@
 
 class Windowing {
 private:
-    int m_width;
-    int m_height;
     GLFWwindow* m_window;
 
 public:

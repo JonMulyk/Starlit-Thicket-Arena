@@ -1,5 +1,5 @@
-#include "Input.h"
 #include <iostream>
+#include "Input.h"
 
 Input::Input(Windowing& window, Camera& camera, TimeSeconds& timer)
     : r_window(window), r_camera(camera), r_timer(timer)

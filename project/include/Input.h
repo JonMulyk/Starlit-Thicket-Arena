@@ -7,15 +7,16 @@
 
 class Input {
 private:
-    TimeSeconds& r_timer;
-    Camera& r_camera;
-    Windowing& r_window;
 
     bool firstMouse = true;
     double prevPosX = 0;
     double prevPosY = 0;
 
+    TimeSeconds& r_timer;
+    Camera& r_camera;
+    Windowing& r_window;
 public:
+
     // Constructor
     Input(Windowing& window, Camera& camera, TimeSeconds& timer);
 

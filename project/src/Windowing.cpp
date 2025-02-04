@@ -1,9 +1,7 @@
 #include "Windowing.h"
 #include <exception>
 
-Windowing::Windowing(int width, int height, std::string name)
-    : m_width(width), m_height(height)
-{
+Windowing::Windowing(int width, int height, std::string name) {
     m_window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
 
     if (m_window == nullptr) {
@@ -19,10 +17,9 @@ Windowing::Windowing(int width, int height, std::string name)
         throw std::exception("Failed to initialize GLAD\n");
     }
 
-    glViewport(0, 0, m_width, m_height);
+    glViewport(0, 0, width, height);
 
     // Set frame buffer size callback
-    glfwSetWindowUserPointer(m_window, this);
     glfwSetFramebufferSizeCallback(m_window, frameBufferSizeCallback);
 }
 
@@ -40,8 +37,16 @@ void Windowing::swapBuffer() {
     glfwSwapBuffers(m_window);
 }
 
-int Windowing::getHeight() const { return m_height; }
-int Windowing::getWidth() const { return m_width; }
+int Windowing::getHeight() const {
+    int width, height;
+    glfwGetWindowSize(m_window, &width, &height);
+    return height;
+}
+int Windowing::getWidth() const {
+    int width, height;
+    glfwGetWindowSize(m_window, &width, &height);
+    return width;
+}
 
 void Windowing::clear(glm::vec4 c) {
     // color for window
@@ -53,11 +58,5 @@ void Windowing::clear(glm::vec4 c) {
 Windowing::operator GLFWwindow* () const { return m_window; }
 
 void Windowing::frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
-    Windowing* p_window = static_cast<Windowing*>(glfwGetWindowUserPointer(window));
-    if (p_window) {
-        p_window->m_width = width;
-        p_window->m_height = height;
-    }
-
     glViewport(0, 0, width, height);
 }

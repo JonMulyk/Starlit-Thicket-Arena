@@ -21,7 +21,7 @@ int main() {
 
     TimeSeconds timer;
     Camera camera;
-    Windowing window(1000, 800);
+    Windowing window(1200, 1000);
 
     Input input(window, camera, timer);
     Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
@@ -37,8 +37,8 @@ int main() {
     // Model Setup
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
-    Model m2(shader, texture2, verts, verts, coord);
-    Model m1(shader, texture2, "project/assets/models/GTree.obj");
+    Model m1(shader, texture2, verts, verts, coord);
+    Model m2(shader, texture2, "project/assets/models/GTree.obj");
 
     // Entity Setup
     std::vector<Entity> entityList;
