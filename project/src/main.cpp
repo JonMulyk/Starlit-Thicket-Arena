@@ -17,7 +17,7 @@
 
 /*
 m for members
-c for constants / readonlys
+c for constants / read onlys
 p for pointer(and pp for pointer to pointer)
 v for volatile
 s for static

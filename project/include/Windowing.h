@@ -33,5 +33,5 @@ public:
 
     // Callback for when the framebuffer size changes.
     static void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
-
 };
+

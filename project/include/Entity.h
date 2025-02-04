@@ -12,7 +12,5 @@ public:
 	Model& model;
 	Transform* transform;
 
-	Entity(std::string name, Model& model, Transform* transform)
-		: name(name), model(model), transform(transform)
-	{}
+	Entity(std::string name, Model& model, Transform* transform);
 };
