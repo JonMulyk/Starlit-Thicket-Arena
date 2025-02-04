@@ -24,9 +24,14 @@ public:
     // Returns whether the window should close.
     bool shouldClose();
 
+    // Getters
+    int getWidth() const;
+    int getHeight() const;
+
     // Allows the Windowing object to be used where a GLFWwindow* is expected.
     operator GLFWwindow* () const;
 
     // Callback for when the framebuffer size changes.
     static void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
+
 };

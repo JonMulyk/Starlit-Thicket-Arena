@@ -40,6 +40,9 @@ void Windowing::swapBuffer() {
     glfwSwapBuffers(m_window);
 }
 
+int Windowing::getHeight() const { return m_height; }
+int Windowing::getWidth() const { return m_width; }
+
 void Windowing::clear(glm::vec4 c) {
     // color for window
     glClearColor(c.r, c.g, c.b, c.a);

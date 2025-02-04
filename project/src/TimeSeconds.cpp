@@ -14,8 +14,8 @@ void TimeSeconds::tick() {
 }
 
 void TimeSeconds::advance() {
-    m_accumulator -= timeStep;
-    m_elapsedTime += timeStep;
+    m_accumulator -= dt;
+    m_elapsedTime += dt;
 }
 
 double TimeSeconds::getFPS() const {

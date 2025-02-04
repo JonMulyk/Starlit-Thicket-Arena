@@ -1,7 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 #include <iostream>
+#include <glm.hpp>
+
 #include "TimeSeconds.h"
 #include "InitManager.h"
 #include "Windowing.h"
@@ -10,8 +11,9 @@
 #include "Texture.h"
 #include "TTF.h"
 #include "Model.h"
-
-#include <glm.hpp>
+#include "PhysicsSystem.h"
+#include "Entity.h"
+#include "Camera.h"
 
 /*
 m for members
@@ -33,141 +35,70 @@ int main() {
 	Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
 	TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
 	Texture texture("project/assets/textures/container.jpg", true);
+	Camera camera;
 
+	PhysicsSystem* physicsSystem = new PhysicsSystem();
 
 	// Model shit
-	std::vector<float> verts = {
-		// first triangle
-		 0.5f,  0.5f, 0.0f,  // top right
-		 0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f,  0.5f, 0.0f,  // top left 
+	std::vector<float> verts, coord;
+	InitManager::getCube(verts, coord);
+	Model m(shader, texture, verts, verts, coord);
 
-	};
+	// Simple box example
+	std::vector<Entity> entityList;
+	unsigned int reserveNum = 465;
+	entityList.reserve(reserveNum);
+	for (unsigned int i = 0; i < reserveNum; i++) {
+		entityList.emplace_back(Entity("box", m, physicsSystem->transformList[i]));
+	}
 
-	std::vector<float> norms = {
-		// first triangle
-		 0.5f,  0.5f, 0.0f,  // top right
-		 0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f,  0.5f, 0.0f,  // top left 
-	};
-
-	std::vector<float> coord = {
-		// first triangle
-		 1.0f, 1.0f,  // top right
-		 1.0f, 0.0f,  // bottom right
-		 0.0f, 1.0f,  // top left 
-	};
-
-	Model m(shader, texture, verts, norms, coord);
 
 	// Main loop
 	while (!window.shouldClose()) {
 		window.clear();
+		timer.tick();
 		input.poll();
 
-		timer.tick();
-
-		// render
-		m.draw();
-
 		// Use fixed time steps for updates
-		while (timer.getAccumultor() >= timer.timeStep) {
+		while (timer.getAccumultor() >= timer.dt) {
+			physicsSystem->updatePhysics(timer.dt, entityList);
 			timer.advance();
-			// physics.update()
 		}
+
+		// set rotation
+		shader.use();
+
+		glm::mat4 projection = glm::perspective(
+			glm::radians(camera.Zoom),
+			float(window.getWidth()) / float(window.getHeight()),
+			0.1f,
+			100.0f
+		);
+		shader.setMat4("projection", projection);
+
+		// camera / view transformation
+		glm::mat4 view = camera.GetViewMatrix();
+		shader.setMat4("view", view);
+
+		// Render Physics
+		for (int i = 0; i < entityList.size(); i++)
+		{
+			glm::vec3 pos = entityList.at(i).transform->pos;
+			glm::quat rot = entityList.at(i).transform->rot;
+
+			glm::mat4 model = glm::mat4(1.0f);				// initial matrix
+			model = glm::translate(model, pos);				// translate
+			model = model * glm::mat4_cast(rot);			// rotate
+			model = glm::scale(model, glm::vec3(1.0f));		// scale
+			shader.setMat4("model", model);					// pass to shader
+
+			entityList.at(i).model.draw();
+		}
+
+		arial.render("FPS" + std::to_string(timer.getFPS()), 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
 
 		glfwSwapBuffers(window);
 	}
 
 	return 0;
 }
-
-/*
-#include "PxPhysicsAPI.h"
-int main()
-{
-	//PhysX management class instances.
-	physx::PxDefaultAllocator gAllocator;
-	physx::PxDefaultErrorCallback gErrorCallback;
-	physx::PxFoundation* gFoundation = NULL;
-	physx::PxPhysics* gPhysics = NULL;
-	physx::PxDefaultCpuDispatcher* gDispatcher = NULL;
-	physx::PxScene* gScene = NULL;
-	physx::PxMaterial* gMaterial = NULL;
-	physx::PxPvd* gPvd = NULL;
-
-	// Initialize PhysX
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-	if (!gFoundation)
-	{
-		std::cout << "PxCreateFoundation failed!" << std::endl;
-		return -1;
-	}
-
-	// PVD
-	gPvd = PxCreatePvd(*gFoundation);
-	physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-	gPvd->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
-
-	// Physics
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, physx::PxTolerancesScale(), true, gPvd);
-	if (!gPhysics)
-	{
-		std::cout << "PxCreatePhysics failed!" << std::endl;
-		return -1;
-	}
-
-	// Scene
-	physx::PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
-	sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
-	gDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
-	sceneDesc.cpuDispatcher = gDispatcher;
-	sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
-	gScene = gPhysics->createScene(sceneDesc);
-
-	// Prep PVD
-	physx::PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
-	if (pvdClient)
-	{
-		pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-		pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-		pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
-	}
-
-	// Simulate
-	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
-	physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*gPhysics, physx::PxPlane(0, 1, 0, 50), *gMaterial);
-	gScene->addActor(*groundPlane);
-
-	// Define a box
-	float halfLen = 0.5f;
-	physx::PxShape* shape = gPhysics->createShape(physx::PxBoxGeometry(halfLen, halfLen, halfLen), *gMaterial);
-	physx::PxU32 size = 30;
-	physx::PxTransform tran(physx::PxVec3(0));
-
-	// Create a pyramid of physics-enabled boxes
-	for (physx::PxU32 i = 0; i < size; i++)
-	{
-		for (physx::PxU32 j = 0; j < size - i; j++)
-		{
-			physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
-			physx::PxRigidDynamic* body = gPhysics->createRigidDynamic(tran.transform(localTran));
-			body->attachShape(*shape);
-			physx::PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-			gScene->addActor(*body);
-		}
-	}
-
-	// Clean up
-	shape->release();
-
-	// Simulate at 60fps
-	while (1)
-	{
-		gScene->simulate(1.0f / 60.0f);
-		gScene->fetchResults(true);
-	}
-
-	return 0;
-}
-*/

@@ -11,7 +11,7 @@ private:
 
 public:
     // Fixed time step (seconds per update)
-    const double timeStep = 1.0 / 60.0;
+    const double dt = 1.0 / 60.0;
 
     TimeSeconds();
 

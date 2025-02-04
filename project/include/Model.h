@@ -21,7 +21,7 @@ public:
         m_textCoords(textCoords)
 	{
         // Calculate the number of vertices: each vertex position is 3 floats.
-        m_count = m_vertices.size() / 3;
+        m_count = int(m_vertices.size() / 3);
 
         std::cout << vertices.size() << std::endl;
 
