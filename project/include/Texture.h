@@ -10,7 +10,7 @@ private:
 	int m_width;
 	int m_height;
 public:
-	Texture(std::string path);
+	Texture(std::string path, bool isJPG);
 	~Texture();
 
 	int getWidth() const;

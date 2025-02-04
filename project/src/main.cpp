@@ -24,41 +24,6 @@ e for events
 r for reference
 */
 
-Model createSquare() {
-	Model m;
-
-	m.vertices = {
-		glm::vec3(-0.5f, -0.5f, 0.0f),
-		glm::vec3(0.5f, -0.5f, 0.0f),
-		glm::vec3(0.5f,  0.5f, 0.0f),
-		glm::vec3(0.5f,  0.5f, 0.0f),
-		glm::vec3(-0.5f,  0.5f, 0.0f),
-		glm::vec3(-0.5f, -0.5f, 0.0f)
-	};
-
-	m.colors = {
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f)
-	};
-
-	m.textures = {
-		glm::vec2(0.0f, 0.0f),
-		glm::vec2(1.0f, 0.0f),
-		glm::vec2(1.0f, 1.0f),
-		glm::vec2(1.0f, 1.0f),
-		glm::vec2(0.0f, 1.0f),
-		glm::vec2(0.0f, 0.0f),
-	};
-
-	m.load();
-
-	return m;
-}
-
 int main() {
 	InitManager::initGLFW();
 
@@ -67,56 +32,42 @@ int main() {
 	Input input(window);
 	Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
 	TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
-	Texture t("project/assets/textures/container.jpg");
+	Texture texture("project/assets/textures/container.jpg", true);
 
-	Model m;
 
-	m.vertices = {
-		glm::vec3(-0.5f, -0.5f, 0.0f),
-		glm::vec3(0.5f, -0.5f, 0.0f),
-		glm::vec3(0.5f,  0.5f, 0.0f),
-		glm::vec3(0.5f,  0.5f, 0.0f),
-		glm::vec3(-0.5f,  0.5f, 0.0f),
-		glm::vec3(-0.5f, -0.5f, 0.0f)
+	// Model shit
+	std::vector<float> verts = {
+		// first triangle
+		 0.5f,  0.5f, 0.0f,  // top right
+		 0.5f, -0.5f, 0.0f,  // bottom right
+		-0.5f,  0.5f, 0.0f,  // top left 
+
 	};
 
-	m.colors = {
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f)
+	std::vector<float> norms = {
+		// first triangle
+		 0.5f,  0.5f, 0.0f,  // top right
+		 0.5f, -0.5f, 0.0f,  // bottom right
+		-0.5f,  0.5f, 0.0f,  // top left 
 	};
 
-	m.textures = {
-		glm::vec2(0.0f, 0.0f),
-		glm::vec2(1.0f, 0.0f),
-		glm::vec2(1.0f, 1.0f),
-		glm::vec2(1.0f, 1.0f),
-		glm::vec2(0.0f, 1.0f),
-		glm::vec2(0.0f, 0.0f),
+	std::vector<float> coord = {
+		// first triangle
+		 1.0f, 1.0f,  // top right
+		 1.0f, 0.0f,  // bottom right
+		 0.0f, 1.0f,  // top left 
 	};
 
-	m.load();
-
-	std::cout << m.vertices[0].x << std::endl;
-	std::cout << t.getHeight() << std::endl;
+	Model m(shader, texture, verts, norms, coord);
 
 	// Main loop
 	while (!window.shouldClose()) {
 		window.clear();
-
 		input.poll();
+
 		timer.tick();
 
-
-		arial.render("FPS: " + std::to_string(timer.getFPS()), 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
-
-		shader.use();
-
-		t.bind();
-		m.bind();
+		// render
 		m.draw();
 
 		// Use fixed time steps for updates
