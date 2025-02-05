@@ -42,6 +42,7 @@ int Windowing::getHeight() const {
     glfwGetWindowSize(m_window, &width, &height);
     return height;
 }
+
 int Windowing::getWidth() const {
     int width, height;
     glfwGetWindowSize(m_window, &width, &height);

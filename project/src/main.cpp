@@ -3,6 +3,7 @@
 #include <iostream>
 #include <glm.hpp>
 
+#include "PxPhysicsAPI.h"
 #include "TimeSeconds.h"
 #include "InitManager.h"
 #include "Windowing.h"
@@ -37,16 +38,30 @@ int main() {
     // Model Setup
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
-    Model m1(shader, texture2, verts, verts, coord);
-    Model m2(shader, texture2, "project/assets/models/GTree.obj");
+    Model m2(shader, texture2, verts, verts, coord);
+    Model m1(shader, texture2, "project/assets/models/GTree.obj");
 
-    // Entity Setup
+
+    // PhysX item setup
+    float halfLen = 0.5f;
+    MaterialProp matProps = { 0.5f, 0.5f, 0.6f };
+    physx::PxBoxGeometry* boxGeom = new physx::PxBoxGeometry(halfLen, halfLen, halfLen);
+
+    // Entity setup
     std::vector<Entity> entityList;
-    unsigned int reserveNum = 55;
-    entityList.reserve(reserveNum);
-    for (unsigned int i = 0; i < reserveNum; i++) {
-        entityList.emplace_back(Entity("box", m2, physicsSystem->transformList[i]));
+
+    int size = 5;
+    int counter = 0;
+    for (unsigned int i = 0; i < size; i++) {
+        for (unsigned int j = 0; j < size - i; j++) {
+            physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
+            physicsSystem->addItem(matProps, boxGeom, localTran, 10.f);
+            entityList.emplace_back(Entity("box", m2, physicsSystem->getTransformAt(counter++)));
+        }
     }
+    delete(boxGeom);
+
+    physicsSystem->updateTransforms(entityList);
 
     // Main Loop
     while (!window.shouldClose()) {

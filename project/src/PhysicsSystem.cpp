@@ -1,12 +1,10 @@
 #include "PhysicsSystem.h"
 
-PhysicsSystem::PhysicsSystem()
-{
+PhysicsSystem::PhysicsSystem() {
 	// Initialize PhysX
 	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-	if (!gFoundation)
-	{
-		std::cout << "PxCreateFoundation failed!" << std::endl;
+	if (!gFoundation) {
+		throw std::exception("PxCreateFoundation failed!"); // TODO: custom exception
 	}
 
 	// PVD
@@ -16,9 +14,8 @@ PhysicsSystem::PhysicsSystem()
 
 	// Physics
 	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, physx::PxTolerancesScale(), true, gPvd);
-	if (!gPhysics)
-	{
-		std::cout << "PxCreatePhysics failed!" << std::endl;
+	if (!gPhysics) {
+		throw std::exception("PxCreatePhysics failed!");
 	}
 
 	// Scene
@@ -39,50 +36,44 @@ PhysicsSystem::PhysicsSystem()
 	}
 
 	// Simulate
-	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
-	physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*gPhysics, physx::PxPlane(0, 1, 0, 50), *gMaterial);
+	physx::PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
+	physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*gPhysics, physx::PxPlane(0, 1, 0, 50), *material);
 	gScene->addActor(*groundPlane);
+}
+
+void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density) {
+	physx::PxMaterial*pMaterial = gPhysics->createMaterial(material.staticFriction, material.dynamicFriction, material.restitution);
 
 	// Define a box
-	float halfLen = 0.5f;
-	physx::PxShape* shape = gPhysics->createShape(physx::PxBoxGeometry(halfLen, halfLen, halfLen), *gMaterial);
-	physx::PxU32 size = 10;
+	physx::PxShape* shape = gPhysics->createShape(*geom, *pMaterial);
 	physx::PxTransform tran(physx::PxVec3(0));
+	physx::PxRigidDynamic* body = gPhysics->createRigidDynamic(tran.transform(transform));
 
-	// Create a pyramid of physics-enabled boxes
-	for (physx::PxU32 i = 0; i < size; i++)
-	{
-		for (physx::PxU32 j = 0; j < size - i; j++)
-		{
-			physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
-			physx::PxRigidDynamic* body = gPhysics->createRigidDynamic(tran.transform(localTran));
+	// Add to lists
+	rigidDynamicList.push_back(body);
+	transformList.push_back(new Transform());
 
-			rigidDynamicList.push_back(body);
-
-			transformList.push_back(new Transform());
-
-			body->attachShape(*shape);
-			physx::PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-			gScene->addActor(*body);
-		}
-	}
-
-	//updateTransforms();
+	body->attachShape(*shape);
+	physx::PxRigidBodyExt::updateMassAndInertia(*body, density);
+	gScene->addActor(*body);
 
 	// Clean up
 	shape->release();
+	pMaterial = nullptr;
 }
 
-physx::PxVec3 PhysicsSystem::getPos(int i)
-{
+physx::PxVec3 PhysicsSystem::getPos(int i) {
 	physx::PxVec3 position = rigidDynamicList[i]->getGlobalPose().p;
 	return position;
 }
 
-void PhysicsSystem::updateTransforms(std::vector<Entity> entityList)
+Transform* PhysicsSystem::getTransformAt(int i) {
+	return transformList[i];
+}
+
+void PhysicsSystem::updateTransforms(std::vector<Entity>& entityList)
 {
-	for (int i = 0; i < entityList.size(); i++)
-	{
+	for (int i = 0; i < entityList.size(); i++) {
 		entityList.at(i).transform->pos.x = rigidDynamicList[i]->getGlobalPose().p.x;
 		entityList.at(i).transform->pos.y = rigidDynamicList[i]->getGlobalPose().p.y;
 		entityList.at(i).transform->pos.z = rigidDynamicList[i]->getGlobalPose().p.z;
