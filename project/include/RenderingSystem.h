@@ -1,0 +1,23 @@
+#pragma once
+
+#include <vector>
+#include "Shader.h"
+#include "Camera.h"
+#include "Windowing.h"
+#include "Entity.h"
+#include "TTF.h"
+
+class RenderingSystem {
+public:
+    RenderingSystem(Shader& shader, Camera& camera, Windowing& window, TTF& textRenderer);
+
+    void renderEntities(const std::vector<Entity>& entities);
+    void renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color);
+    void updateProjectionView();
+
+private:
+    Shader& shader;
+    Camera& camera;
+    Windowing& window;
+    TTF& textRenderer;
+};
