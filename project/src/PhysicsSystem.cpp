@@ -110,6 +110,11 @@ bool PhysicsSystem::initVehicles() {
 	//Apply a start pose to the physx actor and add it to the physx scene.
 	PxTransform pose(PxVec3(0.000000000f, -0.0500000119f, -10.59399998f), PxQuat(PxIdentity));
 	gVehicle.setUpActor(*gScene, pose, gVehicleName);
+	PxRigidBody* rigidBody = gVehicle.mPhysXState.physxActor.rigidBody;
+	PxRigidDynamic* rigidDynamic = (PxRigidDynamic*)rigidBody;
+
+	rigidDynamicList.push_back(rigidDynamic);
+	transformList.push_back(new Transform());
 
 	// Create filter
 	PxFilterData vehicleFilter(
@@ -172,8 +177,6 @@ void PhysicsSystem::cleanupPhysics() {
 	cleanupGroundPlane();
 	cleanupPhysX();
 }
-
-
 
 PhysicsSystem::PhysicsSystem() {
 	initPhysics();

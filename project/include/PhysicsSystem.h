@@ -21,8 +21,6 @@ class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback 
 		PX_UNUSED(pairHeader);
 		PX_UNUSED(pairs);
 		PX_UNUSED(nbPairs);
-
-		std::cout << "Stop colliding with me !" << std::endl;
 	}
 	void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count) {}
 	void onWake(physx::PxActor** actors, physx::PxU32 count) {}
