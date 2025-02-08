@@ -64,11 +64,45 @@ int main() {
 
     physicsSystem->updateTransforms(entityList);
 
+
+    //trail spawning TODO: 
+    /*
+    Put all the stuff in car.cpp and car.h thing
+    */
+    int maxObjects = 20;  //adjust any of these values to test stuff
+    int objectsSpawned = 0; 
+
+    float spawnInterval = 10.0f;
+    float timeSinceLastSpawn = 0.0f;
+
     // Main Loop
     while (!window.shouldClose()) {
         window.clear();
         timer.tick();
         input.poll();
+
+        
+        timeSinceLastSpawn += timer.dt;
+
+       
+        if (timeSinceLastSpawn >= spawnInterval && objectsSpawned < maxObjects) {
+
+            physx::PxVec3 carPosition = physicsSystem->getCarPosition();
+
+            float offsetBehindCar = 0.0f; 
+            physx::PxTransform spawnTransform(carPosition + physx::PxVec3(0, 0, 0.0f)); 
+
+
+            MaterialProp matProps = { 0.5f, 0.5f, 0.6f };
+            physx::PxBoxGeometry* boxGeom = new physx::PxBoxGeometry(halfLen, halfLen, halfLen);
+            physicsSystem->addItem(matProps, boxGeom, spawnTransform, 10.f);
+            entityList.emplace_back(Entity("box", cube, physicsSystem->getTransformAt(counter++)));
+
+            delete(boxGeom);
+
+            objectsSpawned++; 
+            timeSinceLastSpawn = 0.0f;
+        }
 
         // Update physics
         while (timer.getAccumultor() >= timer.dt) {
@@ -83,6 +117,7 @@ int main() {
 
         glfwSwapBuffers(window);
     }
+
 
     return 0;
 }

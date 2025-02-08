@@ -13,4 +13,5 @@ public:
 	Transform* transform;
 
 	Entity(std::string name, Model& model, Transform* transform);
+
 };

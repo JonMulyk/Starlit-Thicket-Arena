@@ -1,4 +1,6 @@
 #include "PhysicsSystem.h"
+float targetSpeed = 2.0f;
+
 
 void PhysicsSystem::initPhysX() {
 	using namespace physx;
@@ -240,28 +242,60 @@ void PhysicsSystem::updatePhysics(double dt, std::vector<Entity> entityList) {
 
 	updateTransforms(entityList);
 }
-
 void PhysicsSystem::stepPhysics(float timestep, Command& command) {
 	using namespace physx;
 	using namespace snippetvehicle2;
 
-	//Apply the brake, throttle and steer to the command state of the vehicle.
+	// Apply the brake, throttle, and steer to the command state of the vehicle
 	gVehicle.mCommandState.brakes[0] = command.brake;
 	gVehicle.mCommandState.nbBrakes = 1;
-	gVehicle.mCommandState.throttle = command.throttle;
 	gVehicle.mCommandState.steer = command.steer;
-	gVehicle.mTransmissionCommandState.targetGear = snippetvehicle2::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
 
-	//Forward integrate the vehicle by a single timestep.
-	//Apply substepping at low forward speed to improve simulation fidelity.
+	// Calculate the current speed of the vehicle
 	const PxVec3 linVel = gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
 	const PxVec3 forwardDir = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
-	const PxReal forwardSpeed = linVel.dot(forwardDir);
+	const PxReal forwardSpeed = linVel.dot(forwardDir); // Speed along the forward axis
+
+	// Calculate the throttle to maintain constant speed
+	float throttle = 0.0f;
+	if (forwardSpeed < targetSpeed) {
+		throttle = 1.0f; // Full throttle if below target speed
+	}
+	else if (forwardSpeed > targetSpeed) {
+		throttle = 0.0f; // No throttle if above target speed
+	}
+
+	// Apply the throttle to the command
+	gVehicle.mCommandState.throttle = throttle;
+
+	// Apply the automatic gearbox
+	gVehicle.mTransmissionCommandState.targetGear = snippetvehicle2::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
+
+	// Forward integrate the vehicle by a single timestep.
+	// Apply substepping at low forward speed to improve simulation fidelity.
 	const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
 	gVehicle.mComponentSequence.setSubsteps(gVehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
 	gVehicle.step(timestep, gVehicleSimulationContext);
 
-	//Forward integrate the phsyx scene by a single timestep.
+	// Forward integrate the PhysX scene by a single timestep.
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
 }
+
+physx::PxVec3 PhysicsSystem::getCarPosition() {
+	physx::PxTransform carPose = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose();
+	physx::PxVec3 carPosition = carPose.p;
+
+	// Get the car's orientation (rotation)
+	physx::PxQuat carRotation = carPose.q;
+
+	// Get the forward direction the car is pointing towards
+	physx::PxVec3 carForwardDirection = carRotation.rotate(physx::PxVec3(0, 0, 1)); // Z-axis in local space is forward
+
+	// Move **behind** the car instead of in front
+	float offsetBehind = 2.0f; // Adjust the distance behind the car
+	physx::PxVec3 relativePosition = carPosition - (carForwardDirection * offsetBehind);
+
+	return relativePosition;
+}
+

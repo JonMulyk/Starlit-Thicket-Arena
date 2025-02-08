@@ -93,6 +93,13 @@ public:
 
 	void stepPhysics(float timestep, Command& command);
 
+	physx::PxVec3 getCarPosition();
+
+	void spawnObjectBehindCar();
+
+	physx::PxVec3 getPositionBehindCar(float distance);
+
+
 	void addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density=10.f);
 
 	physx::PxVec3 getPos(int i);
