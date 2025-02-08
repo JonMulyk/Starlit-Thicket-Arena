@@ -37,13 +37,22 @@ void Input::processKeyboard() {
     if (glfwGetKey(r_window, GLFW_KEY_A) == GLFW_PRESS) {
         r_camera.ProcessKeyboard(r_camera.LEFT, deltaTime);
     }
+
 }
 
 void Input::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    Input* p_input = static_cast<Input*>(glfwGetWindowUserPointer(window));
+
+    if (p_input == nullptr) {
+        return;
+    }
     if (action == GLFW_PRESS || action == GLFW_REPEAT) {
         switch (key) {
         case (GLFW_KEY_ESCAPE):
             glfwSetWindowShouldClose(window, true);
+            break;
+        case (GLFW_KEY_F):
+            p_input->r_camera.ProcessKeyboard(p_input->r_camera.TOGGLEFREECAM, 0);
             break;
         default:
             break;

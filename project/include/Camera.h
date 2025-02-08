@@ -13,6 +13,7 @@ private:
     glm::vec3 Up;
     glm::vec3 Right;
     glm::vec3 WorldUp;
+
     // euler Angles
     float Yaw;
     float Pitch;
@@ -21,6 +22,7 @@ private:
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+    bool FreeCam;
 public:
     // Default camera values
     static const float YAW;
@@ -29,12 +31,14 @@ public:
     static const float SENSITIVITY;
     static const float ZOOM;
     static const glm::vec3 POSITION;
+    static const bool FREECAM;
 
-    enum Camera_Movement {
+    enum Camera_Inputs {
         FORWARD,
         BACKWARD,
         LEFT,
-        RIGHT
+        RIGHT,
+        TOGGLEFREECAM
     };
 
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
@@ -44,7 +48,7 @@ public:
     glm::mat4 GetViewMatrix();
 
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    void ProcessKeyboard(Camera_Movement direction, float deltaTime);
+    void ProcessKeyboard(Camera_Inputs direction, float deltaTime);
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
@@ -53,8 +57,12 @@ public:
 
     // calculates the front vector from the Camera's (updated) Euler Angles
     void updateCameraVectors();
+
     // updates camera position
     void updateCameraPosition(glm::vec3 pos);
+
+    // return free camera state
+    bool isFreeCam();
 };
 
 

@@ -81,9 +81,10 @@ int main() {
         // Render Entities & Text
         renderer.renderEntities(entityList);
         renderer.renderText("FPS: " + std::to_string(timer.getFPS()), 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
-        camera.updateCameraPosition(entityList[7].transform->pos + glm::vec3(0.0f, 2.0f, 10.0f));
-        std::cout << entityList.size() << std::endl;
- 
+        // Tracks camera to box 8
+        if (not camera.isFreeCam())
+            camera.updateCameraPosition(entityList[7].transform->pos + glm::vec3(0.0f, 2.0f, 10.0f));
+        std::cout << camera.isFreeCam() << std::endl;
         glfwSwapBuffers(window);
     }
 

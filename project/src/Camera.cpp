@@ -13,6 +13,7 @@ const float Camera::SPEED = 10.f;
 const float Camera::SENSITIVITY = 0.1f;
 const float Camera::ZOOM = 45.0f;
 const glm::vec3 Camera::POSITION = glm::vec3(0.0f, 2.0f, 10.0f);
+const bool Camera::FREECAM = false;
 
 Camera::Camera(
     float posX, float posY, float posZ,
@@ -23,7 +24,8 @@ Camera::Camera(
     MovementSpeed(SPEED),
     MouseSensitivity(SENSITIVITY),
     Zoom(ZOOM),
-    Position(POSITION)
+    Position(POSITION),
+    FreeCam(FREECAM)
 {
     //Position = glm::vec3(posX, posY, posZ); // Position as seen in above diagram
     WorldUp = glm::vec3(upX, upY, upZ); // Up vector as seen in above diagram
@@ -37,7 +39,8 @@ Camera::Camera( glm::vec3 position, glm::vec3 up, float yaw, float pitch) :
     MovementSpeed(SPEED),
     MouseSensitivity(SENSITIVITY),
     Zoom(ZOOM),
-    Position(POSITION)
+    Position(POSITION),
+    FreeCam(FREECAM)
 {
     //Position = position;
     WorldUp = up;
@@ -54,16 +57,18 @@ glm::mat4 Camera::GetViewMatrix() {
     return glm::lookAt(Position, Position + Front, Up);
 }
 
-void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime) {
+void Camera::ProcessKeyboard(Camera_Inputs input, float deltaTime) {
     float velocity = MovementSpeed * deltaTime;
-    if (direction == FORWARD)
+    if (input == FORWARD and FreeCam)
         Position += Front * velocity;
-    if (direction == BACKWARD)
+    if (input == BACKWARD and FreeCam)
         Position -= Front * velocity;
-    if (direction == LEFT)
+    if (input == LEFT and FreeCam)
         Position -= Right * velocity;
-    if (direction == RIGHT)
+    if (input == RIGHT and FreeCam)
         Position += Right * velocity;
+    if (input == TOGGLEFREECAM)
+        FreeCam = !FreeCam;
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch) {
@@ -108,4 +113,8 @@ void Camera::updateCameraVectors() {
 
 void Camera::updateCameraPosition(glm::vec3 pos) {
     Position = pos;
+}
+
+bool Camera::isFreeCam() {
+    return FreeCam;
 }
