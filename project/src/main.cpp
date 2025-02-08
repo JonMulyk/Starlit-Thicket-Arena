@@ -19,12 +19,12 @@
 
 int main() {
     InitManager::initGLFW();
-
+    Command command;
     TimeSeconds timer;
     Camera camera;
     Windowing window(1200, 1000);
 
-    Input input(window, camera, timer);
+    Input input(window, camera, timer, command);
     Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
     Texture container("project/assets/textures/container.jpg", true);
@@ -72,7 +72,7 @@ int main() {
 
         // Update physics
         while (timer.getAccumultor() >= timer.dt) {
-            physicsSystem->stepPhysics();
+            physicsSystem->stepPhysics(timer.dt, command);
             physicsSystem->updatePhysics(timer.dt, entityList);
             timer.advance();
         }
