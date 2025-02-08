@@ -71,9 +71,11 @@ int main() {
     // Main Loop
     while (!window.shouldClose()) {
         if (controller1.Update()) {
-            //controller values
+            //controller values            
             //std::cout << "Left Stick " << "X: " << controller1.leftStickX << ", Y: " << controller1.leftStickY << std::endl;
             //std::cout << "Right Stick " << "X: " << controller1.rightStickX << ", Y: " << controller1.rightStickY << std::endl;
+            //UINT button = controller1.buttodID();
+            //std::cout << button << std::endl;
             //std::cout << "Trigger Values: " << controller1.leftTrigger << ", " << controller1.rightTrigger << std::endl;
             //std::cout << "Button values: " << controller1.isButtonPressed(XINPUT_GAMEPAD_A);
             //controller1.Vibrate(20000, 20000);

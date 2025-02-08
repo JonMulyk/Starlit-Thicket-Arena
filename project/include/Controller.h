@@ -12,8 +12,8 @@
 class Controller
 {
 public:
-    Controller(UINT id);
-    Controller(UINT id, float deadzoneX, float deadzoneY);
+    Controller(UINT id); //default contstuctor with id, uses default deadzone values
+    Controller(UINT id, float deadzoneX, float deadzoneY); //constructor for custom deadzone
 
     inline UINT getControllerID() const;
     XINPUT_GAMEPAD* getController();
@@ -23,6 +23,7 @@ public:
     void Vibrate(USHORT speed);
     void resetVibration();
     bool isButtonPressed(UINT button) const;
+    UINT buttodID();
 
     float leftStickX, leftStickY, rightStickX, rightStickY;
     float leftTrigger, rightTrigger;

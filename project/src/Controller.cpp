@@ -124,3 +124,7 @@ bool Controller::isButtonPressed(UINT button) const
 {
     return (state.Gamepad.wButtons & button) != 0;
 }
+
+UINT Controller::buttodID() {
+    return state.Gamepad.wButtons;
+}
