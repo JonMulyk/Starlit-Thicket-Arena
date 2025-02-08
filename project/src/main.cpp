@@ -77,9 +77,8 @@ int main() {
             timer.advance();
         }
 
-        // Render Entities & Text
-        renderer.renderEntities(entityList);
-        renderer.renderText("FPS: " + std::to_string(timer.getFPS()), 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
+
+        renderer.updateRenderer(entityList, "FPS: " + std::to_string(timer.getFPS()));
 
         glfwSwapBuffers(window);
     }

@@ -36,3 +36,14 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities) {
 void RenderingSystem::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color) {
     textRenderer.render(text, x, y, scale, color);
 }
+
+
+void RenderingSystem::updateRenderer(const std::vector<Entity>& entities, std::string textToDisplay)
+{
+
+	// Render Entities & Text
+	this->renderEntities(entities);
+	this->renderText(textToDisplay, 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
+
+
+}

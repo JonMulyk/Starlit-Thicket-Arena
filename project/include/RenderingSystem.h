@@ -14,6 +14,7 @@ public:
     void renderEntities(const std::vector<Entity>& entities);
     void renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color);
     void updateProjectionView();
+    void updateRenderer(const std::vector<Entity>& entities, std::string text="");
 
 private:
     Shader& shader;
