@@ -39,8 +39,8 @@ int main() {
     // Model Setup
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
-    Model m2(shader, texture2, verts, verts, coord);
-    Model m1(shader, texture2, "project/assets/models/GTree.obj");
+    //Model m2(shader, texture2, verts, verts, coord);
+    Model m1(shader, "project/assets/models/redBrick.obj");
 
 
     // PhysX item setup
@@ -57,7 +57,7 @@ int main() {
         for (unsigned int j = 0; j < size - i; j++) {
             physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
             physicsSystem->addItem(matProps, boxGeom, localTran, 10.f);
-            entityList.emplace_back(Entity("box", m2, physicsSystem->getTransformAt(counter++)));
+            entityList.emplace_back(Entity("box", m1, physicsSystem->getTransformAt(counter++)));
         }
     }
     delete(boxGeom);

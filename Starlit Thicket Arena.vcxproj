@@ -161,6 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="project\src\Camera.cpp" />
+    <ClCompile Include="project\src\Controller.cpp" />
     <ClCompile Include="project\src\Entity.cpp" />
     <ClCompile Include="project\src\glad.c" />
     <ClCompile Include="project\src\InitManager.cpp" />
@@ -180,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="project\include\Camera.h" />
+    <ClInclude Include="project\include\Controller.h" />
     <ClInclude Include="project\include\Entity.h" />
     <ClInclude Include="project\include\InitManager.h" />
     <ClInclude Include="project\include\Input.h" />

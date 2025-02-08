@@ -66,10 +66,13 @@
     <ClCompile Include="project\src\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="project\src\tiny_obj_loader.cc">
+    <ClCompile Include="project\src\RenderingSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="project\src\RenderingSystem.cpp">
+    <ClCompile Include="project\src\Controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="project\src\tiny_obj_loader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -123,10 +126,13 @@
     <ClInclude Include="project\include\Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="project\include\tiny_obj_loader.h">
+    <ClInclude Include="project\include\RenderingSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="project\include\RenderingSystem.h">
+    <ClInclude Include="project\include\Controller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\tiny_obj_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
