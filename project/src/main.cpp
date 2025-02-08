@@ -66,36 +66,18 @@ int main() {
 
     //controller input
     Controller controller1(1);
-    bool aPressed = false;
-    if (!controller1.isConnected())
-    {
-        std::cout << "Controller not connected" << std::endl;
-    }
+    if (!controller1.isConnected()) { std::cout << "Controller one not connected" << std::endl; }
 
     // Main Loop
     while (!window.shouldClose()) {
         if (controller1.Update()) {
-            std::cout << "Left Stick " << "X: " << controller1.leftStickX << ", Y: " << controller1.leftStickY << std::endl;
-            std::cout << "Right Stick " << "X: " << controller1.rightStickX << ", Y: " << controller1.rightStickY << std::endl;
-            std::cout << "Trigger Values: " << controller1.leftTrigger << ", " << controller1.rightTrigger << std::endl;
-            //Sleep(1000);
-        }
-
-        if (controller1.isButtonPressed(XINPUT_GAMEPAD_A)) {
-            aPressed = true;
-        }
-        else
-        {
-            aPressed = false;
-        }
-
-        if (aPressed == true)
-        {
-            controller1.Vibrate(20000, 20000);
-        }
-        else
-        {
-            controller1.resetVibration();
+            //controller values
+            //std::cout << "Left Stick " << "X: " << controller1.leftStickX << ", Y: " << controller1.leftStickY << std::endl;
+            //std::cout << "Right Stick " << "X: " << controller1.rightStickX << ", Y: " << controller1.rightStickY << std::endl;
+            //std::cout << "Trigger Values: " << controller1.leftTrigger << ", " << controller1.rightTrigger << std::endl;
+            //std::cout << "Button values: " << controller1.isButtonPressed(XINPUT_GAMEPAD_A);
+            //controller1.Vibrate(20000, 20000);
+            //controller1.resetVibration();
         }
 
         window.clear();
