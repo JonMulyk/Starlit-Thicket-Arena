@@ -8,6 +8,7 @@
 #include "InitManager.h"
 #include "Windowing.h"
 #include "Input.h"
+#include "Controller.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "TTF.h"

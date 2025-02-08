@@ -1,4 +1,4 @@
-#include "Gamepad.h"
+#include "Controller.h"
 
 XButtonIDs XButtons;
 
