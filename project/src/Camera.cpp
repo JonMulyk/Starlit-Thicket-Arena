@@ -12,7 +12,7 @@ const float Camera::PITCH = 0.0f;
 const float Camera::SPEED = 10.f;
 const float Camera::SENSITIVITY = 0.1f;
 const float Camera::ZOOM = 45.0f;
-const glm::vec3 Camera::POSITION = glm::vec3(0.0f, 0.0f, 0.0f);
+const glm::vec3 Camera::POSITION = glm::vec3(0.0f, 2.0f, 10.0f);
 
 Camera::Camera(
     float posX, float posY, float posZ,

@@ -2,6 +2,8 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <glm.hpp>
+#include <iostream>
+
 
 #include "PxPhysicsAPI.h"
 #include "TimeSeconds.h"
@@ -75,11 +77,13 @@ int main() {
             physicsSystem->updatePhysics(timer.dt, entityList);
             timer.advance();
         }
-
+     
         // Render Entities & Text
         renderer.renderEntities(entityList);
         renderer.renderText("FPS: " + std::to_string(timer.getFPS()), 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
-
+        camera.updateCameraPosition(entityList[7].transform->pos + glm::vec3(0.0f, 2.0f, 10.0f));
+        std::cout << entityList.size() << std::endl;
+ 
         glfwSwapBuffers(window);
     }
 
