@@ -27,8 +27,8 @@ int main() {
     Input input(window, camera, timer);
     Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
-    Texture texture1("project/assets/textures/container.jpg", true);
-    Texture texture2("project/assets/textures/wall.jpg", true);
+    Texture container("project/assets/textures/container.jpg", true);
+    Texture brickWall("project/assets/textures/wall.jpg", true);
 
     PhysicsSystem* physicsSystem = new PhysicsSystem();
 
@@ -38,25 +38,26 @@ int main() {
     // Model Setup
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
-    Model m2(shader, texture2, verts, verts, coord);
-    Model m1(shader, texture2, "project/assets/models/GTree.obj");
+    Model cube(shader, container, verts, verts, coord);
+    Model redBrick(shader, brickWall, "project/assets/models/redBrick.obj");
 
+
+    // Entity setup
+    std::vector<Entity> entityList;
+    entityList.emplace_back("car", redBrick, physicsSystem->getTransformAt(0));
 
     // PhysX item setup
     float halfLen = 0.5f;
     MaterialProp matProps = { 0.5f, 0.5f, 0.6f };
     physx::PxBoxGeometry* boxGeom = new physx::PxBoxGeometry(halfLen, halfLen, halfLen);
 
-    // Entity setup
-    std::vector<Entity> entityList;
-
     int size = 5;
-    int counter = 0;
+    int counter = 1;
     for (unsigned int i = 0; i < size; i++) {
         for (unsigned int j = 0; j < size - i; j++) {
             physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
             physicsSystem->addItem(matProps, boxGeom, localTran, 10.f);
-            entityList.emplace_back(Entity("box", m2, physicsSystem->getTransformAt(counter++)));
+            entityList.emplace_back(Entity("box", cube, physicsSystem->getTransformAt(counter++)));
         }
     }
     delete(boxGeom);
