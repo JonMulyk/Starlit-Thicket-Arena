@@ -1,201 +1,126 @@
 #include "Controller.h"
+#include <algorithm>
+#include <climits>
 
-XButtonIDs XButtons;
+float normalize(float input, float min, float max);
 
-// 'XButtonIDs' - Default constructor
-XButtonIDs::XButtonIDs()
+Controller::Controller(UINT id) : controllerID(id),
+deadzoneX(XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE),
+deadzoneY(XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
 {
-    // These values are used to index the XINPUT_Buttons array,
-    // accessing the matching XINPUT button value
-
-    A = 0;
-    B = 1;
-    X = 2;
-    Y = 3;
-
-    DPad_Up = 4;
-    DPad_Down = 5;
-    DPad_Left = 6;
-    DPad_Right = 7;
-
-    L_Shoulder = 8;
-    R_Shoulder = 9;
-
-    L_Thumbstick = 10;
-    R_Thumbstick = 11;
-
-    Start = 12;
-    Back = 13;
+    ZeroMemory(&state, sizeof(XINPUT_STATE));
+    ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
 }
 
-// Link the 'Xinput' library - Important!
-//#pragma comment(lib, "Xinput.lib");
-
-// Default constructor
-Gamepad::Gamepad() {}
-
-// Overloaded constructor
-Gamepad::Gamepad(int a_iIndex)
+Controller::Controller(UINT id, float deadzoneX, float deadzoneY)
+    : deadzoneX(deadzoneX), deadzoneY(deadzoneY)
 {
-    // Set gamepad index
-    m_iGamepadIndex = a_iIndex - 1;
+    ZeroMemory(&state, sizeof(XINPUT_STATE));
+    ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
+}
 
-    for (int i = 0; i < 14; i++)
+
+UINT Controller::getControllerID() const
+{
+    return controllerID;
+}
+XINPUT_GAMEPAD* Controller::getController()
+{
+    return &state.Gamepad;
+}
+
+bool Controller::isConnected()
+{
+    if (XInputGetState(controllerID - 1, &state) == ERROR_SUCCESS)
     {
-        bGamepad_ButtonsDown[i] = false;
-        bButtonStates[i] = false;
-        bPrev_ButtonStates[i] = false;
+        return true;
     }
-}
-
-// Return gamepad state
-XINPUT_STATE Gamepad::GetState()
-{
-    // Temporary XINPUT_STATE to return
-    XINPUT_STATE GamepadState;
-
-    // Zero memory
-    ZeroMemory(&GamepadState, sizeof(XINPUT_STATE));
-
-    // Get the state of the gamepad
-    XInputGetState(m_iGamepadIndex, &GamepadState);
-
-    // Return the gamepad state
-    return GamepadState;
-}
-
-// Return gamepad index
-int Gamepad::GetIndex()
-{
-    return m_iGamepadIndex;
-}
-
-// Return true if the gamepad is connected
-bool Gamepad::Connected()
-{
-    // Zero memory
-    ZeroMemory(&m_State, sizeof(XINPUT_STATE));
-
-    // Get the state of the gamepad
-    DWORD Result = XInputGetState(m_iGamepadIndex, &m_State);
-
-    if (Result == ERROR_SUCCESS)
-        return true;  // The gamepad is connected
     else
-        return false; // The gamepad is not connected
-}
-
-// Update gamepad state
-void Gamepad::Update()
-{
-    m_State = GetState(); // Obtain current gamepad state
-}
-
-// Return X axis of left stick
-float Gamepad::LeftStick_X()
-{
-    // Obtain X axis of left stick
-    short sX = m_State.Gamepad.sThumbLX;
-
-    // Return axis value, converted to a float
-    return (static_cast<float>(sX) / 32768.0f);
-}
-
-// Return Y axis of left stick
-float Gamepad::LeftStick_Y()
-{
-    // Obtain Y axis of left stick
-    short sY = m_State.Gamepad.sThumbLY;
-
-    // Return axis value, converted to a float
-    return (static_cast<float>(sY) / 32768.0f);
-}
-
-// Return X axis of right stick
-float Gamepad::RightStick_X()
-{
-    // Obtain X axis of right stick
-    short sX = m_State.Gamepad.sThumbRX;
-
-    // Return axis value, converted to a float
-    return (static_cast<float>(sX) / 32768.0f);
-}
-
-// Return Y axis of right stick
-float Gamepad::RightStick_Y()
-{
-    // Obtain the Y axis of the left stick
-    short sY = m_State.Gamepad.sThumbRY;
-
-    // Return axis value, converted to a float
-    return (static_cast<float>(sY) / 32768.0f);
-}
-
-// Return value of left trigger
-float Gamepad::LeftTrigger()
-{
-    // Obtain value of left trigger
-    BYTE Trigger = m_State.Gamepad.bLeftTrigger;
-
-    if (Trigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
-        return Trigger / 255.0f;
-
-    return 0.0f; // Trigger was not pressed
-}
-
-// Return value of right trigger
-float Gamepad::RightTrigger()
-{
-    // Obtain value of right trigger
-    BYTE Trigger = m_State.Gamepad.bRightTrigger;
-
-    if (Trigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
-        return Trigger / 255.0f;
-
-    return 0.0f; // Trigger was not pressed
-}
-
-// Vibrate the gamepad (values of 0.0f to 1.0f only)
-void Gamepad::Rumble(float a_fLeftMotor, float a_fRightMotor)
-{
-    // Vibration state
-    XINPUT_VIBRATION VibrationState;
-
-    // Zero memory
-    ZeroMemory(&VibrationState, sizeof(XINPUT_VIBRATION));
-
-    // Calculate vibration values
-    int iLeftMotor = int(a_fLeftMotor * 65535.0f);
-    int iRightMotor = int(a_fRightMotor * 65535.0f);
-
-    // Set vibration values
-    VibrationState.wLeftMotorSpeed = iLeftMotor;
-    VibrationState.wRightMotorSpeed = iRightMotor;
-
-    // Set the vibration state
-    XInputSetState(m_iGamepadIndex, &VibrationState);
-}
-
-// Return true if button is pressed, false if not
-bool Gamepad::GetButtonPressed(int a_iButton)
-{
-    if (m_State.Gamepad.wButtons & XINPUT_Buttons[a_iButton])
     {
-        return true; // The button is pressed
+        return false;
+    }
+}
+
+float normalize(float input, float min, float max)
+{
+    float average = (min + max) / 2;
+    float range = (max - min) / 2;
+    return (input - average) / range;
+}
+
+float Controller::ApplyDeadzone(float value, float maxValue, float deadzone)
+{
+    if (value < -deadzone)
+    {
+        value += deadzone;
+    }
+    else if (value > deadzone)
+    {
+        value -= deadzone;
+    }
+    else
+    {
+        return 0;
+    }
+    float normValue = (float)value / (float)(maxValue - deadzone);//scales to 0-1
+    return std::max(-1.0f, std::min(normValue, 1.0f));
+}
+
+
+bool Controller::Update()
+{
+    if (!isConnected())
+        return false;
+
+    float normLX = normalize(static_cast<float>(state.Gamepad.sThumbLX), -32767, 32767);
+    float normLY = normalize(static_cast<float>(state.Gamepad.sThumbLY), -32767, 32767);
+
+    float normRX = normalize(static_cast<float>(state.Gamepad.sThumbRX), -32767, 32767);
+    float normRY = normalize(static_cast<float>(state.Gamepad.sThumbRY), -32767, 32767);
+
+    if (deadzoneX <= 1.0f || deadzoneY <= 1.0f)
+    {
+        leftStickX = ApplyDeadzone(normLX, maxValue, deadzoneX);
+        leftStickY = ApplyDeadzone(normLY, maxValue, deadzoneY);
+        rightStickX = ApplyDeadzone(normRX, maxValue, deadzoneX);
+        rightStickY = ApplyDeadzone(normRY, maxValue, deadzoneY);
+    }
+    else
+    {
+        leftStickX = ApplyDeadzone(normLX, maxValue, normalize(deadzoneX, SHRT_MIN, SHRT_MAX));
+        leftStickY = ApplyDeadzone(normLY, maxValue, normalize(deadzoneY, SHRT_MIN, SHRT_MAX));
+        rightStickX = ApplyDeadzone(normRX, maxValue, normalize(deadzoneX, SHRT_MIN, SHRT_MAX));
+        rightStickY = ApplyDeadzone(normRY, maxValue, normalize(deadzoneY, SHRT_MIN, SHRT_MAX));
     }
 
-    return false; // The button is not pressed
+    leftTrigger = static_cast<float>(state.Gamepad.bLeftTrigger) / 255.0f;//normalize input 
+    rightTrigger = static_cast<float>(state.Gamepad.bRightTrigger) / 255.0f;
+    return true;
 }
 
-// Frame-specific version of 'GetButtonPressed' function
-bool Gamepad::GetButtonDown(int a_iButton)
+
+void Controller::Vibrate(USHORT leftSpeed, USHORT rightSpeed)
 {
-    return bGamepad_ButtonsDown[a_iButton];
+    vibration.wLeftMotorSpeed = leftSpeed;
+    vibration.wRightMotorSpeed = rightSpeed;
+    XInputSetState(controllerID - 1, &vibration);
 }
 
-// Update button states for next frame
-void Gamepad::RefreshState()
+void Controller::Vibrate(USHORT speed)
 {
-    memcpy(bPrev_ButtonStates, bButtonStates,
-        sizeof(bPrev_ButtonStates));
+    vibration.wLeftMotorSpeed = speed;
+    vibration.wRightMotorSpeed = speed;
+    XInputSetState(controllerID - 1, &vibration);
+}
+
+void Controller::resetVibration()
+{
+    vibration.wLeftMotorSpeed = 0;
+    vibration.wRightMotorSpeed = 0;
+    XInputSetState(controllerID - 1, &vibration);
+}
+
+bool Controller::isButtonPressed(UINT button) const
+{
+    return (state.Gamepad.wButtons & button) != 0;
 }
