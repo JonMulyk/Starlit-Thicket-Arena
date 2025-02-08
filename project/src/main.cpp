@@ -40,7 +40,7 @@ int main() {
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
     //Model m2(shader, texture2, verts, verts, coord);
-    Model m1(shader, "project/assets/models/redBrick.obj");
+    Model m1(shader, "project/assets/models/tire1.obj");
 
 
     // PhysX item setup

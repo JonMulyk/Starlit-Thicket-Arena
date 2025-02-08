@@ -29,7 +29,7 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities) {
         model = glm::scale(model, glm::vec3(1.0f));
 
         shader.setMat4("model", model);
-        entity.model.draw();
+        entity.model.Draw(shader);
     }
 }
 

@@ -167,6 +167,7 @@
     <ClCompile Include="project\src\InitManager.cpp" />
     <ClCompile Include="project\src\Input.cpp" />
     <ClCompile Include="project\src\main.cpp" />
+    <ClCompile Include="project\src\Mesh.cpp" />
     <ClCompile Include="project\src\Model.cpp" />
     <ClCompile Include="project\src\PhysicsSystem.cpp" />
     <ClCompile Include="project\src\Shader.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="project\include\Entity.h" />
     <ClInclude Include="project\include\InitManager.h" />
     <ClInclude Include="project\include\Input.h" />
+    <ClInclude Include="project\include\Mesh.h" />
     <ClInclude Include="project\include\Model.h" />
     <ClInclude Include="project\include\PhysicsSystem.h" />
     <ClInclude Include="project\include\Render.h" />

@@ -69,6 +69,8 @@ void Model::loadOBJ(const std::string& path) {
 }
 
 
+
+
 void Model::createBuffer() {
     m_count = static_cast<int>(m_vertices.size() / 3);
 
@@ -90,7 +92,7 @@ void Model::createBuffer() {
     if (!m_textCoords.empty()) {
         glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
         glBufferData(GL_ARRAY_BUFFER, m_textCoords.size() * sizeof(float), &m_textCoords[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
         glEnableVertexAttribArray(2);
     }
 
@@ -123,14 +125,21 @@ Model::Model(Shader& shader, const std::string& model_path)
     createBuffer();
 }
 
-void Model::draw() {
+void Model::Draw(Shader& shader) {
     m_shader.use();
-
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, m_count);
+    glBindVertexArray(0);
+    
+    for (unsigned int i = 0; i < meshes.size(); i++)
+    {
+        meshes[i].Draw(shader);
+    }
     if (hasTexture && m_texture) {
         m_texture->bind();
     }
 
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, m_count);
-    glBindVertexArray(0);
+
+
 }
+

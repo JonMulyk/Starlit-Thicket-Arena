@@ -9,6 +9,7 @@
 
 #include "Shader.h"
 #include "Texture.h"
+#include <Mesh.h>
 
 class Model {
 public:
@@ -28,13 +29,15 @@ public:
     Model(Shader& shader, const std::string& model_path);
 
 
-    void draw();
+    void Draw(Shader& shader);
 
 private:
     Shader& m_shader;
     Texture* m_texture; // Changed to a pointer to allow null values
     int m_count;
     bool hasTexture;
+    std::vector<Mesh> meshes;
+    std::string directory;
 
     std::vector<float> m_vertices;
     std::vector<float> m_normals;
@@ -47,4 +50,5 @@ private:
 
     void createBuffer();
     void loadOBJ(const std::string& path);
+
 };
