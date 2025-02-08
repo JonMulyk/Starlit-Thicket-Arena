@@ -71,6 +71,7 @@ int main() {
 
         // Update physics
         while (timer.getAccumultor() >= timer.dt) {
+            physicsSystem->stepPhysics();
             physicsSystem->updatePhysics(timer.dt, entityList);
             timer.advance();
         }
