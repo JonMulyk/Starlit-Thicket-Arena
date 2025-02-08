@@ -63,6 +63,22 @@ int main() {
 
     physicsSystem->updateTransforms(entityList);
 
+    //// create audio system
+    //FMOD::System* system;
+    //FMOD_RESULT result = FMOD::System_Create(&system);
+
+    //system->set3DSettings(1.0, 1.0f, 1.0f);
+    //result = system->init(512, FMOD_INIT_NORMAL, nullptr);
+
+    //FMOD::Sound* sound;
+    //result = system->createSound("project/assets/sound/test.wav", FMOD_DEFAULT, nullptr, &sound);
+
+    //FMOD::Channel* channel;
+    //result = system->playSound(sound, nullptr, false, &channel);
+
+    //system->release();
+    //channel->stop();
+
     // Main Loop
     while (!window.shouldClose()) {
         window.clear();
