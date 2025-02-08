@@ -20,6 +20,9 @@ public:
     // Constructor
     Input(Windowing& window, Camera& camera, TimeSeconds& timer);
 
+
+    void processKeyboard();
+
     // Polls for and processes events
     void poll();
 
