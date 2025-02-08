@@ -12,6 +12,7 @@ const float Camera::PITCH = 0.0f;
 const float Camera::SPEED = 10.f;
 const float Camera::SENSITIVITY = 0.1f;
 const float Camera::ZOOM = 45.0f;
+const glm::vec3 Camera::POSITION = glm::vec3(0.0f, 0.0f, 0.0f);
 
 Camera::Camera(
     float posX, float posY, float posZ,
@@ -21,9 +22,10 @@ Camera::Camera(
     Front(glm::vec3(0.0f, 0.0f, -1.0f)),
     MovementSpeed(SPEED),
     MouseSensitivity(SENSITIVITY),
-    Zoom(ZOOM)
+    Zoom(ZOOM),
+    Position(POSITION)
 {
-    Position = glm::vec3(posX, posY, posZ); // Position as seen in above diagram
+    //Position = glm::vec3(posX, posY, posZ); // Position as seen in above diagram
     WorldUp = glm::vec3(upX, upY, upZ); // Up vector as seen in above diagram
     Yaw = yaw;
     Pitch = pitch;
@@ -34,9 +36,10 @@ Camera::Camera( glm::vec3 position, glm::vec3 up, float yaw, float pitch) :
     Front(glm::vec3(0.0f, 0.0f, -1.0f)),
     MovementSpeed(SPEED),
     MouseSensitivity(SENSITIVITY),
-    Zoom(ZOOM)
+    Zoom(ZOOM),
+    Position(POSITION)
 {
-    Position = position;
+    //Position = position;
     WorldUp = up;
     Yaw = yaw;
     Pitch = pitch;
@@ -101,4 +104,8 @@ void Camera::updateCameraVectors() {
     // also re-calculate the Right and Up vector
     Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     Up = glm::normalize(glm::cross(Right, Front));
+}
+
+void Camera::updateCameraPosition(glm::vec3 pos) {
+    Position = pos;
 }

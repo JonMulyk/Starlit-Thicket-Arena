@@ -13,7 +13,6 @@ private:
     glm::vec3 Up;
     glm::vec3 Right;
     glm::vec3 WorldUp;
-
     // euler Angles
     float Yaw;
     float Pitch;
@@ -29,6 +28,7 @@ public:
     static const float SPEED;
     static const float SENSITIVITY;
     static const float ZOOM;
+    static const glm::vec3 POSITION;
 
     enum Camera_Movement {
         FORWARD,
@@ -53,6 +53,8 @@ public:
 
     // calculates the front vector from the Camera's (updated) Euler Angles
     void updateCameraVectors();
+    // updates camera position
+    void updateCameraPosition(glm::vec3 pos);
 };
 
 

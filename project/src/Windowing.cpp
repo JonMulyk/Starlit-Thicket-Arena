@@ -21,6 +21,8 @@ Windowing::Windowing(int width, int height, std::string name) {
 
     // Set frame buffer size callback
     glfwSetFramebufferSizeCallback(m_window, frameBufferSizeCallback);
+    // Disable cursor to prevent cursor from leaving window
+    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 Windowing::~Windowing() {
