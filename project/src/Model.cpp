@@ -123,6 +123,11 @@ Model::Model(Shader& shader, const std::string& model_path)
     createBuffer();
 }
 
+Shader& Model::getShader()
+{
+    return this->m_shader;
+}
+
 void Model::draw() {
     m_shader.use();
 

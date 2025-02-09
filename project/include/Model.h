@@ -26,7 +26,8 @@ public:
 
     // Constructor for loading an OBJ file without a texture
     Model(Shader& shader, const std::string& model_path);
-
+    
+    Shader& getShader();
 
     void draw();
 

@@ -46,6 +46,14 @@ int main() {
     std::vector<Entity> entityList;
     entityList.emplace_back("car", redBrick, physicsSystem->getTransformAt(0));
 
+    // Static scene data
+    std::vector<Model> sceneModels;
+
+    Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
+    Model groundPlaneModel(sceneShader, "project/assets/models/reallySquareArena.obj");
+    sceneModels.push_back(groundPlaneModel);
+
+
     // PhysX item setup
     float halfLen = 0.5f;
     MaterialProp matProps = { 0.5f, 0.5f, 0.6f };
@@ -62,12 +70,6 @@ int main() {
     }
     delete(boxGeom);
 
-
-    Shader shader2("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
-    Texture tex("project/assets/textures/container.jpg", true);
-    Model groundPlaneModel(shader2, tex, "project/assets/models/squareArena.obj");
-
-
     physicsSystem->updateTransforms(entityList);
 
     // Main Loop
@@ -83,8 +85,8 @@ int main() {
             timer.advance();
         }
 
-		renderer.renderScene(shader2, groundPlaneModel);
-        renderer.updateRenderer(entityList, "FPS: " + std::to_string(timer.getFPS()));
+		//renderer.renderScene(sceneModels);
+        renderer.updateRenderer(entityList, sceneModels, "FPS: " + std::to_string(timer.getFPS()));
 
         glfwSwapBuffers(window);
     }
