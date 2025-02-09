@@ -62,6 +62,12 @@ int main() {
     }
     delete(boxGeom);
 
+
+    Shader shader2("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
+    Texture tex("project/assets/textures/container.jpg", true);
+    Model groundPlaneModel(shader2, tex, "project/assets/models/squareArena.obj");
+
+
     physicsSystem->updateTransforms(entityList);
 
     // Main Loop
@@ -77,7 +83,7 @@ int main() {
             timer.advance();
         }
 
-
+		renderer.renderScene(shader2, groundPlaneModel);
         renderer.updateRenderer(entityList, "FPS: " + std::to_string(timer.getFPS()));
 
         glfwSwapBuffers(window);
