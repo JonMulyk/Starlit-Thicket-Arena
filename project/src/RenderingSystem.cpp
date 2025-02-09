@@ -59,8 +59,8 @@ void RenderingSystem::updateRenderer(
 {
 
 	// Render Entities & Text
-    this->renderScene(sceneModels);
 	this->renderEntities(entities);
+    this->renderScene(sceneModels); // needs to be before any texture binds, otherwise it will take on those
 	this->renderText(textToDisplay, 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
 
 

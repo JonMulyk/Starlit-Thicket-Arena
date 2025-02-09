@@ -138,4 +138,8 @@ void Model::draw() {
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, m_count);
     glBindVertexArray(0);
+
+    if (hasTexture && m_texture) {
+        m_texture->unbind();
+    }
 }
