@@ -2,6 +2,7 @@
 
 Implementation::Implementation() {
     mpStudioSystem = NULL;
+    mnNextChannelId = 0;
     CAudioEngine::ErrorCheck(FMOD::Studio::System::create(&mpStudioSystem));
     CAudioEngine::ErrorCheck(mpStudioSystem->initialize(32, FMOD_STUDIO_INIT_LIVEUPDATE, FMOD_INIT_PROFILE_ENABLE, NULL));
 

@@ -17,6 +17,15 @@
 #include "Camera.h"
 #include "RenderingSystem.h"
 
+#include <future>
+#include "AudioEngine.h"
+
+void AudioUpdate(CAudioEngine* engine) {
+    while (1) {
+        engine->Update();
+    }
+}
+
 int main() {
     InitManager::initGLFW();
 
@@ -63,24 +72,30 @@ int main() {
 
     physicsSystem->updateTransforms(entityList);
 
-    //// create audio system
-    //FMOD::System* system;
-    //FMOD_RESULT result = FMOD::System_Create(&system);
+	//audio engine
+    CAudioEngine aEngine;
+    aEngine.Init();
 
-    //system->set3DSettings(1.0, 1.0f, 1.0f);
-    //result = system->init(512, FMOD_INIT_NORMAL, nullptr);
+    aEngine.LoadSound("project/assets/sound/car.ogg", false);
+	
+	
+    //aEngine.LoadBank("project/assets/sound/Master Bank.bank", FMOD_STUDIO_LOAD_BANK_NORMAL);
+    //aEngine.LoadBank("project/assets/sound/Master Bank.strings.bank", FMOD_STUDIO_LOAD_BANK_NORMAL);
+    //aEngine.LoadEvent("event:/SwordBattle");
 
-    //FMOD::Sound* sound;
-    //result = system->createSound("project/assets/sound/test.wav", FMOD_DEFAULT, nullptr, &sound);
+    //aEngine.LoadSound("res/footsteps.wav", false);
 
-    //FMOD::Channel* channel;
-    //result = system->playSound(sound, nullptr, false, &channel);
+      //  future<void> fut = async(AudioUpdate, &aEngine);
 
-    //system->release();
-    //channel->stop();
+      //  if (!aEngine.IsEventPlaying("event:/SwordBattle")) {
+            //std::cout << "Playing event" << std::endl;
+            //aEngine.PlayEvent("event:/SwordBattle");
+      //  }
+
 
     // Main Loop
     while (!window.shouldClose()) {
+        aEngine.PlaySounds("project/assets/sound/car.ogg", Vector3{ 0, 0, 0 }, 0.0f);
         window.clear();
         timer.tick();
         input.poll();
@@ -98,6 +113,8 @@ int main() {
 
         glfwSwapBuffers(window);
     }
+    
+	aEngine.Shutdown();
 
     return 0;
 }
