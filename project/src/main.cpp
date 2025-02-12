@@ -30,14 +30,15 @@ int main() {
     Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
     Texture container("project/assets/textures/container.jpg", true);
+    Texture gold("project/assets/textures/gold.jpg", true);
+    Texture neon("project/assets/textures/neon.jpg", true);
     Texture fire("project/assets/textures/fire.jpg", true);
-    Texture brickWall("project/assets/textures/wall.jpg", true);
 
     // Model Setup
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
     Model cube(shader, container, verts, verts, coord);
-    Model redBrick(shader, brickWall, "project/assets/models/box.obj");
+    Model redBrick(shader, gold, "project/assets/models/box.obj");
     Model trail(shader, fire, "project/assets/models/Trail.obj");
 
     PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail);
@@ -54,7 +55,7 @@ int main() {
     std::vector<Model> sceneModels;
 
     Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
-    Model groundPlaneModel(sceneShader, "project/assets/models/reallySquareArena.obj");
+    Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
     sceneModels.push_back(groundPlaneModel);
 
 

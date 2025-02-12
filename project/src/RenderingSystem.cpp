@@ -21,6 +21,7 @@ void RenderingSystem::updateProjectionView(Shader &viewShader) {
 void RenderingSystem::renderEntities(const std::vector<Entity>& entities) {
     shader.use();
     updateProjectionView(shader);
+    shader.setFloat("repeats", 1.f);
 
     for (const auto& entity : entities) {
         glm::mat4 model = glm::mat4(1.0f);
@@ -41,6 +42,8 @@ void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 {
     sceneModels[0].getShader().use();
     updateProjectionView(sceneModels[0].getShader()); // set the correct matrices
+    shader.setFloat("repeats", 100.f);
+
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f)); // Scale the ground
