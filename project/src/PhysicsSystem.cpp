@@ -163,6 +163,13 @@ bool PhysicsSystem::initVehicles() {
 	// set the spaw location
 	vehiclePrevPos = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
 	vehiclePrevDir = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
+
+	// set the vehicle state
+	gState.playerVehicle.prevDir = vehiclePrevDir.getNormalized();
+	gState.playerVehicle.curDir = vehiclePrevDir.getNormalized();
+	gState.playerVehicle.curPos = vehiclePrevPos;
+	gState.playerVehicle.prevPos = vehiclePrevPos;
+
 	return true;
 }
 
@@ -309,24 +316,35 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command) {
 	gVehicle.mTransmissionCommandState.targetGear = snippetvehicle2::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
 
 	//Forward integrate the vehicle by a single timestep.
-	//Apply substepping at low forward speed to improve simulation fidelity.
 	const PxVec3 linVel = gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
 	const PxVec3 forwardDir = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
 	const PxReal forwardSpeed = linVel.dot(forwardDir);
 	const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
+
+	// Get the location before the timestep
+	gState.playerVehicle.prevPos = gState.playerVehicle.curPos;
+	gState.playerVehicle.prevDir = gState.playerVehicle.curDir;
+
 	gVehicle.mComponentSequence.setSubsteps(gVehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
 	gVehicle.step(timestep, gVehicleSimulationContext);
 
 	const physx::PxVec3 currPos = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+
+	// Update after timestep
+	gState.playerVehicle.curPos = currPos;
+	gState.playerVehicle.curDir = forwardDir.getNormalized();
+
 	physx::PxVec3 travel = currPos - vehiclePrevPos;
 
 	int steps = travel.magnitude() / trailStep;
 
 	for (int i=0; i < steps; i++) {
 		float ratio = float(i + 1) / float(steps);
+
 		physx::PxVec3 travNorm = ratio*vehiclePrevDir.getNormalized() + (1-ratio)*travel.getNormalized();
 		physx::PxVec3 placementLoc = vehiclePrevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
 		addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x));
+
 		vehiclePrevPos += trailStep*travel.getNormalized();
 
 		if (i + 1 == steps) {

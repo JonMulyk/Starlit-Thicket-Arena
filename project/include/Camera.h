@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "GameState.h"
+
 
 class Camera {
 private:
@@ -22,6 +24,8 @@ private:
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+
+    GameState& gState;
 public:
     // Default camera values
     static const float YAW;
@@ -37,10 +41,11 @@ public:
         RIGHT
     };
 
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
+    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch, GameState& gameState);
 
 
-    Camera(glm::vec3 position = glm::vec3(0.0f, 10.0f, 10.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
+    Camera(GameState& gameState, glm::vec3 position = glm::vec3(0.0f, 10.0f, 10.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
+    
     float getZoom() const;
     glm::mat4 GetViewMatrix();
 

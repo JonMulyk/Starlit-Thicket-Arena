@@ -16,8 +16,10 @@ const float Camera::ZOOM = 45.0f;
 Camera::Camera(
     float posX, float posY, float posZ,
     float upX, float upY, float upZ,
-    float yaw, float pitch
+    float yaw, float pitch,
+    GameState& gameState
 ) :
+    gState(gameState),
     Front(glm::vec3(0.0f, 0.0f, -1.0f)),
     MovementSpeed(SPEED),
     MouseSensitivity(SENSITIVITY),
@@ -30,7 +32,8 @@ Camera::Camera(
     updateCameraVectors();
 }
 
-Camera::Camera( glm::vec3 position, glm::vec3 up, float yaw, float pitch) :
+Camera::Camera(GameState& gameState, glm::vec3 position, glm::vec3 up, float yaw, float pitch) :
+    gState(gameState),
     Front(glm::vec3(0.0f, 0.0f, -1.0f)),
     MovementSpeed(SPEED),
     MouseSensitivity(SENSITIVITY),
