@@ -7,13 +7,19 @@
 #include <windows.h>
 #include <XInput.h>
 
+#include "PhysicsSystem.h"
+#include "Camera.h"
+#include "Windowing.h"
+#include "TimeSeconds.h"
+#include <GLFW/glfw3.h>
+
 #pragma comment(lib, "xinput.lib")
 
 class Controller
 {
 public:
-    Controller(UINT id); //default contstuctor with id, uses default deadzone values
-    Controller(UINT id, float deadzoneX, float deadzoneY); //constructor for custom deadzone
+    Controller(UINT id, Command& command); //default contstuctor with id, uses default deadzone values
+    Controller(UINT id, float deadzoneX, float deadzoneY, Command& command); //constructor for custom deadzone
 
     inline UINT getControllerID() const;
     XINPUT_GAMEPAD* getController();
@@ -23,12 +29,14 @@ public:
     void Vibrate(USHORT speed);
     void resetVibration();
     bool isButtonPressed(UINT button) const;
+	bool isButtonReleased(UINT button) const;
     UINT buttodID();
 
     float leftStickX, leftStickY, rightStickX, rightStickY;
     float leftTrigger, rightTrigger;
 
 private:
+    Command& r_command;
     UINT controllerID;
     XINPUT_STATE state;
     XINPUT_VIBRATION vibration;
