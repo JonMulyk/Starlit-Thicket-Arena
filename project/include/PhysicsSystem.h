@@ -9,6 +9,7 @@
 
 #include "Transform.h"
 #include "Entity.h"
+#include "GameState.h"
 #include <vector>
 #include <iostream>
 
@@ -47,6 +48,7 @@ class PhysicsSystem {
 private:
 	std::vector<physx::PxRigidDynamic*> rigidDynamicList;
 	std::vector<Transform*> transformList;
+	GameState& gState;
 
 	//PhysX management class instances.
 	physx::PxDefaultCpuDispatcher* gDispatcher = NULL;
@@ -73,8 +75,13 @@ private:
 	// Vehicles
 	const char* gVehicleDataPath = "project/assets/vehicleData";
 	const char* gVehicleName = "engineDrive";
-	snippetvehicle2::EngineDriveVehicle gVehicle;
 	snippetvehicle2::PxVehiclePhysXSimulationContext gVehicleSimulationContext;
+
+	snippetvehicle2::EngineDriveVehicle gVehicle;
+	physx::PxVec3 vehiclePrevPos;
+	physx::PxVec3 vehiclePrevDir;
+	Model& trailModel;
+	float trailStep = 2.f;
 
 	void initPhysX();
 	void cleanupPhysX();
@@ -87,7 +94,7 @@ private:
 	void cleanupPhysics();
 
 public:
-	PhysicsSystem();
+	PhysicsSystem(GameState& gameState, Model& tModel);
 
 	~PhysicsSystem();
 
@@ -95,8 +102,9 @@ public:
 
 	void addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density=10.f);
 
+	void addTrail(float x, float z, float rot);
 	physx::PxVec3 getPos(int i);
 	Transform* getTransformAt(int i);
 	void updateTransforms(std::vector<Entity>& entityList);
-	void updatePhysics(double dt, std::vector<Entity> entityList);
+	void updatePhysics(double dt);
 };

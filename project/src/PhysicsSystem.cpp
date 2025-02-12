@@ -60,7 +60,6 @@ void PhysicsSystem::cleanupPhysX() {
 
 void PhysicsSystem::initGroundPlane() {
 	using namespace physx;
-	using namespace snippetvehicle2;
 
 	gGroundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
 	for (PxU32 i = 0; i < gGroundPlane->getNbShapes(); i++)
@@ -108,7 +107,7 @@ bool PhysicsSystem::initVehicles() {
 	}
 
 	//Apply a start pose to the physx actor and add it to the physx scene.
-	PxTransform pose(PxVec3(0.000000000f, -0.0500000119f, -10.59399998f), PxQuat(PxIdentity));
+	PxTransform pose(PxVec3(0.f, -0.f, -10.f), PxQuat(PxIdentity));
 	gVehicle.setUpActor(*gScene, pose, gVehicleName);
 	PxRigidBody* rigidBody = gVehicle.mPhysXState.physxActor.rigidBody;
 	PxRigidDynamic* rigidDynamic = (PxRigidDynamic*)rigidBody;
@@ -127,6 +126,11 @@ bool PhysicsSystem::initVehicles() {
 	for (PxU32 i = 0; i < shapes; i++) {
 		PxShape* shape = NULL;
 		gVehicle.mPhysXState.physxActor.rigidBody->getShapes(&shape, 1, i);
+
+		if (shape->getGeometry().getType() == PxGeometryType::eBOX) {
+			const PxBoxGeometry& box = static_cast<const PxBoxGeometry&>(shape->getGeometry());
+			transformList.back()->scale = glm::vec3(box.halfExtents.x, box.halfExtents.y, box.halfExtents.z);
+		}
 
 		shape->setSimulationFilterData(vehicleFilter);
 		shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
@@ -156,6 +160,9 @@ bool PhysicsSystem::initVehicles() {
 	gVehicleSimulationContext.physxScene = gScene;
 	gVehicleSimulationContext.physxActorUpdateMode = PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
 
+	// set the spaw location
+	vehiclePrevPos = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+	vehiclePrevDir = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
 	return true;
 }
 
@@ -178,7 +185,9 @@ void PhysicsSystem::cleanupPhysics() {
 	cleanupPhysX();
 }
 
-PhysicsSystem::PhysicsSystem() {
+PhysicsSystem::PhysicsSystem(GameState& gameState, Model& tModel) :
+	gState(gameState), trailModel(tModel)
+{
 	initPhysics();
 }
 
@@ -214,6 +223,52 @@ void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, phys
 	pMaterial = nullptr;
 }
 
+void PhysicsSystem::addTrail(float x, float z, float rot) {
+	physx::PxMaterial* pMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
+
+	// create shape
+	float height = .5f;
+	float width = 0.01f;
+	physx::PxBoxGeometry geom(trailStep/2, height,width);
+	physx::PxShape* shape = gPhysics->createShape(geom, *pMaterial);
+
+	physx::PxTransform wallTransform(
+		physx::PxVec3(x, height, z),
+		physx::PxQuat(rot, physx::PxVec3(0, 1, 0))
+	);
+	physx::PxRigidStatic* body = gPhysics->createRigidStatic(wallTransform);
+
+	// update shape and attach
+	physx::PxFilterData itemFilter(
+		COLLISION_FLAG_OBSTACLE,
+		COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0
+	);
+	shape->setSimulationFilterData(itemFilter);
+
+	body->attachShape(*shape);
+
+	gState.staticEntities.push_back(Entity("trail", trailModel, new Transform()));
+
+	gState.staticEntities.back().transform->pos = glm::vec3(
+		wallTransform.p.x,
+		wallTransform.p.y,
+		wallTransform.p.z
+	);
+
+	gState.staticEntities.back().transform->rot.x = wallTransform.q.x;
+	gState.staticEntities.back().transform->rot.y = wallTransform.q.y;
+	gState.staticEntities.back().transform->rot.z = wallTransform.q.z;
+	gState.staticEntities.back().transform->rot.w = wallTransform.q.w;
+
+	gState.staticEntities.back().transform->scale = glm::vec3(trailStep / 2, height, width);
+
+	gScene->addActor(*body);
+
+	// Clean up
+	shape->release();
+	pMaterial = nullptr;
+}
+
 physx::PxVec3 PhysicsSystem::getPos(int i) {
 	physx::PxVec3 position = rigidDynamicList[i]->getGlobalPose().p;
 	return position;
@@ -234,11 +289,11 @@ void PhysicsSystem::updateTransforms(std::vector<Entity>& entityList) {
 	}
 }
 
-void PhysicsSystem::updatePhysics(double dt, std::vector<Entity> entityList) {
+void PhysicsSystem::updatePhysics(double dt) {
 	gScene->simulate(dt);
 	gScene->fetchResults(true);
 
-	updateTransforms(entityList);
+	updateTransforms(gState.dynamicEntities);
 }
 
 void PhysicsSystem::stepPhysics(float timestep, Command& command) {
@@ -250,6 +305,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command) {
 	gVehicle.mCommandState.nbBrakes = 1;
 	gVehicle.mCommandState.throttle = command.throttle;
 	gVehicle.mCommandState.steer = command.steer;
+	// gVehicle.mTransmissionCommandState.targetGear = physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState::eREVERSE;
 	gVehicle.mTransmissionCommandState.targetGear = snippetvehicle2::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
 
 	//Forward integrate the vehicle by a single timestep.
@@ -260,6 +316,23 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command) {
 	const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
 	gVehicle.mComponentSequence.setSubsteps(gVehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
 	gVehicle.step(timestep, gVehicleSimulationContext);
+
+	const physx::PxVec3 currPos = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+	physx::PxVec3 travel = currPos - vehiclePrevPos;
+
+	int steps = travel.magnitude() / trailStep;
+
+	for (int i=0; i < steps; i++) {
+		float ratio = float(i + 1) / float(steps);
+		physx::PxVec3 travNorm = ratio*vehiclePrevDir.getNormalized() + (1-ratio)*travel.getNormalized();
+		physx::PxVec3 placementLoc = vehiclePrevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
+		addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x));
+		vehiclePrevPos += trailStep*travel.getNormalized();
+
+		if (i + 1 == steps) {
+			vehiclePrevDir = travel;
+		}
+	}
 
 	//Forward integrate the phsyx scene by a single timestep.
 	gScene->simulate(timestep);

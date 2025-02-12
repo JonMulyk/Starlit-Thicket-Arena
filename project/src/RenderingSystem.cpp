@@ -1,8 +1,8 @@
 #include "RenderingSystem.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-RenderingSystem::RenderingSystem(Shader& shader, Camera& camera, Windowing& window, TTF& textRenderer)
-    : shader(shader), camera(camera), window(window), textRenderer(textRenderer) {}
+RenderingSystem::RenderingSystem(Shader& shader, Camera& camera, Windowing& window, TTF& textRenderer, GameState& gameState)
+    : shader(shader), camera(camera), window(window), textRenderer(textRenderer), gState(gameState) {}
 
 void RenderingSystem::updateProjectionView(Shader &viewShader) {
     viewShader.use();
@@ -21,12 +21,13 @@ void RenderingSystem::updateProjectionView(Shader &viewShader) {
 void RenderingSystem::renderEntities(const std::vector<Entity>& entities) {
     shader.use();
     updateProjectionView(shader);
+    shader.setFloat("repeats", 1.f);
 
     for (const auto& entity : entities) {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, entity.transform->pos);
         model *= glm::mat4_cast(entity.transform->rot);
-        model = glm::scale(model, glm::vec3(1.0f));
+        model = glm::scale(model, entity.transform->scale);
 
         shader.setMat4("model", model);
         entity.model.draw();
@@ -41,6 +42,8 @@ void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 {
     sceneModels[0].getShader().use();
     updateProjectionView(sceneModels[0].getShader()); // set the correct matrices
+    shader.setFloat("repeats", 100.f);
+
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f)); // Scale the ground
@@ -53,13 +56,13 @@ void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 
 
 void RenderingSystem::updateRenderer(
-    const std::vector<Entity>& entities, 
     std::vector<Model>& sceneModels,
     std::string textToDisplay)
 {
 
 	// Render Entities & Text
-	this->renderEntities(entities);
+    this->renderEntities(gState.dynamicEntities);
+    this->renderEntities(gState.staticEntities);
     this->renderScene(sceneModels); // needs to be before any texture binds, otherwise it will take on those
 	this->renderText(textToDisplay, 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
 
