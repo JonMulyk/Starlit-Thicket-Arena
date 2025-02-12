@@ -1,5 +1,6 @@
 #pragma once
 
+#include "PhysicsSystem.h"
 #include "Camera.h"
 #include "Windowing.h"
 #include "TimeSeconds.h"
@@ -15,10 +16,14 @@ private:
     TimeSeconds& r_timer;
     Camera& r_camera;
     Windowing& r_window;
+    Command& r_command;
 public:
 
     // Constructor
-    Input(Windowing& window, Camera& camera, TimeSeconds& timer);
+    Input(Windowing& window, Camera& camera, TimeSeconds& timer, Command& command);
+
+
+    void processKeyboard();
 
     // Polls for and processes events
     void poll();

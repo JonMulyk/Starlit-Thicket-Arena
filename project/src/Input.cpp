@@ -1,8 +1,8 @@
 #include <iostream>
 #include "Input.h"
 
-Input::Input(Windowing& window, Camera& camera, TimeSeconds& timer)
-    : r_window(window), r_camera(camera), r_timer(timer)
+Input::Input(Windowing& window, Camera& camera, TimeSeconds& timer, Command& command)
+    : r_window(window), r_camera(camera), r_timer(timer), r_command(command)
 {
     // Set the user pointer to this instance so that callbacks can retrieve it.
     glfwSetWindowUserPointer(r_window, this);
@@ -18,33 +18,56 @@ Input::Input(Windowing& window, Camera& camera, TimeSeconds& timer)
 
 void Input::poll() {
     glfwPollEvents();
+    processKeyboard();
+}
+
+void Input::processKeyboard() {
+    double deltaTime = r_timer.getFrameTime();
+
+    // Car movement (wasd)
+    if (glfwGetKey(r_window, GLFW_KEY_W) == GLFW_PRESS) {
+        r_command.throttle = 1.0;
+    } else {
+        r_command.throttle = 0.0;
+    }
+
+    if (glfwGetKey(r_window, GLFW_KEY_S) == GLFW_PRESS) {
+        r_command.brake = 1.0;
+    } else {
+        r_command.brake = 0.0;
+    }
+
+    r_command.steer = 0.0;
+    if (glfwGetKey(r_window, GLFW_KEY_D) == GLFW_PRESS) {
+        r_command.steer -= 1.0;
+    }
+    if (glfwGetKey(r_window, GLFW_KEY_A) == GLFW_PRESS) {
+        r_command.steer += 1.0;
+    }
+
+    // Camera movement (arrows)
+    if (glfwGetKey(r_window, GLFW_KEY_UP) == GLFW_PRESS) {
+        r_camera.ProcessKeyboard(r_camera.FORWARD, deltaTime);
+    }
+    if (glfwGetKey(r_window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        r_camera.ProcessKeyboard(r_camera.BACKWARD, deltaTime);
+    }
+    if (glfwGetKey(r_window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        r_camera.ProcessKeyboard(r_camera.RIGHT, deltaTime);
+    }
+    if (glfwGetKey(r_window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        r_camera.ProcessKeyboard(r_camera.LEFT, deltaTime);
+    }
 }
 
 void Input::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    Input* p_input = static_cast<Input*>(glfwGetWindowUserPointer(window));
-    
-    if (p_input == nullptr) {
-        return;
-    }
-
-    Camera& camera = p_input->r_camera;
-    double deltaTime = p_input->r_timer.getFrameTime()*1000;
-
     if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-        if (key == GLFW_KEY_W) {
-            camera.ProcessKeyboard(Camera::FORWARD, deltaTime);
-        }
-        if (key == GLFW_KEY_S) {
-            camera.ProcessKeyboard(Camera::BACKWARD, deltaTime);
-        }
-        if (key == GLFW_KEY_A) {
-            camera.ProcessKeyboard(Camera::LEFT, deltaTime);
-        }
-        if (key == GLFW_KEY_D) {
-            camera.ProcessKeyboard(Camera::RIGHT, deltaTime);
-        }
-        if (key == GLFW_KEY_ESCAPE) {
+        switch (key) {
+        case (GLFW_KEY_ESCAPE):
             glfwSetWindowShouldClose(window, true);
+            break;
+        default:
+            break;
         }
     }
 

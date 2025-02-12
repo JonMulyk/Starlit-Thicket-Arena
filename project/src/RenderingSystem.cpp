@@ -4,23 +4,23 @@
 RenderingSystem::RenderingSystem(Shader& shader, Camera& camera, Windowing& window, TTF& textRenderer)
     : shader(shader), camera(camera), window(window), textRenderer(textRenderer) {}
 
-void RenderingSystem::updateProjectionView() {
-    shader.use();
+void RenderingSystem::updateProjectionView(Shader &viewShader) {
+    viewShader.use();
 
     glm::mat4 projection = glm::perspective(
         glm::radians(camera.getZoom()),
         float(window.getWidth()) / float(window.getHeight()),
-        0.1f, 100.0f
+        0.1f, 1000.0f
     );
-    shader.setMat4("projection", projection);
+    viewShader.setMat4("projection", projection);
 
     glm::mat4 view = camera.GetViewMatrix();
-    shader.setMat4("view", view);
+    viewShader.setMat4("view", view);
 }
 
 void RenderingSystem::renderEntities(const std::vector<Entity>& entities) {
     shader.use();
-    updateProjectionView();
+    updateProjectionView(shader);
 
     for (const auto& entity : entities) {
         glm::mat4 model = glm::mat4(1.0f);
@@ -35,4 +35,33 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities) {
 
 void RenderingSystem::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color) {
     textRenderer.render(text, x, y, scale, color);
+}
+
+void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
+{
+    sceneModels[0].getShader().use();
+    updateProjectionView(sceneModels[0].getShader()); // set the correct matrices
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f)); // Scale the ground
+    model = glm::translate(model, glm::vec3(4.5f, 0.0f, 4.5f)); // translate ground
+    //model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate 180 degrees around X-axis
+    sceneModels[0].getShader().setMat4("model", model);
+
+    sceneModels[0].draw();
+}
+
+
+void RenderingSystem::updateRenderer(
+    const std::vector<Entity>& entities, 
+    std::vector<Model>& sceneModels,
+    std::string textToDisplay)
+{
+
+	// Render Entities & Text
+	this->renderEntities(entities);
+    this->renderScene(sceneModels); // needs to be before any texture binds, otherwise it will take on those
+	this->renderText(textToDisplay, 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
+
+
 }

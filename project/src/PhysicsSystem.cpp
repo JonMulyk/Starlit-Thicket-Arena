@@ -1,50 +1,195 @@
 #include "PhysicsSystem.h"
 
-PhysicsSystem::PhysicsSystem() {
-	// Initialize PhysX
+void PhysicsSystem::initPhysX() {
+	using namespace physx;
+	using namespace snippetvehicle2;
+
 	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-	if (!gFoundation) {
-		throw std::exception("PxCreateFoundation failed!"); // TODO: custom exception
-	}
-
-	// PVD
 	gPvd = PxCreatePvd(*gFoundation);
-	physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-	gPvd->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
+	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+	gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
+	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 
-	// Physics
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, physx::PxTolerancesScale(), true, gPvd);
-	if (!gPhysics) {
-		throw std::exception("PxCreatePhysics failed!");
-	}
+	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
+	sceneDesc.gravity = gGravity;
 
-	// Scene
-	physx::PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
-	sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
-	gDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
+	PxU32 numWorkers = 1;
+	gDispatcher = PxDefaultCpuDispatcherCreate(numWorkers);
 	sceneDesc.cpuDispatcher = gDispatcher;
-	sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
-	gScene = gPhysics->createScene(sceneDesc);
 
-	// Prep PVD
-	physx::PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
+	/// <NOTICE>
+	/// VehicleFilterShader has been modified. It handles callbacks related to collision
+	/// incidents.
+	/// </NOTICE>
+	sceneDesc.filterShader = VehicleFilterShader;
+
+	ContactReportCallback* gContactReportCallback = new ContactReportCallback();
+	sceneDesc.simulationEventCallback = gContactReportCallback;
+
+	gScene = gPhysics->createScene(sceneDesc);
+	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
 	if (pvdClient)
 	{
-		pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-		pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-		pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+	}
+	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
+
+	PxInitVehicleExtension(*gFoundation);
+}
+
+void PhysicsSystem::cleanupPhysX() {
+	using namespace physx;
+	using namespace snippetvehicle2;
+
+	PxCloseVehicleExtension();
+
+	PX_RELEASE(gMaterial);
+	PX_RELEASE(gScene);
+	PX_RELEASE(gDispatcher);
+	PX_RELEASE(gPhysics);
+	if (gPvd)
+	{
+		PxPvdTransport* transport = gPvd->getTransport();
+		PX_RELEASE(gPvd);
+		PX_RELEASE(transport);
+	}
+	PX_RELEASE(gFoundation);
+}
+
+void PhysicsSystem::initGroundPlane() {
+	using namespace physx;
+	using namespace snippetvehicle2;
+
+	gGroundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
+	for (PxU32 i = 0; i < gGroundPlane->getNbShapes(); i++)
+	{
+		PxShape* shape = NULL;
+		gGroundPlane->getShapes(&shape, 1, i);
+		shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+		shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
+	}
+	gScene->addActor(*gGroundPlane);
+}
+
+void PhysicsSystem::cleanupGroundPlane() {
+	gGroundPlane->release();
+}
+
+void PhysicsSystem::initMaterialFrictionTable() {
+	//Each physx material can be mapped to a tire friction value on a per tire basis.
+	//If a material is encountered that is not mapped to a friction value, the friction value used is the specified default value.
+	//In this snippet there is only a single material so there can only be a single mapping between material and friction.
+	//In this snippet the same mapping is used by all tires.
+	gPhysXMaterialFrictions[0].friction = 1.0f;
+	gPhysXMaterialFrictions[0].material = gMaterial;
+	gPhysXDefaultMaterialFriction = 1.0f;
+	gNbPhysXMaterialFrictions = 1;
+}
+
+bool PhysicsSystem::initVehicles() {
+	using namespace physx;
+	using namespace snippetvehicle2;
+
+	//Load the params from json or set directly.
+	readBaseParamsFromJsonFile(gVehicleDataPath, "Base.json", gVehicle.mBaseParams);
+	setPhysXIntegrationParams(gVehicle.mBaseParams.axleDescription,
+		gPhysXMaterialFrictions, gNbPhysXMaterialFrictions, gPhysXDefaultMaterialFriction,
+		gVehicle.mPhysXParams);
+	readEngineDrivetrainParamsFromJsonFile(gVehicleDataPath, "EngineDrive.json",
+		gVehicle.mEngineDriveParams);
+
+	//Set the states to default.
+	if (!gVehicle.initialize(*gPhysics, PxCookingParams(PxTolerancesScale()), *gMaterial, EngineDriveVehicle::eDIFFTYPE_FOURWHEELDRIVE))
+	{
+		return false;
 	}
 
-	// Simulate
-	physx::PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
-	physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*gPhysics, physx::PxPlane(0, 1, 0, 50), *material);
-	gScene->addActor(*groundPlane);
+	//Apply a start pose to the physx actor and add it to the physx scene.
+	PxTransform pose(PxVec3(0.000000000f, -0.0500000119f, -10.59399998f), PxQuat(PxIdentity));
+	gVehicle.setUpActor(*gScene, pose, gVehicleName);
+	PxRigidBody* rigidBody = gVehicle.mPhysXState.physxActor.rigidBody;
+	PxRigidDynamic* rigidDynamic = (PxRigidDynamic*)rigidBody;
+
+	rigidDynamicList.push_back(rigidDynamic);
+	transformList.push_back(new Transform());
+
+	// Create filter
+	PxFilterData vehicleFilter(
+		COLLISION_FLAG_CHASSIS,
+		COLLISION_FLAG_CHASSIS_AGAINST,
+		0, 0
+	);
+
+	PxU32 shapes = gVehicle.mPhysXState.physxActor.rigidBody->getNbShapes();
+	for (PxU32 i = 0; i < shapes; i++) {
+		PxShape* shape = NULL;
+		gVehicle.mPhysXState.physxActor.rigidBody->getShapes(&shape, 1, i);
+
+		shape->setSimulationFilterData(vehicleFilter);
+		shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+		shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
+	}
+
+	//Set the vehicle in 1st gear.
+	gVehicle.mEngineDriveState.gearboxState.currentGear = gVehicle.mEngineDriveParams.gearBoxParams.neutralGear + 1;
+	gVehicle.mEngineDriveState.gearboxState.targetGear = gVehicle.mEngineDriveParams.gearBoxParams.neutralGear + 1;
+
+	//Set the vehicle to use the automatic gearbox.
+	gVehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
+
+	//Set up the simulation context.
+	//The snippet is set up with
+	//a) z as the longitudinal axis
+	//b) x as the lateral axis
+	//c) y as the vertical axis.
+	//d) metres  as the lengthscale.
+	gVehicleSimulationContext.setToDefault();
+	gVehicleSimulationContext.frame.lngAxis = PxVehicleAxes::ePosZ;
+	gVehicleSimulationContext.frame.latAxis = PxVehicleAxes::ePosX;
+	gVehicleSimulationContext.frame.vrtAxis = PxVehicleAxes::ePosY;
+	gVehicleSimulationContext.scale.scale = 1.0f;
+	gVehicleSimulationContext.gravity = gGravity;
+	gVehicleSimulationContext.physxScene = gScene;
+	gVehicleSimulationContext.physxActorUpdateMode = PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
+
+	return true;
+}
+
+void PhysicsSystem::cleanupVehicles() {
+	gVehicle.destroy();
+}
+
+bool PhysicsSystem::initPhysics() {
+	initPhysX();
+	initGroundPlane();
+	initMaterialFrictionTable();
+	if (!initVehicles())
+		return false;
+	return true;
+}
+
+void PhysicsSystem::cleanupPhysics() {
+	cleanupVehicles();
+	cleanupGroundPlane();
+	cleanupPhysX();
+}
+
+PhysicsSystem::PhysicsSystem() {
+	initPhysics();
+}
+
+PhysicsSystem::~PhysicsSystem() {
+	cleanupPhysics();
 }
 
 void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density) {
 	physx::PxMaterial*pMaterial = gPhysics->createMaterial(material.staticFriction, material.dynamicFriction, material.restitution);
 
-	// Define a box
+	// Define a item
 	physx::PxShape* shape = gPhysics->createShape(*geom, *pMaterial);
 	physx::PxTransform tran(physx::PxVec3(0));
 	physx::PxRigidDynamic* body = gPhysics->createRigidDynamic(tran.transform(transform));
@@ -53,7 +198,14 @@ void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, phys
 	rigidDynamicList.push_back(body);
 	transformList.push_back(new Transform());
 
+	// update shape and attach
+	physx::PxFilterData itemFilter(
+		COLLISION_FLAG_OBSTACLE,
+		COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+	shape->setSimulationFilterData(itemFilter);
 	body->attachShape(*shape);
+
+
 	physx::PxRigidBodyExt::updateMassAndInertia(*body, density);
 	gScene->addActor(*body);
 
@@ -67,12 +219,9 @@ physx::PxVec3 PhysicsSystem::getPos(int i) {
 	return position;
 }
 
-Transform* PhysicsSystem::getTransformAt(int i) {
-	return transformList[i];
-}
+Transform* PhysicsSystem::getTransformAt(int i) { return transformList[i]; }
 
-void PhysicsSystem::updateTransforms(std::vector<Entity>& entityList)
-{
+void PhysicsSystem::updateTransforms(std::vector<Entity>& entityList) {
 	for (int i = 0; i < entityList.size(); i++) {
 		entityList.at(i).transform->pos.x = rigidDynamicList[i]->getGlobalPose().p.x;
 		entityList.at(i).transform->pos.y = rigidDynamicList[i]->getGlobalPose().p.y;
@@ -90,4 +239,29 @@ void PhysicsSystem::updatePhysics(double dt, std::vector<Entity> entityList) {
 	gScene->fetchResults(true);
 
 	updateTransforms(entityList);
+}
+
+void PhysicsSystem::stepPhysics(float timestep, Command& command) {
+	using namespace physx;
+	using namespace snippetvehicle2;
+
+	//Apply the brake, throttle and steer to the command state of the vehicle.
+	gVehicle.mCommandState.brakes[0] = command.brake;
+	gVehicle.mCommandState.nbBrakes = 1;
+	gVehicle.mCommandState.throttle = command.throttle;
+	gVehicle.mCommandState.steer = command.steer;
+	gVehicle.mTransmissionCommandState.targetGear = snippetvehicle2::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
+
+	//Forward integrate the vehicle by a single timestep.
+	//Apply substepping at low forward speed to improve simulation fidelity.
+	const PxVec3 linVel = gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
+	const PxVec3 forwardDir = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
+	const PxReal forwardSpeed = linVel.dot(forwardDir);
+	const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
+	gVehicle.mComponentSequence.setSubsteps(gVehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
+	gVehicle.step(timestep, gVehicleSimulationContext);
+
+	//Forward integrate the phsyx scene by a single timestep.
+	gScene->simulate(timestep);
+	gScene->fetchResults(true);
 }

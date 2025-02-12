@@ -1,3 +1,5 @@
 /build/*
-/lib/*
+/lib/freetype-2.13.3/*
+/lib/glfw-3.4.bin.WIN64/*
+/lib/glm/*
 /.vs/*
