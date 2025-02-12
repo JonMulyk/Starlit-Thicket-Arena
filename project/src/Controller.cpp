@@ -4,7 +4,8 @@
 
 float normalize(float input, float min, float max);
 
-Controller::Controller(UINT id) : controllerID(id),
+Controller::Controller(UINT id, Command& command) 
+    : controllerID(id), r_command(command),
 deadzoneX(XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE),
 deadzoneY(XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
 {
@@ -12,8 +13,8 @@ deadzoneY(XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
     ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
 }
 
-Controller::Controller(UINT id, float deadzoneX, float deadzoneY)
-    : deadzoneX(deadzoneX), deadzoneY(deadzoneY)
+Controller::Controller(UINT id, float deadzoneX, float deadzoneY, Command& command)
+	: controllerID(id), deadzoneX(deadzoneX), deadzoneY(deadzoneY), r_command(command)
 {
     ZeroMemory(&state, sizeof(XINPUT_STATE));
     ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
@@ -95,6 +96,12 @@ bool Controller::Update()
 
     leftTrigger = static_cast<float>(state.Gamepad.bLeftTrigger) / 255.0f;//normalize input 
     rightTrigger = static_cast<float>(state.Gamepad.bRightTrigger) / 255.0f;
+
+	r_command.throttle = rightTrigger;
+	r_command.brake = leftTrigger;
+	if (leftStickX != 0.0f) { r_command.steer = -leftStickX; }
+	else { r_command.steer = 0.0f; }
+
     return true;
 }
 
@@ -123,6 +130,11 @@ void Controller::resetVibration()
 bool Controller::isButtonPressed(UINT button) const
 {
     return (state.Gamepad.wButtons & button) != 0;
+}
+
+bool Controller::isButtonReleased(UINT button) const
+{
+	return (state.Gamepad.wButtons & button) == 0;
 }
 
 UINT Controller::buttodID() {

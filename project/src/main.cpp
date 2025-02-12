@@ -28,6 +28,9 @@ int main() {
     Windowing window(1200, 1000);
 
     Input input(window, camera, timer, command);
+    Controller controller1(1, command);
+    if (!controller1.isConnected()) { std::cout << "Controller one not connected" << std::endl; }
+
     Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
     Texture container("project/assets/textures/container.jpg", true);
@@ -47,8 +50,6 @@ int main() {
     // Create Rendering System
     RenderingSystem renderer(shader, camera, window, arial, gState);
 
-
-
     // Entity setup
     gState.dynamicEntities.emplace_back("car", redBrick, physicsSystem->getTransformAt(0));
 
@@ -58,7 +59,6 @@ int main() {
     Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
     sceneModels.push_back(groundPlaneModel);
-
 
     // PhysX item setup
     float halfLen = 0.5f;
@@ -78,26 +78,12 @@ int main() {
 
     physicsSystem->updateTransforms(gState.dynamicEntities);
 
-    //controller input
-    Controller controller1(1);
-    if (!controller1.isConnected()) { std::cout << "Controller one not connected" << std::endl; }
-
     // Main Loop
     while (!window.shouldClose()) {
-        if (controller1.Update()) {           
-            //std::cout << "Left Stick " << "X: " << controller1.leftStickX << ", Y: " << controller1.leftStickY << std::endl;
-            //std::cout << "Right Stick " << "X: " << controller1.rightStickX << ", Y: " << controller1.rightStickY << std::endl;
-            //UINT button = controller1.buttodID();
-            //std::cout << button << std::endl;
-            //std::cout << "Trigger Values: " << controller1.leftTrigger << ", " << controller1.rightTrigger << std::endl;
-            //std::cout << "Button values: " << controller1.isButtonPressed(XINPUT_GAMEPAD_A);
-            //controller1.Vibrate(20000, 20000);
-            //controller1.resetVibration();
-        }
-
         window.clear();
         timer.tick();
         input.poll();
+        controller1.Update();
 
         // Update physics
         while (timer.getAccumultor() >= timer.dt) {
