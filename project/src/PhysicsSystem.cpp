@@ -60,7 +60,6 @@ void PhysicsSystem::cleanupPhysX() {
 
 void PhysicsSystem::initGroundPlane() {
 	using namespace physx;
-	using namespace snippetvehicle2;
 
 	gGroundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
 	for (PxU32 i = 0; i < gGroundPlane->getNbShapes(); i++)
@@ -108,7 +107,7 @@ bool PhysicsSystem::initVehicles() {
 	}
 
 	//Apply a start pose to the physx actor and add it to the physx scene.
-	PxTransform pose(PxVec3(0.000000000f, -0.0500000119f, -10.59399998f), PxQuat(PxIdentity));
+	PxTransform pose(PxVec3(0.f, -0.f, -10.f), PxQuat(PxIdentity));
 	gVehicle.setUpActor(*gScene, pose, gVehicleName);
 	PxRigidBody* rigidBody = gVehicle.mPhysXState.physxActor.rigidBody;
 	PxRigidDynamic* rigidDynamic = (PxRigidDynamic*)rigidBody;
@@ -156,6 +155,9 @@ bool PhysicsSystem::initVehicles() {
 	gVehicleSimulationContext.physxScene = gScene;
 	gVehicleSimulationContext.physxActorUpdateMode = PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
 
+	// set the spaw location
+	vehiclePrevPos = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+	vehiclePrevDir = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
 	return true;
 }
 
@@ -214,6 +216,36 @@ void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, phys
 	pMaterial = nullptr;
 }
 
+void PhysicsSystem::addTrail(float x, float z, float rot) {
+	physx::PxMaterial* pMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
+
+	// create shape
+	float height = .5f;
+	physx::PxBoxGeometry geom(trailStep/2, height,.01f);
+	physx::PxShape* shape = gPhysics->createShape(geom, *pMaterial);
+
+	physx::PxTransform wallTransform(
+		physx::PxVec3(x, height, z),
+		physx::PxQuat(rot, physx::PxVec3(0, 1, 0))
+	);
+	physx::PxRigidStatic* body = gPhysics->createRigidStatic(wallTransform);
+
+	// update shape and attach
+	physx::PxFilterData itemFilter(
+		COLLISION_FLAG_OBSTACLE,
+		COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0
+	);
+	shape->setSimulationFilterData(itemFilter);
+
+	body->attachShape(*shape);
+
+	gScene->addActor(*body);
+
+	// Clean up
+	shape->release();
+	pMaterial = nullptr;
+}
+
 physx::PxVec3 PhysicsSystem::getPos(int i) {
 	physx::PxVec3 position = rigidDynamicList[i]->getGlobalPose().p;
 	return position;
@@ -260,6 +292,23 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command) {
 	const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
 	gVehicle.mComponentSequence.setSubsteps(gVehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
 	gVehicle.step(timestep, gVehicleSimulationContext);
+
+	const physx::PxVec3 currPos = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+	physx::PxVec3 travel = currPos - vehiclePrevPos;
+
+	int steps = travel.magnitude() / trailStep;
+
+	for (int i=0; i < steps; i++) {
+		float ratio = float(i + 1) / float(steps);
+		physx::PxVec3 travNorm = ratio*vehiclePrevDir.getNormalized() + (1-ratio)*travel.getNormalized();
+		physx::PxVec3 placementLoc = vehiclePrevPos - 1.5f * travNorm;
+		addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x));
+		vehiclePrevPos += trailStep*travel.getNormalized();
+
+		if (i + 1 == steps) {
+			vehiclePrevDir = travel;
+		}
+	}
 
 	//Forward integrate the phsyx scene by a single timestep.
 	gScene->simulate(timestep);

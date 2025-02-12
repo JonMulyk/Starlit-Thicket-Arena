@@ -46,6 +46,7 @@ struct Command {
 class PhysicsSystem {
 private:
 	std::vector<physx::PxRigidDynamic*> rigidDynamicList;
+	std::vector<physx::PxRigidStatic*> rigidStaticList;
 	std::vector<Transform*> transformList;
 
 	//PhysX management class instances.
@@ -73,8 +74,12 @@ private:
 	// Vehicles
 	const char* gVehicleDataPath = "project/assets/vehicleData";
 	const char* gVehicleName = "engineDrive";
-	snippetvehicle2::EngineDriveVehicle gVehicle;
 	snippetvehicle2::PxVehiclePhysXSimulationContext gVehicleSimulationContext;
+
+	snippetvehicle2::EngineDriveVehicle gVehicle;
+	physx::PxVec3 vehiclePrevPos;
+	physx::PxVec3 vehiclePrevDir;
+	float trailStep = 3.f;
 
 	void initPhysX();
 	void cleanupPhysX();
@@ -95,6 +100,7 @@ public:
 
 	void addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density=10.f);
 
+	void addTrail(float x, float z, float rot);
 	physx::PxVec3 getPos(int i);
 	Transform* getTransformAt(int i);
 	void updateTransforms(std::vector<Entity>& entityList);
