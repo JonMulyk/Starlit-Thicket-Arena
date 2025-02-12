@@ -79,8 +79,7 @@ int main() {
 
     // Main Loop
     while (!window.shouldClose()) {
-        if (controller1.Update()) {
-            //controller values            
+        if (controller1.Update()) {           
             //std::cout << "Left Stick " << "X: " << controller1.leftStickX << ", Y: " << controller1.leftStickY << std::endl;
             //std::cout << "Right Stick " << "X: " << controller1.rightStickX << ", Y: " << controller1.rightStickY << std::endl;
             //UINT button = controller1.buttodID();
