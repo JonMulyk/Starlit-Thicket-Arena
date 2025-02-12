@@ -21,8 +21,6 @@ class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback 
 		PX_UNUSED(pairHeader);
 		PX_UNUSED(pairs);
 		PX_UNUSED(nbPairs);
-
-		std::cout << "Stop colliding with me !" << std::endl;
 	}
 	void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count) {}
 	void onWake(physx::PxActor** actors, physx::PxU32 count) {}
@@ -43,8 +41,6 @@ struct Command {
 	physx::PxF32 brake;
 	physx::PxF32 throttle;
 	physx::PxF32 steer;
-	physx::PxU32 gear;
-	physx::PxF32 duration;
 };
 
 class PhysicsSystem {
@@ -80,21 +76,6 @@ private:
 	snippetvehicle2::EngineDriveVehicle gVehicle;
 	snippetvehicle2::PxVehiclePhysXSimulationContext gVehicleSimulationContext;
 
-	const physx::PxU32 gTargetGearCommand = snippetvehicle2::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
-
-	// Scripted Events in steps
-	Command gCommands[5] = {
-		{0.5f, 0.0f, 0.0f, gTargetGearCommand, 2.0f},	//brake on and come to rest for 2 seconds
-		{0.0f, 0.65f, 0.0f, gTargetGearCommand, 5.0f},	//throttle for 5 seconds
-		{0.5f, 0.0f, 0.0f, gTargetGearCommand, 5.0f},	//brake for 5 seconds
-		{0.0f, 0.75f, 0.0f, gTargetGearCommand, 5.0f},	//throttle for 5 seconds
-		{0.0f, 0.25f, 0.5f, gTargetGearCommand, 5.0f}	//light throttle and steer for 5 seconds.
-	};
-
-	const physx::PxU32 gNbCommands = sizeof(gCommands) / sizeof(Command);
-	physx::PxReal gCommandTime = 0.0f;			//Time spent on current command
-	physx::PxU32 gCommandProgress = 0;			//The id of the current command.
-
 	void initPhysX();
 	void cleanupPhysX();
 	void initGroundPlane();
@@ -110,7 +91,7 @@ public:
 
 	~PhysicsSystem();
 
-	void stepPhysics();
+	void stepPhysics(float timestep, Command& command);
 
 	void addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density=10.f);
 

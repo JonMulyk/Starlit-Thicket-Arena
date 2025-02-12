@@ -1,14 +1,18 @@
 #pragma once
-#include "tiny_obj_loader.h"
-#include <exception>
 
+
+#include "tiny_obj_loader.h"
 #include <vector>
+#include <string>
 #include <iostream>
+#include <stdexcept>
+
 #include "Shader.h"
 #include "Texture.h"
 
 class Model {
 public:
+    // Constructor for manually provided data
     Model(
         Shader& shader,
         Texture& texture,
@@ -17,20 +21,30 @@ public:
         std::vector<float> textCoords
     );
 
-    Model(Shader& shader, Texture& texture, std::string model_path);
+    // Constructor for loading an OBJ file with a texture
+    Model(Shader& shader, Texture& texture, const std::string& model_path);
+
+    // Constructor for loading an OBJ file without a texture
+    Model(Shader& shader, const std::string& model_path);
     
+    Shader& getShader();
+
     void draw();
 
 private:
     Shader& m_shader;
-    Texture& m_texture;
+    Texture* m_texture; // Changed to a pointer to allow null values
     int m_count;
-	std::vector<float> m_vertices;
-	std::vector<float> m_normals;
-	std::vector<float> m_textCoords;
+    bool hasTexture;
 
-	GLuint VAO;
-	GLuint VBO[3];
+    std::vector<float> m_vertices;
+    std::vector<float> m_normals;
+    std::vector<float> m_textCoords;
+    std::vector<tinyobj::material_t> m_materials;
+
+    GLuint VAO;
+    GLuint VBO[3];
+
 
     void createBuffer();
     void loadOBJ(const std::string& path);

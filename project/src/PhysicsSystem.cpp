@@ -110,6 +110,11 @@ bool PhysicsSystem::initVehicles() {
 	//Apply a start pose to the physx actor and add it to the physx scene.
 	PxTransform pose(PxVec3(0.000000000f, -0.0500000119f, -10.59399998f), PxQuat(PxIdentity));
 	gVehicle.setUpActor(*gScene, pose, gVehicleName);
+	PxRigidBody* rigidBody = gVehicle.mPhysXState.physxActor.rigidBody;
+	PxRigidDynamic* rigidDynamic = (PxRigidDynamic*)rigidBody;
+
+	rigidDynamicList.push_back(rigidDynamic);
+	transformList.push_back(new Transform());
 
 	// Create filter
 	PxFilterData vehicleFilter(
@@ -172,8 +177,6 @@ void PhysicsSystem::cleanupPhysics() {
 	cleanupGroundPlane();
 	cleanupPhysX();
 }
-
-
 
 PhysicsSystem::PhysicsSystem() {
 	initPhysics();
@@ -238,22 +241,16 @@ void PhysicsSystem::updatePhysics(double dt, std::vector<Entity> entityList) {
 	updateTransforms(entityList);
 }
 
-void PhysicsSystem::stepPhysics() {
+void PhysicsSystem::stepPhysics(float timestep, Command& command) {
 	using namespace physx;
 	using namespace snippetvehicle2;
 
-	if (gNbCommands == gCommandProgress)
-		return;
-
-	const PxReal timestep = 1.0f / 60.0f;
-
 	//Apply the brake, throttle and steer to the command state of the vehicle.
-	const Command& command = gCommands[gCommandProgress];
 	gVehicle.mCommandState.brakes[0] = command.brake;
 	gVehicle.mCommandState.nbBrakes = 1;
 	gVehicle.mCommandState.throttle = command.throttle;
 	gVehicle.mCommandState.steer = command.steer;
-	gVehicle.mTransmissionCommandState.targetGear = command.gear;
+	gVehicle.mTransmissionCommandState.targetGear = snippetvehicle2::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
 
 	//Forward integrate the vehicle by a single timestep.
 	//Apply substepping at low forward speed to improve simulation fidelity.
@@ -267,12 +264,4 @@ void PhysicsSystem::stepPhysics() {
 	//Forward integrate the phsyx scene by a single timestep.
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
-
-	//Increment the time spent on the current command.
-	//Move to the next command in the list if enough time has lapsed.
-	gCommandTime += timestep;
-	if (gCommandTime > gCommands[gCommandProgress].duration) {
-		gCommandProgress++;
-		gCommandTime = 0.0f;
-	}
 }
