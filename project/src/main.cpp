@@ -16,6 +16,7 @@
 #include "Entity.h"
 #include "Camera.h"
 #include "RenderingSystem.h"
+#include "GameState.h"
 
 int main() {
     InitManager::initGLFW();
@@ -39,7 +40,7 @@ int main() {
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
     Model cube(shader, container, verts, verts, coord);
-    Model redBrick(shader, brickWall, "project/assets/models/redBrick.obj");
+    Model redBrick(shader, brickWall, "project/assets/models/box.obj");
 
 
     // Entity setup

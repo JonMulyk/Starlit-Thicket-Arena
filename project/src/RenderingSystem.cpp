@@ -26,7 +26,7 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities) {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, entity.transform->pos);
         model *= glm::mat4_cast(entity.transform->rot);
-        model = glm::scale(model, glm::vec3(1.0f));
+        model = glm::scale(model, entity.transform->scale);
 
         shader.setMat4("model", model);
         entity.model.draw();

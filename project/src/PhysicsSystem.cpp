@@ -127,6 +127,11 @@ bool PhysicsSystem::initVehicles() {
 		PxShape* shape = NULL;
 		gVehicle.mPhysXState.physxActor.rigidBody->getShapes(&shape, 1, i);
 
+		if (shape->getGeometry().getType() == PxGeometryType::eBOX) {
+			const PxBoxGeometry& box = static_cast<const PxBoxGeometry&>(shape->getGeometry());
+			transformList.back()->scale = glm::vec3(box.halfExtents.x, box.halfExtents.y, box.halfExtents.z);
+		}
+
 		shape->setSimulationFilterData(vehicleFilter);
 		shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
 		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
@@ -282,6 +287,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command) {
 	gVehicle.mCommandState.nbBrakes = 1;
 	gVehicle.mCommandState.throttle = command.throttle;
 	gVehicle.mCommandState.steer = command.steer;
+	// gVehicle.mTransmissionCommandState.targetGear = physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState::eREVERSE;
 	gVehicle.mTransmissionCommandState.targetGear = snippetvehicle2::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
 
 	//Forward integrate the vehicle by a single timestep.

@@ -6,7 +6,7 @@
 
 class Transform {
 public:
-	glm::vec3 scale;
+	glm::vec3 scale = glm::vec3(1.f);
 	glm::vec3 pos;
 	glm::quat rot;
 
