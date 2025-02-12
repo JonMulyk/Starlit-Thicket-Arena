@@ -9,6 +9,7 @@
 
 #include "Transform.h"
 #include "Entity.h"
+#include "GameState.h"
 #include <vector>
 #include <iostream>
 
@@ -46,8 +47,8 @@ struct Command {
 class PhysicsSystem {
 private:
 	std::vector<physx::PxRigidDynamic*> rigidDynamicList;
-	std::vector<physx::PxRigidStatic*> rigidStaticList;
 	std::vector<Transform*> transformList;
+	GameState& gState;
 
 	//PhysX management class instances.
 	physx::PxDefaultCpuDispatcher* gDispatcher = NULL;
@@ -79,7 +80,8 @@ private:
 	snippetvehicle2::EngineDriveVehicle gVehicle;
 	physx::PxVec3 vehiclePrevPos;
 	physx::PxVec3 vehiclePrevDir;
-	float trailStep = 3.f;
+	Model& trailModel;
+	float trailStep = 2.f;
 
 	void initPhysX();
 	void cleanupPhysX();
@@ -92,7 +94,7 @@ private:
 	void cleanupPhysics();
 
 public:
-	PhysicsSystem();
+	PhysicsSystem(GameState& gameState, Model& tModel);
 
 	~PhysicsSystem();
 
@@ -104,5 +106,5 @@ public:
 	physx::PxVec3 getPos(int i);
 	Transform* getTransformAt(int i);
 	void updateTransforms(std::vector<Entity>& entityList);
-	void updatePhysics(double dt, std::vector<Entity> entityList);
+	void updatePhysics(double dt);
 };

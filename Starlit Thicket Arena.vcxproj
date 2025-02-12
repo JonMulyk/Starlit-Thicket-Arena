@@ -614,6 +614,7 @@
     <ClInclude Include="lib\physx\include\vehicle\PxVehicleWheels.h" />
     <ClInclude Include="project\include\Camera.h" />
     <ClInclude Include="project\include\Entity.h" />
+    <ClInclude Include="project\include\GameState.h" />
     <ClInclude Include="project\include\InitManager.h" />
     <ClInclude Include="project\include\Input.h" />
     <ClInclude Include="project\include\Model.h" />

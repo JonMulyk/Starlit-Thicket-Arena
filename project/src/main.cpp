@@ -19,6 +19,7 @@
 #include "GameState.h"
 
 int main() {
+    GameState gState;
     InitManager::initGLFW();
     Command command;
     TimeSeconds timer;
@@ -29,23 +30,25 @@ int main() {
     Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
     Texture container("project/assets/textures/container.jpg", true);
+    Texture fire("project/assets/textures/fire.jpg", true);
     Texture brickWall("project/assets/textures/wall.jpg", true);
-
-    PhysicsSystem* physicsSystem = new PhysicsSystem();
-
-    // Create Rendering System
-    RenderingSystem renderer(shader, camera, window, arial);
 
     // Model Setup
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
     Model cube(shader, container, verts, verts, coord);
     Model redBrick(shader, brickWall, "project/assets/models/box.obj");
+    Model trail(shader, fire, "project/assets/models/Trail.obj");
+
+    PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail);
+
+    // Create Rendering System
+    RenderingSystem renderer(shader, camera, window, arial, gState);
+
 
 
     // Entity setup
-    std::vector<Entity> entityList;
-    entityList.emplace_back("car", redBrick, physicsSystem->getTransformAt(0));
+    gState.dynamicEntities.emplace_back("car", redBrick, physicsSystem->getTransformAt(0));
 
     // Static scene data
     std::vector<Model> sceneModels;
@@ -66,12 +69,12 @@ int main() {
         for (unsigned int j = 0; j < size - i; j++) {
             physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
             physicsSystem->addItem(matProps, boxGeom, localTran, 10.f);
-            entityList.emplace_back(Entity("box", cube, physicsSystem->getTransformAt(counter++)));
+            gState.dynamicEntities.emplace_back(Entity("box", cube, physicsSystem->getTransformAt(counter++)));
         }
     }
     delete(boxGeom);
 
-    physicsSystem->updateTransforms(entityList);
+    physicsSystem->updateTransforms(gState.dynamicEntities);
 
     // Main Loop
     while (!window.shouldClose()) {
@@ -82,12 +85,12 @@ int main() {
         // Update physics
         while (timer.getAccumultor() >= timer.dt) {
             physicsSystem->stepPhysics(timer.dt, command);
-            physicsSystem->updatePhysics(timer.dt, entityList);
+            physicsSystem->updatePhysics(timer.dt);
             timer.advance();
         }
 
 		//renderer.renderScene(sceneModels);
-        renderer.updateRenderer(entityList, sceneModels, "FPS: " + std::to_string(timer.getFPS()));
+        renderer.updateRenderer(sceneModels, "FPS: " + std::to_string(timer.getFPS()));
 
         glfwSwapBuffers(window);
     }

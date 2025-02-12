@@ -1,8 +1,8 @@
 #include "RenderingSystem.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-RenderingSystem::RenderingSystem(Shader& shader, Camera& camera, Windowing& window, TTF& textRenderer)
-    : shader(shader), camera(camera), window(window), textRenderer(textRenderer) {}
+RenderingSystem::RenderingSystem(Shader& shader, Camera& camera, Windowing& window, TTF& textRenderer, GameState& gameState)
+    : shader(shader), camera(camera), window(window), textRenderer(textRenderer), gState(gameState) {}
 
 void RenderingSystem::updateProjectionView(Shader &viewShader) {
     viewShader.use();
@@ -53,13 +53,13 @@ void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 
 
 void RenderingSystem::updateRenderer(
-    const std::vector<Entity>& entities, 
     std::vector<Model>& sceneModels,
     std::string textToDisplay)
 {
 
 	// Render Entities & Text
-	this->renderEntities(entities);
+    this->renderEntities(gState.dynamicEntities);
+    this->renderEntities(gState.staticEntities);
     this->renderScene(sceneModels); // needs to be before any texture binds, otherwise it will take on those
 	this->renderText(textToDisplay, 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
 

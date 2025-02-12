@@ -1428,5 +1428,8 @@
     <ClInclude Include="lib\physx\include\snippetcommon\SnippetPVD.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="project\include\GameState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -185,7 +185,9 @@ void PhysicsSystem::cleanupPhysics() {
 	cleanupPhysX();
 }
 
-PhysicsSystem::PhysicsSystem() {
+PhysicsSystem::PhysicsSystem(GameState& gameState, Model& tModel) :
+	gState(gameState), trailModel(tModel)
+{
 	initPhysics();
 }
 
@@ -226,7 +228,8 @@ void PhysicsSystem::addTrail(float x, float z, float rot) {
 
 	// create shape
 	float height = .5f;
-	physx::PxBoxGeometry geom(trailStep/2, height,.01f);
+	float width = 0.01f;
+	physx::PxBoxGeometry geom(trailStep/2, height,width);
 	physx::PxShape* shape = gPhysics->createShape(geom, *pMaterial);
 
 	physx::PxTransform wallTransform(
@@ -243,6 +246,21 @@ void PhysicsSystem::addTrail(float x, float z, float rot) {
 	shape->setSimulationFilterData(itemFilter);
 
 	body->attachShape(*shape);
+
+	gState.staticEntities.push_back(Entity("trail", trailModel, new Transform()));
+
+	gState.staticEntities.back().transform->pos = glm::vec3(
+		wallTransform.p.x,
+		wallTransform.p.y,
+		wallTransform.p.z
+	);
+
+	gState.staticEntities.back().transform->rot.x = wallTransform.q.x;
+	gState.staticEntities.back().transform->rot.y = wallTransform.q.y;
+	gState.staticEntities.back().transform->rot.z = wallTransform.q.z;
+	gState.staticEntities.back().transform->rot.w = wallTransform.q.w;
+
+	gState.staticEntities.back().transform->scale = glm::vec3(trailStep / 2, height, width);
 
 	gScene->addActor(*body);
 
@@ -271,11 +289,11 @@ void PhysicsSystem::updateTransforms(std::vector<Entity>& entityList) {
 	}
 }
 
-void PhysicsSystem::updatePhysics(double dt, std::vector<Entity> entityList) {
+void PhysicsSystem::updatePhysics(double dt) {
 	gScene->simulate(dt);
 	gScene->fetchResults(true);
 
-	updateTransforms(entityList);
+	updateTransforms(gState.dynamicEntities);
 }
 
 void PhysicsSystem::stepPhysics(float timestep, Command& command) {
@@ -307,7 +325,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command) {
 	for (int i=0; i < steps; i++) {
 		float ratio = float(i + 1) / float(steps);
 		physx::PxVec3 travNorm = ratio*vehiclePrevDir.getNormalized() + (1-ratio)*travel.getNormalized();
-		physx::PxVec3 placementLoc = vehiclePrevPos - 1.5f * travNorm;
+		physx::PxVec3 placementLoc = vehiclePrevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
 		addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x));
 		vehiclePrevPos += trailStep*travel.getNormalized();
 

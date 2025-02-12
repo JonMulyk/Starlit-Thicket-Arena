@@ -3,6 +3,6 @@
 #include "Entity.h"
 class GameState {
 public:
-	std::vector<Entity> dynamicList;
-	std::vector<Entity> staticList;
+	std::vector<Entity> dynamicEntities;
+	std::vector<Entity> staticEntities;
 };
