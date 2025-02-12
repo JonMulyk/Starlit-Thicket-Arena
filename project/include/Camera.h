@@ -20,6 +20,10 @@ private:
     float Yaw;
     float Pitch;
 
+    // 
+    float theta = 0;
+    float phi = 0;
+
     // camera options
     float MovementSpeed;
     float MouseSensitivity;

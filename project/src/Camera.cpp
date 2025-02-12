@@ -50,8 +50,14 @@ Camera::Camera(GameState& gameState, glm::vec3 position, glm::vec3 up, float yaw
 float Camera::getZoom() const {
     return Zoom;
 }
+
 glm::mat4 Camera::GetViewMatrix() {
-    return glm::lookAt(Position, Position + Front, Up);
+    physx::PxVec3 position = gState.playerVehicle.curPos;
+    physx::PxVec3 direction = gState.playerVehicle.curDir;
+    glm::vec3 pos = glm::vec3(position.x, position.y+3, position.z);
+    glm::vec3 dir = glm::vec3(direction.x, direction.y, direction.z);
+    return glm::lookAt(pos-dir*10.f, pos + 2.f*dir, Up);
+    // return glm::lookAt(Position, Position + Front, Up);
 }
 
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime) {
@@ -67,6 +73,7 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime) {
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch) {
+    /*
     xoffset *= MouseSensitivity;
     yoffset *= MouseSensitivity;
 
@@ -82,8 +89,11 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
             Pitch = -89.0f;
     }
 
+    Yaw = 10.f;
+
     // update Front, Right and Up Vectors using the updated Euler angles
     updateCameraVectors();
+    */
 }
 
 void Camera::ProcessMouseScroll(float yoffset) {
