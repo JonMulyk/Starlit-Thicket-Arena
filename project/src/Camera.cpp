@@ -1,5 +1,8 @@
 #include "Camera.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #pragma once
 #pragma once
 #include <glad/glad.h>
@@ -12,11 +15,15 @@ const float Camera::PITCH = 0.0f;
 const float Camera::SPEED = 10.f;
 const float Camera::SENSITIVITY = 0.1f;
 const float Camera::ZOOM = 45.0f;
+const float Camera::THETA = 0.0f;
+const float Camera::PHI = 0.0f;
 
+// code does not seem necessary
+/*
 Camera::Camera(
     float posX, float posY, float posZ,
     float upX, float upY, float upZ,
-    float yaw, float pitch,
+    float yaw, float pitch, float theta, float phi,
     GameState& gameState
 ) :
     gState(gameState),
@@ -29,10 +36,13 @@ Camera::Camera(
     WorldUp = glm::vec3(upX, upY, upZ); // Up vector as seen in above diagram
     Yaw = yaw;
     Pitch = pitch;
+    Theta = theta;
+
     updateCameraVectors();
 }
+*/
 
-Camera::Camera(GameState& gameState, glm::vec3 position, glm::vec3 up, float yaw, float pitch) :
+Camera::Camera(GameState& gameState, glm::vec3 position, glm::vec3 up, float yaw, float pitch, float theta, float phi) :
     gState(gameState),
     Front(glm::vec3(0.0f, 0.0f, -1.0f)),
     MovementSpeed(SPEED),
@@ -43,7 +53,10 @@ Camera::Camera(GameState& gameState, glm::vec3 position, glm::vec3 up, float yaw
     WorldUp = up;
     Yaw = yaw;
     Pitch = pitch;
-    updateCameraVectors();
+    Theta = theta;
+    Phi = phi;
+
+    //updateCameraVectors();
 }
 
 
@@ -52,11 +65,14 @@ float Camera::getZoom() const {
 }
 
 glm::mat4 Camera::GetViewMatrix() {
+
     physx::PxVec3 position = gState.playerVehicle.curPos;
     physx::PxVec3 direction = gState.playerVehicle.curDir;
-    glm::vec3 pos = glm::vec3(position.x, position.y+3, position.z);
+    glm::vec3 pos = glm::vec3(position.x, position.y+4, position.z);
     glm::vec3 dir = glm::vec3(direction.x, direction.y, direction.z);
-    return glm::lookAt(pos-dir*10.f, pos + 2.f*dir, Up);
+    glm::vec3 eye = (15.0f * glm::vec3(std::cos(Theta) * std::sin(Phi), std::sin(Theta), std::cos(Theta) * std::cos(Phi))) + pos;
+    return glm::lookAt(eye, pos + 2.f * dir, glm::vec3(0.0f, 1.0f, 0.0f));
+    // return glm::lookAt(pos-dir*15.f, pos + 2.f*dir, Up);
     // return glm::lookAt(Position, Position + Front, Up);
 }
 
@@ -73,6 +89,13 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime) {
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch) {
+    xoffset *= MouseSensitivity;
+    yoffset *= MouseSensitivity;
+
+    incrementTheta(-yoffset);
+    incrementPhi(xoffset);
+
+    // Freecam controls
     /*
     xoffset *= MouseSensitivity;
     yoffset *= MouseSensitivity;
@@ -114,4 +137,21 @@ void Camera::updateCameraVectors() {
     // also re-calculate the Right and Up vector
     Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     Up = glm::normalize(glm::cross(Right, Front));
+}
+
+void Camera::incrementTheta(float dt) {
+    if (Theta + (dt / 100.0f) < M_PI_2 && Theta + (dt / 100.0f) > -M_PI_2) {
+        Theta += dt / 100.0f;
+    }
+}
+
+void Camera::incrementPhi(float dp) {
+    Phi -= dp / 100.0f;
+
+    if (Phi > 2.0 * M_PI) {
+        Phi -= 2.0 * M_PI;
+    }
+    else if (Phi < 0.0f) {
+        Phi += 2.0 * M_PI;
+    }
 }
