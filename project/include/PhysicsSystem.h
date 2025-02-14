@@ -98,7 +98,7 @@ public:
 
 	~PhysicsSystem();
 
-	void stepPhysics(float timestep, Command& command);
+	void stepPhysics(float timestep, Command& command, Command& controllerCommand);
 
 	void addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density=10.f);
 

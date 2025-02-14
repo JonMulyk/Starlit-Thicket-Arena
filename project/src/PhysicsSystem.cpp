@@ -296,7 +296,7 @@ void PhysicsSystem::updatePhysics(double dt) {
 	updateTransforms(gState.dynamicEntities);
 }
 
-void PhysicsSystem::stepPhysics(float timestep, Command& command) {
+void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
 	using namespace physx;
 	using namespace snippetvehicle2;
 
