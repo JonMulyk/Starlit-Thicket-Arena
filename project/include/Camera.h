@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "TimeSeconds.h"
 #include "GameState.h"
 
 
@@ -20,7 +21,6 @@ private:
     float Yaw;
     float Pitch;
 
-    // 
     float Theta;
     float Phi;
 
@@ -28,6 +28,9 @@ private:
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+
+    TimeSeconds& timer;
+    double time;
 
     GameState& gState;
 public:
@@ -50,7 +53,7 @@ public:
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch, float theta, float phi, GameState& gameState);
 
 
-    Camera(GameState& gameState, glm::vec3 position = glm::vec3(0.0f, 10.0f, 10.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH, float theta = THETA, float phi = PHI);
+    Camera(GameState& gameState, TimeSeconds& t, glm::vec3 position = glm::vec3(0.0f, 10.0f, 10.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH, float theta = THETA, float phi = PHI);
     
     float getZoom() const;
     glm::mat4 GetViewMatrix();

@@ -24,7 +24,7 @@ int main() {
     InitManager::initGLFW();
     Command command;
     TimeSeconds timer;
-    Camera camera(gState);
+    Camera camera(gState, timer);
     Windowing window(1200, 1000);
 
     Input input(window, camera, timer, command);

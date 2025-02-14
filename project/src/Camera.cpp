@@ -42,13 +42,15 @@ Camera::Camera(
 }
 */
 
-Camera::Camera(GameState& gameState, glm::vec3 position, glm::vec3 up, float yaw, float pitch, float theta, float phi) :
+Camera::Camera(GameState& gameState, TimeSeconds& t, glm::vec3 position, glm::vec3 up, float yaw, float pitch, float theta, float phi) :
     gState(gameState),
+    timer(t),
     Front(glm::vec3(0.0f, 0.0f, -1.0f)),
     MovementSpeed(SPEED),
     MouseSensitivity(SENSITIVITY),
     Zoom(ZOOM)
 {
+    time = timer.getCurrentTime();
     Position = position;
     WorldUp = up;
     Yaw = yaw;
@@ -64,16 +66,31 @@ float Camera::getZoom() const {
     return Zoom;
 }
 
-glm::mat4 Camera::GetViewMatrix() {
+glm::vec3 vec3(physx::PxVec3 v) { return glm::vec3(v.x, v.y, v.z); }
 
-    physx::PxVec3 position = gState.playerVehicle.curPos;
-    physx::PxVec3 direction = gState.playerVehicle.curDir;
-    glm::vec3 pos = glm::vec3(position.x, position.y+4, position.z);
-    glm::vec3 dir = glm::vec3(direction.x, direction.y, direction.z);
-    glm::vec3 eye = (15.0f * glm::vec3(std::cos(Theta) * std::sin(Phi), std::sin(Theta), std::cos(Theta) * std::cos(Phi))) + pos;
-    return glm::lookAt(eye, pos + 2.f * dir, glm::vec3(0.0f, 1.0f, 0.0f));
-    // return glm::lookAt(pos-dir*15.f, pos + 2.f*dir, Up);
-    // return glm::lookAt(Position, Position + Front, Up);
+glm::mat4 Camera::GetViewMatrix() {
+    glm::vec3 pos = vec3(gState.playerVehicle.curPos);
+    glm::vec3 dir = vec3(gState.playerVehicle.curDir);
+
+    if (timer.getCurrentTime() - time > 1.f) {
+        double threshold = 0.1;
+        double factor = 100.f * timer.getFrameTime();
+        if (Phi > M_PI - threshold) {
+            incrementPhi(-factor);
+        }
+        else if (Phi < M_PI + threshold) {
+            incrementPhi(factor);
+        }
+        else {
+            Phi = 0;
+        }
+    }
+    glm::vec4 rot = glm::rotate(glm::mat4(1.f), Phi, glm::vec3(0.f, 1.f, 0.f)) * glm::vec4(dir, 0.f);
+    dir = glm::normalize(glm::vec3(rot));
+
+    pos.y += 4.f;
+
+    return glm::lookAt(pos - 10.f * dir, pos + 2.f * dir, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime) {
@@ -91,6 +108,8 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime) {
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch) {
     xoffset *= MouseSensitivity;
     yoffset *= MouseSensitivity;
+
+    time = timer.getCurrentTime();
 
     incrementTheta(-yoffset);
     incrementPhi(xoffset);
