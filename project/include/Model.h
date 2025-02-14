@@ -9,6 +9,13 @@
 
 #include "Shader.h"
 #include "Texture.h"
+#include <assimp/scene.h>      
+#include <assimp/Importer.hpp> 
+#include <assimp/postprocess.h> 
+#include <Mesh.h>
+
+unsigned int TextureFromFile(const char* path, const std::string& directory);
+
 
 class Model {
 public:
@@ -30,12 +37,15 @@ public:
     Shader& getShader();
 
     void draw();
+    std::vector<Mesh> meshes;
+    std::string directory;
 
 private:
     Shader& m_shader;
     Texture* m_texture; // Changed to a pointer to allow null values
     int m_count;
     bool hasTexture;
+
 
     std::vector<float> m_vertices;
     std::vector<float> m_normals;
@@ -47,5 +57,11 @@ private:
 
 
     void createBuffer();
+    std::vector<TextureOBJ> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
     void loadOBJ(const std::string& path);
+    void loadModel(std::string path);
+    void processNode(aiNode* node, const aiScene* scene);
+    Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+
 };
+
