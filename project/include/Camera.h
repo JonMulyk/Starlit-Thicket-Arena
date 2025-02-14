@@ -4,6 +4,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "TimeSeconds.h"
+#include "GameState.h"
+
 
 class Camera {
 private:
@@ -18,10 +21,19 @@ private:
     float Yaw;
     float Pitch;
 
+    float Theta;
+    float Phi;
+
     // camera options
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+
+    TimeSeconds& timer;
+    double time;
+    double factor = 10;
+
+    GameState& gState;
 public:
     // Default camera values
     static const float YAW;
@@ -29,6 +41,8 @@ public:
     static const float SPEED;
     static const float SENSITIVITY;
     static const float ZOOM;
+    static const float THETA;
+    static const float PHI;
 
     enum Camera_Movement {
         FORWARD,
@@ -37,10 +51,11 @@ public:
         RIGHT
     };
 
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
+    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch, float theta, float phi, GameState& gameState);
 
 
-    Camera(glm::vec3 position = glm::vec3(0.0f, 10.0f, 10.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
+    Camera(GameState& gameState, TimeSeconds& t, glm::vec3 position = glm::vec3(0.0f, 10.0f, 10.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH, float theta = THETA, float phi = PHI);
+    
     float getZoom() const;
     glm::mat4 GetViewMatrix();
 
@@ -54,6 +69,11 @@ public:
 
     // calculates the front vector from the Camera's (updated) Euler Angles
     void updateCameraVectors();
+
+    //
+    void incrementTheta(float dt);
+
+    void incrementPhi(float dp);
 };
 
 

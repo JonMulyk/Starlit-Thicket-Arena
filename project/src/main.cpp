@@ -25,7 +25,7 @@ int main() {
     Command command;
 	Command controllerCommand;
     TimeSeconds timer;
-    Camera camera;
+    Camera camera(gState, timer);
     Windowing window(1200, 1000);
 
     Input input(window, camera, timer, command);
