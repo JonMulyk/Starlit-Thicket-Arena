@@ -4,8 +4,8 @@
 
 float normalize(float input, float min, float max);
 
-Controller::Controller(UINT id, Command& command) 
-    : controllerID(id), r_command(command),
+Controller::Controller(UINT id, Camera& camera, Command& command)
+	: controllerID(id), r_command(command), r_camera(camera),
 deadzoneX(XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE),
 deadzoneY(XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
 {
@@ -13,8 +13,8 @@ deadzoneY(XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
     ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
 }
 
-Controller::Controller(UINT id, float deadzoneX, float deadzoneY, Command& command)
-	: controllerID(id), deadzoneX(deadzoneX), deadzoneY(deadzoneY), r_command(command)
+Controller::Controller(UINT id, Camera& camera, float deadzoneX, float deadzoneY, Command& command)
+	: controllerID(id), deadzoneX(deadzoneX), deadzoneY(deadzoneY), r_command(command), r_camera(camera)
 {
     ZeroMemory(&state, sizeof(XINPUT_STATE));
     ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
@@ -97,10 +97,18 @@ bool Controller::Update()
     leftTrigger = static_cast<float>(state.Gamepad.bLeftTrigger) / 255.0f;//normalize input 
     rightTrigger = static_cast<float>(state.Gamepad.bRightTrigger) / 255.0f;
 
+    //car movement
 	r_command.throttle = rightTrigger;
 	r_command.brake = leftTrigger;
 	if (leftStickX != 0.0f) { r_command.steer = -leftStickX; }
 	else { r_command.steer = 0.0f; }
+
+    //camera control
+	if (rightStickX != 0.0f || rightStickY != 0.0f)
+	{
+		r_camera.ProcessMouseMovement(rightStickX*60, rightStickY*60);
+	}
+
 
     return true;
 }
