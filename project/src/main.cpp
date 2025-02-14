@@ -30,7 +30,12 @@ int main() {
 
     Input input(window, camera, timer, command);
     Controller controller1(1, controllerCommand);
-    if (!controller1.isConnected()) { std::cout << "Controller one not connected" << std::endl; }
+    if (!controller1.isConnected()) { 
+        std::cout << "Controller one not connected" << std::endl; 
+		controllerCommand.brake = 0.0f;
+		controllerCommand.throttle = 0.0f;
+		controllerCommand.steer = 0.0f;
+    }
 
     Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
