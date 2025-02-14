@@ -301,10 +301,10 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 	using namespace snippetvehicle2;
 
 	//Apply the brake, throttle and steer to the command state of the vehicle.
-	gVehicle.mCommandState.brakes[0] = command.brake;
+	gVehicle.mCommandState.brakes[0] = command.brake + controllerCommand.brake;
 	gVehicle.mCommandState.nbBrakes = 1;
-	gVehicle.mCommandState.throttle = command.throttle;
-	gVehicle.mCommandState.steer = command.steer;
+	gVehicle.mCommandState.throttle = command.throttle + controllerCommand.throttle;
+	gVehicle.mCommandState.steer = command.steer + controllerCommand.steer;
 	// gVehicle.mTransmissionCommandState.targetGear = physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState::eREVERSE;
 	gVehicle.mTransmissionCommandState.targetGear = snippetvehicle2::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
 
