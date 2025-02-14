@@ -23,12 +23,13 @@ int main() {
     GameState gState;
     InitManager::initGLFW();
     Command command;
+	Command controllerCommand;
     TimeSeconds timer;
     Camera camera;
     Windowing window(1200, 1000);
 
     Input input(window, camera, timer, command);
-    Controller controller1(1, command);
+    Controller controller1(1, controllerCommand);
     if (!controller1.isConnected()) { std::cout << "Controller one not connected" << std::endl; }
 
     Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
@@ -88,7 +89,7 @@ int main() {
 
         // Update physics
         while (timer.getAccumultor() >= timer.dt) {
-            physicsSystem->stepPhysics(timer.dt, command);
+            physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
             physicsSystem->updatePhysics(timer.dt);
             timer.advance();
         }
