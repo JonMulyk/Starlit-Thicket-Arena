@@ -44,6 +44,7 @@ int main() {
     Model cube(shader, container, verts, verts, coord);
     Model redBrick(shader, gold, "project/assets/models/box.obj");
     Model trail(shader, fire, "project/assets/models/Trail.obj");
+    Model tireModel = Model(shader, "project/assets/models/tire1/tire1.obj");
 
     PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail);
 
@@ -71,7 +72,7 @@ int main() {
         for (unsigned int j = 0; j < size - i; j++) {
             physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
             physicsSystem->addItem(matProps, boxGeom, localTran, 10.f);
-            gState.dynamicEntities.emplace_back(Entity("box", cube, physicsSystem->getTransformAt(counter++)));
+            gState.dynamicEntities.emplace_back(Entity("box", tireModel, physicsSystem->getTransformAt(counter++)));
         }
     }
     delete(boxGeom);
