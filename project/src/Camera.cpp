@@ -73,17 +73,19 @@ glm::mat4 Camera::GetViewMatrix() {
     glm::vec3 dir = vec3(gState.playerVehicle.curDir);
 
     if (timer.getCurrentTime() - time > 1.f) {
-        double threshold = 0.1;
-        double factor = 100.f * timer.getFrameTime();
-        if (Phi > M_PI - threshold) {
-            incrementPhi(-factor);
-        }
-        else if (Phi < M_PI + threshold) {
-            incrementPhi(factor);
-        }
-        else {
+        double threshold = 0.1f;
+        //double factor2 = 100.f * timer.getFrameTime();
+        double factor2 = factor * timer.getFrameTime();
+        if (Phi > 2 * M_PI - threshold || Phi < threshold) {
             Phi = 0;
         }
+        else if (Phi < M_PI) {
+            incrementPhi(factor2);
+        }
+        else {
+            incrementPhi(-factor2);
+        }
+        factor += timer.getFrameTime() * 50;
     }
     glm::vec4 rot = glm::rotate(glm::mat4(1.f), Phi, glm::vec3(0.f, 1.f, 0.f)) * glm::vec4(dir, 0.f);
     dir = glm::normalize(glm::vec3(rot));
@@ -110,7 +112,7 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
     yoffset *= MouseSensitivity;
 
     time = timer.getCurrentTime();
-
+    factor = 1;
     incrementTheta(-yoffset);
     incrementPhi(xoffset);
 

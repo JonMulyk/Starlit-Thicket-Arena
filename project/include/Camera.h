@@ -31,6 +31,7 @@ private:
 
     TimeSeconds& timer;
     double time;
+    double factor = 10;
 
     GameState& gState;
 public:
