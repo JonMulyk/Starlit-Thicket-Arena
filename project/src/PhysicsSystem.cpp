@@ -165,10 +165,8 @@ bool PhysicsSystem::initVehicles() {
 	vehiclePrevDir = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
 
 	// set the vehicle state
-	gState.playerVehicle.prevDir = vehiclePrevDir.getNormalized();
 	gState.playerVehicle.curDir = vehiclePrevDir.getNormalized();
 	gState.playerVehicle.curPos = vehiclePrevPos;
-	gState.playerVehicle.prevPos = vehiclePrevPos;
 
 	return true;
 }
@@ -320,10 +318,6 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command) {
 	const PxVec3 forwardDir = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
 	const PxReal forwardSpeed = linVel.dot(forwardDir);
 	const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
-
-	// Get the location before the timestep
-	gState.playerVehicle.prevPos = gState.playerVehicle.curPos;
-	gState.playerVehicle.prevDir = gState.playerVehicle.curDir;
 
 	gVehicle.mComponentSequence.setSubsteps(gVehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
 	gVehicle.step(timestep, gVehicleSimulationContext);

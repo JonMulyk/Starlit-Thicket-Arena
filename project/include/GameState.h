@@ -5,9 +5,7 @@
 
 struct PlayerVehicle {
 	physx::PxVec3 curDir;
-	physx::PxVec3 prevDir;
 	physx::PxVec3 curPos;
-	physx::PxVec3 prevPos;
 };
 
 class GameState {
