@@ -18,8 +18,8 @@
 class Controller
 {
 public:
-    Controller(UINT id, Command& command); //default contstuctor with id, uses default deadzone values
-    Controller(UINT id, float deadzoneX, float deadzoneY, Command& command); //constructor for custom deadzone
+    Controller(UINT id, Camera& camera, Command& command); //default contstuctor with id, uses default deadzone values
+    Controller(UINT id, Camera& camera, float deadzoneX, float deadzoneY, Command& command); //constructor for custom deadzone
 
     inline UINT getControllerID() const;
     XINPUT_GAMEPAD* getController();
@@ -37,6 +37,7 @@ public:
 
 private:
     Command& r_command;
+	Camera& r_camera;
     UINT controllerID;
     XINPUT_STATE state;
     XINPUT_VIBRATION vibration;

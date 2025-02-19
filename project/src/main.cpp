@@ -29,7 +29,7 @@ int main() {
     Windowing window(1200, 1000);
 
     Input input(window, camera, timer, command);
-    Controller controller1(1, controllerCommand);
+    Controller controller1(1, camera, controllerCommand);
     if (!controller1.isConnected()) { 
         std::cout << "Controller one not connected" << std::endl; 
 		controllerCommand.brake = 0.0f;
