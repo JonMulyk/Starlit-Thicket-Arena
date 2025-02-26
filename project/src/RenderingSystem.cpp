@@ -1,5 +1,6 @@
 #include "RenderingSystem.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <unordered_map>
 
 RenderingSystem::RenderingSystem(Shader& shader, Camera& camera, Windowing& window, TTF& textRenderer, GameState& gameState)
     : shader(shader), camera(camera), window(window), textRenderer(textRenderer), gState(gameState) {}
@@ -18,20 +19,38 @@ void RenderingSystem::updateProjectionView(Shader &viewShader) {
     viewShader.setMat4("view", view);
 }
 
-void RenderingSystem::renderEntities(const std::vector<Entity>& entities) {
-    shader.use();
-    updateProjectionView(shader);
-    shader.setFloat("repeats", 1.f);
+void RenderingSystem::renderEntities(const std::vector<Entity>& entities) 
+{
+	std::unordered_map<Shader*, std::vector<const Entity*>> shaderBatches;
+    
+    // optimiazation by batching entities that have the same shader together
+	for (const auto& entity : entities)
+	{
+		shaderBatches[&entity.model.getShader()].push_back(&entity);
+	}
 
-    for (const auto& entity : entities) {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, entity.transform->pos);
-        model *= glm::mat4_cast(entity.transform->rot);
-        model = glm::scale(model, entity.transform->scale);
+	for (auto it = shaderBatches.begin(); it != shaderBatches.end(); ++it)
+	{
+        // Shader
+		Shader* shaderPtr = it->first;
+        // Grouped entities that share the same shader
+		std::vector<const Entity*>& entityBatch = it->second;
 
-        shader.setMat4("model", model);
-        entity.model.draw();
-    }
+		shaderPtr->use();
+		updateProjectionView(*shaderPtr);
+		shaderPtr->setFloat("repeats", 1.0f);
+
+		for (const Entity* entity : entityBatch)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, entity->transform->pos);
+			model *= glm::mat4_cast(entity->transform->rot);
+			model = glm::scale(model, entity->transform->scale);
+
+			shaderPtr->setMat4("model", model);
+			entity->model.draw();
+		}
+	}
 }
 
 /*
