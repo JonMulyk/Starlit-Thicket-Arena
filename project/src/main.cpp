@@ -44,11 +44,11 @@ int main() {
     Texture neon("project/assets/textures/neon.jpg", true);
     Texture fire("project/assets/textures/fire.jpg", true);
 
-    // Model Setup
+    // Model Setups
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
     Model cube(shader, container, verts, verts, coord);
-    Model redBrick(shader, gold, "project/assets/models/box.obj");
+    Model redBrick(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
     Model trail(shader, fire, "project/assets/models/Trail.obj");
     Model tireModel = Model(shader, "project/assets/models/tire1/tire1.obj");
 
