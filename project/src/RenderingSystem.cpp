@@ -21,9 +21,15 @@ void RenderingSystem::updateProjectionView(Shader &viewShader) {
 
 void RenderingSystem::setShaderUniforms(Shader* shader)
 {
-    if (shader->getName() == "basicShader")
+    if(shader->getName() == "basicShader")
     {
 		shader->setFloat("repeats", 1.0f);
+    }
+    else if(shader->getName() == "lightingShader")
+    {
+        shader->setVec3("lightPos", glm::vec3(0.0f, 5.0f, 0.0f));
+        shader->setVec3("viewPos", camera.getPosition());
+        shader->setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
     }
 }
 
