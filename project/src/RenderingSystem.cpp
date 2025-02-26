@@ -19,6 +19,14 @@ void RenderingSystem::updateProjectionView(Shader &viewShader) {
     viewShader.setMat4("view", view);
 }
 
+void RenderingSystem::setShaderUniforms(Shader* shader)
+{
+    if (shader->getName() == "basicShader")
+    {
+		shader->setFloat("repeats", 1.0f);
+    }
+}
+
 void RenderingSystem::renderEntities(const std::vector<Entity>& entities) 
 {
 	std::unordered_map<Shader*, std::vector<const Entity*>> shaderBatches;
@@ -38,7 +46,7 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities)
 
 		shaderPtr->use();
 		updateProjectionView(*shaderPtr);
-		shaderPtr->setFloat("repeats", 1.0f);
+		setShaderUniforms(shaderPtr);
 
 		for (const Entity* entity : entityBatch)
 		{

@@ -25,10 +25,9 @@ private:
     TTF& textRenderer;
     GameState& gState;
 
-    void renderEntities(const std::vector<Entity>& entities);
-
-    void renderText(const std::vector<Text>& renderingText);
-    //void renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color);
     void updateProjectionView(Shader& viewShader);
+    void setShaderUniforms(Shader* shader);
+    void renderEntities(const std::vector<Entity>& entities);
+    void renderText(const std::vector<Text>& renderingText);
     void renderScene(std::vector<Model>& sceneModels);
 };

@@ -13,15 +13,19 @@
 class Shader {
 private:
     GLint m_id;
+    std::string name = "";
 public:
     // constructor reads and builds the shader
     Shader(const char* vertexPath, const char* fragmentPath);
+    Shader(std::string name, const char* vertexPath, const char* fragmentPath);
     ~Shader();
 
     // use/activate the shader
     void use();
     void bind();
     void unBind();
+
+    const std::string getName() const;
 
     // utility uniform functions
     void setBool(const std::string& name, bool value) const;
