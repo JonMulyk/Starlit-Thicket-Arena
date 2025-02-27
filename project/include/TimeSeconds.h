@@ -32,5 +32,5 @@ public:
     double getElapsedTime() const;
     double getRemainingTime(double countDownDuration) const;
 
-    std::string formatToHumanReadable(double timeInSeconds) const;
+    std::string formatTimeToHumanReadable(double timeInSeconds) const;
 };
