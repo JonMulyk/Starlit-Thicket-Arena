@@ -34,8 +34,17 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities) {
     }
 }
 
+/*
 void RenderingSystem::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color) {
     textRenderer.render(text, x, y, scale, color);
+}
+*/
+
+void RenderingSystem::renderText(const std::vector<Text>& renderingText) {
+    for (const auto& text : renderingText)
+    {
+		textRenderer.render(text.getTextToRender(), text.getX(), text.getY(), text.getScale(), text.getColor());
+    }
 }
 
 void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
@@ -57,14 +66,16 @@ void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 
 void RenderingSystem::updateRenderer(
     std::vector<Model>& sceneModels,
-    std::string textToDisplay)
+    const std::vector<Text>& uiText
+)
 {
 
 	// Render Entities & Text
     this->renderEntities(gState.dynamicEntities);
     this->renderEntities(gState.staticEntities);
     this->renderScene(sceneModels); // needs to be before any texture binds, otherwise it will take on those
-	this->renderText(textToDisplay, 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
+    this->renderText(uiText);
+	//this->renderText(textToDisplay, 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
 
 
 }

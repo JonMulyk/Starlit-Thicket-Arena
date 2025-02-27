@@ -37,3 +37,21 @@ double TimeSeconds::getAccumultor() const {
 double TimeSeconds::getElapsedTime() const {
     return m_elapsedTime;
 }
+
+double TimeSeconds::getRemainingTime(double countDownDuration) const
+{
+    double timeLeft = countDownDuration - m_elapsedTime;
+    if (timeLeft <= 0)
+        return 0;
+
+    return timeLeft;
+}
+
+
+std::string TimeSeconds::formatToHumanReadable(double timeInSeconds) const
+{
+    int minutes = timeInSeconds / 60;
+    int seconds = static_cast<int>(timeInSeconds) % 60;
+
+    return (std::to_string(minutes) + ":" + std::to_string(seconds));
+}

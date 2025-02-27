@@ -1,5 +1,6 @@
 #pragma once
 #include <GLFW/glfw3.h>
+#include <string>
 
 class TimeSeconds {
 private:
@@ -29,4 +30,7 @@ public:
     double getFrameTime() const;
     double getAccumultor() const;
     double getElapsedTime() const;
+    double getRemainingTime(double countDownDuration) const;
+
+    std::string formatToHumanReadable(double timeInSeconds) const;
 };
