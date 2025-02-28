@@ -3,6 +3,8 @@
 #include <iostream>
 #include <glm.hpp>
 
+#include <chrono>
+
 #include "PxPhysicsAPI.h"
 #include "TimeSeconds.h"
 #include "InitManager.h"
@@ -18,6 +20,8 @@
 #include "Camera.h"
 #include "RenderingSystem.h"
 #include "GameState.h"
+//#include "Text.h"
+#include "UIManager.h"
 
 int main() {
     GameState gState;
@@ -85,6 +89,11 @@ int main() {
 
     physicsSystem->updateTransforms(gState.dynamicEntities);
 
+    // Text Rendering Setup
+    UIManager uiManager(window.getWidth(), window.getHeight());
+    
+    const double roundDuration = (5.0 * 60.0);
+
     // Main Loop
     while (!window.shouldClose()) {
         window.clear();
@@ -99,8 +108,8 @@ int main() {
             timer.advance();
         }
 
-		//renderer.renderScene(sceneModels);
-        renderer.updateRenderer(sceneModels, "FPS: " + std::to_string(timer.getFPS()));
+        uiManager.updateUIText(timer, roundDuration);
+        renderer.updateRenderer(sceneModels, uiManager.getUIText());
 
         glfwSwapBuffers(window);
     }
