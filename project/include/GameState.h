@@ -8,9 +8,37 @@ struct PlayerVehicle {
 	physx::PxVec3 curPos;
 };
 
-class GameState {
-public:
-	PlayerVehicle playerVehicle;
-	std::vector<Entity> dynamicEntities;
-	std::vector<Entity> staticEntities;
+class GameState 
+{
+	public:
+		// constructor
+		GameState();
+
+		// public functions
+		Entity* addDynamicEntity();
+		Entity* addStaticEntity();
+		
+		void startRound();
+		void resetRound();
+		void endGame();
+
+		// Flags
+		bool inRound = true;
+		bool inMenu = false;
+		bool loading = false;
+		bool quit = false;
+		bool gameEnded = false;
+
+		// game Parameters
+		uint8_t numPlayers = 1;
+		uint8_t numVehicles = 1;
+	
+		// game state data
+		PlayerVehicle playerVehicle;
+		std::vector<Entity> dynamicEntities;
+		std::vector<Entity> staticEntities;
+	
+		// scoring and round data
+		uint8_t round = 0;
+		uint8_t score = 0;
 };
