@@ -96,19 +96,39 @@ void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
     sceneModels[0].draw();
 }
 
+void RenderingSystem::renderSkybox(Skybox& skybox)
+{
+	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+    skybox.getSkyboxShader().use();
+	glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
+	skybox.getSkyboxShader().setMat4("view", view);
+	//skyboxShader.setMat4("projection", projection);
+    updateProjectionView(skybox.getSkyboxShader());
+    
+
+	// skybox cube
+	glBindVertexArray(skybox.getSkyboxVAO());
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getCubemapTexture());
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	glDepthFunc(GL_LESS); // set depth function back to default
+}
+
 
 void RenderingSystem::updateRenderer(
     std::vector<Model>& sceneModels,
-    const std::vector<Text>& uiText
+    const std::vector<Text>& uiText,
+    Skybox& skybox
 )
 {
 
 	// Render Entities & Text
+    this->renderSkybox(skybox);
     this->renderEntities(gState.dynamicEntities);
     this->renderEntities(gState.staticEntities);
     this->renderScene(sceneModels); // needs to be before any texture binds, otherwise it will take on those
     this->renderText(uiText);
 	//this->renderText(textToDisplay, 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
-
 
 }
