@@ -41,7 +41,8 @@ int main() {
 		controllerCommand.steer = 0.0f;
     }
 
-    Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
+    Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
+    Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
     TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
     Texture container("project/assets/textures/container.jpg", true);
     Texture gold("project/assets/textures/gold.jpg", true);
@@ -52,7 +53,7 @@ int main() {
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
     Model cube(shader, container, verts, verts, coord);
-    Model redBrick(shader, gold, "project/assets/models/box.obj");
+    Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
     Model trail(shader, fire, "project/assets/models/Trail.obj");
     Model tireModel = Model(shader, "project/assets/models/tire1/tire1.obj");
 
