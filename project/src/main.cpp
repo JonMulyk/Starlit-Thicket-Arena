@@ -18,12 +18,14 @@
 #include "Camera.h"
 #include "RenderingSystem.h"
 #include "GameState.h"
+#include <Vehicle.h>
 
 int main() {
     GameState gState;
     InitManager::initGLFW();
     Command command;
 	Command controllerCommand;
+    Command commandAI;
     TimeSeconds timer;
     Camera camera(gState, timer);
     Windowing window(1200, 1000);
@@ -44,13 +46,16 @@ int main() {
     Texture neon("project/assets/textures/neon.jpg", true);
     Texture fire("project/assets/textures/fire.jpg", true);
 
+
+
     // Model Setups
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
     Model cube(shader, container, verts, verts, coord);
-    Model redBrick(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
+    Model redBrick(shader, "project/assets/models/redBrick.obj");
     Model trail(shader, fire, "project/assets/models/Trail.obj");
     Model tireModel = Model(shader, "project/assets/models/tire1/tire1.obj");
+    Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
 
     PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail);
 
@@ -59,6 +64,7 @@ int main() {
 
     // Entity setup
     gState.dynamicEntities.emplace_back("car", redBrick, physicsSystem->getTransformAt(0));
+    gState.dynamicEntities.emplace_back("car", secondCar, physicsSystem->getTransformAt(1));
 
     // Static scene data
     std::vector<Model> sceneModels;
@@ -72,15 +78,15 @@ int main() {
     MaterialProp matProps = { 0.5f, 0.5f, 0.6f };
     physx::PxBoxGeometry* boxGeom = new physx::PxBoxGeometry(halfLen, halfLen, halfLen);
 
-    int size = 5;
-    int counter = 1;
-    for (unsigned int i = 0; i < size; i++) {
-        for (unsigned int j = 0; j < size - i; j++) {
-            physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
-            physicsSystem->addItem(matProps, boxGeom, localTran, 10.f);
-            gState.dynamicEntities.emplace_back(Entity("box", tireModel, physicsSystem->getTransformAt(counter++)));
-        }
-    }
+    //int size = 5;
+    //int counter = 1;
+    //for (unsigned int i = 0; i < size; i++) {
+     //   for (unsigned int j = 0; j < size - i; j++) {
+     //       physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
+     //       physicsSystem->addItem(matProps, boxGeom, localTran, 10.f);
+     //       gState.dynamicEntities.emplace_back(Entity("box", tireModel, physicsSystem->getTransformAt(counter++)));
+     //   }
+    //}
     delete(boxGeom);
 
     physicsSystem->updateTransforms(gState.dynamicEntities);
@@ -95,9 +101,16 @@ int main() {
         // Update physics
         while (timer.getAccumultor() >= timer.dt) {
             physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
+
             physicsSystem->updatePhysics(timer.dt);
             timer.advance();
         }
+
+        Command aiCommand1;
+        aiCommand1.throttle = 0.5f; 
+        aiCommand1.brake = 0.0f;   //no braking
+        aiCommand1.steer = -0.5f;   //right is negative, left is positive floats
+        physicsSystem->setVehicleCommand(1, aiCommand1);
 
 		//renderer.renderScene(sceneModels);
         renderer.updateRenderer(sceneModels, "FPS: " + std::to_string(timer.getFPS()));

@@ -7,11 +7,19 @@
 #include "snippetvehicle2common/SnippetVehicleHelpers.h"
 #include "snippetcommon/SnippetPVD.h"
 
+
 #include "Transform.h"
 #include "Entity.h"
 #include "GameState.h"
 #include <vector>
 #include <iostream>
+
+struct VehicleData {
+	snippetvehicle2::EngineDriveVehicle vehicle; // The PhysX vehicle instance
+	physx::PxVec3 prevPos;                       // Previous position for trail calculation
+	physx::PxVec3 prevDir;                       // Previous direction for trail calculation
+	std::string name;                            // Unique name for the vehicle actor
+};
 
 class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback {
 	void onContact(
@@ -77,9 +85,14 @@ private:
 	const char* gVehicleName = "engineDrive";
 	snippetvehicle2::PxVehiclePhysXSimulationContext gVehicleSimulationContext;
 
-	snippetvehicle2::EngineDriveVehicle gVehicle;
-	physx::PxVec3 vehiclePrevPos;
-	physx::PxVec3 vehiclePrevDir;
+	//snippetvehicle2::EngineDriveVehicle gVehicle;
+
+	//physx::PxVec3 vehiclePrevPos;
+	//physx::PxVec3 vehiclePrevDir;
+
+	std::vector<VehicleData> vehicles;  
+	std::vector<Command> vehicleCommands; 
+
 	Model& trailModel;
 	float trailStep = 2.f;
 
@@ -99,6 +112,8 @@ public:
 	~PhysicsSystem();
 
 	void stepPhysics(float timestep, Command& command, Command& controllerCommand);
+
+	void setVehicleCommand(size_t vehicleIndex, const Command& cmd);
 
 	void addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density=10.f);
 

@@ -185,6 +185,7 @@
     <ClCompile Include="project\src\TimeSeconds.cpp" />
     <ClCompile Include="project\src\tiny_obj_loader.cc" />
     <ClCompile Include="project\src\Transform.cpp" />
+    <ClCompile Include="project\src\Vehicle.cpp" />
     <ClCompile Include="project\src\Windowing.cpp" />
     <ClCompile Include="project\src\TTF.cpp" />
     <ClCompile Include="project\src\stb_image.cpp" />
@@ -615,6 +616,7 @@
     <ClInclude Include="lib\physx\include\vehicle\PxVehicleUtilTelemetry.h" />
     <ClInclude Include="lib\physx\include\vehicle\PxVehicleWheels.h" />
     <ClInclude Include="project\include\Camera.h" />
+    <ClInclude Include="project\include\Vehicle.h" />
     <ClInclude Include="project\include\Controller.h" />
     <ClInclude Include="project\include\Entity.h" />
     <ClInclude Include="project\include\GameState.h" />

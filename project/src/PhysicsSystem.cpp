@@ -87,70 +87,83 @@ void PhysicsSystem::initMaterialFrictionTable() {
 	gPhysXDefaultMaterialFriction = 1.0f;
 	gNbPhysXMaterialFrictions = 1;
 }
-
 bool PhysicsSystem::initVehicles() {
 	using namespace physx;
 	using namespace snippetvehicle2;
 
-	//Load the params from json or set directly.
-	readBaseParamsFromJsonFile(gVehicleDataPath, "Base.json", gVehicle.mBaseParams);
-	setPhysXIntegrationParams(gVehicle.mBaseParams.axleDescription,
+	// Number of vehicles to create
+	const size_t numVehicles = 2;
+	vehicles.resize(numVehicles);
+	vehicleCommands.resize(numVehicles); // Initialize commands (default to zero)
+
+	// Load parameters once (assuming both vehicles use the same params)
+	snippetvehicle2::BaseVehicleParams baseParams;
+	snippetvehicle2::PhysXIntegrationParams physxParams;
+	EngineDrivetrainParams engineDriveParams;
+
+	readBaseParamsFromJsonFile(gVehicleDataPath, "Base.json", baseParams);
+	setPhysXIntegrationParams(baseParams.axleDescription,
 		gPhysXMaterialFrictions, gNbPhysXMaterialFrictions, gPhysXDefaultMaterialFriction,
-		gVehicle.mPhysXParams);
-	readEngineDrivetrainParamsFromJsonFile(gVehicleDataPath, "EngineDrive.json",
-		gVehicle.mEngineDriveParams);
+		physxParams);
+	readEngineDrivetrainParamsFromJsonFile(gVehicleDataPath, "EngineDrive.json", engineDriveParams);
 
-	//Set the states to default.
-	if (!gVehicle.initialize(*gPhysics, PxCookingParams(PxTolerancesScale()), *gMaterial, EngineDriveVehicle::eDIFFTYPE_FOURWHEELDRIVE))
-	{
-		return false;
-	}
+	for (size_t i = 0; i < numVehicles; i++) {
+		VehicleData& vehicleData = vehicles[i];
 
-	//Apply a start pose to the physx actor and add it to the physx scene.
-	PxTransform pose(PxVec3(0.f, -0.f, -10.f), PxQuat(PxIdentity));
-	gVehicle.setUpActor(*gScene, pose, gVehicleName);
-	PxRigidBody* rigidBody = gVehicle.mPhysXState.physxActor.rigidBody;
-	PxRigidDynamic* rigidDynamic = (PxRigidDynamic*)rigidBody;
+		// Set parameters
+		vehicleData.vehicle.mBaseParams = baseParams;
+		vehicleData.vehicle.mPhysXParams = physxParams;
+		vehicleData.vehicle.mEngineDriveParams = engineDriveParams;
 
-	rigidDynamicList.push_back(rigidDynamic);
-	transformList.push_back(new Transform());
-
-	// Create filter
-	PxFilterData vehicleFilter(
-		COLLISION_FLAG_CHASSIS,
-		COLLISION_FLAG_CHASSIS_AGAINST,
-		0, 0
-	);
-
-	PxU32 shapes = gVehicle.mPhysXState.physxActor.rigidBody->getNbShapes();
-	for (PxU32 i = 0; i < shapes; i++) {
-		PxShape* shape = NULL;
-		gVehicle.mPhysXState.physxActor.rigidBody->getShapes(&shape, 1, i);
-
-		if (shape->getGeometry().getType() == PxGeometryType::eBOX) {
-			const PxBoxGeometry& box = static_cast<const PxBoxGeometry&>(shape->getGeometry());
-			transformList.back()->scale = glm::vec3(box.halfExtents.x, box.halfExtents.y, box.halfExtents.z);
+		// Initialize the vehicle
+		if (!vehicleData.vehicle.initialize(*gPhysics, PxCookingParams(PxTolerancesScale()), *gMaterial, EngineDriveVehicle::eDIFFTYPE_FOURWHEELDRIVE)) {
+			return false;
 		}
 
-		shape->setSimulationFilterData(vehicleFilter);
-		shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
-		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
-		shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
+		// Set unique name and starting pose
+		vehicleData.name = "vehicle" + std::to_string(i);
+		PxTransform pose;
+		if (i == 0) {
+			pose = PxTransform(PxVec3(0.f, 0.f, -10.f), PxQuat(PxIdentity)); // First vehicle
+		}
+		else {
+			pose = PxTransform(PxVec3(5.f, 0.f, -10.f), PxQuat(PxIdentity)); // Second vehicle, offset by 5 units
+		}
+		vehicleData.vehicle.setUpActor(*gScene, pose, vehicleData.name.c_str());
+
+		// Add to rigid dynamic and transform lists
+		PxRigidBody* rigidBody = vehicleData.vehicle.mPhysXState.physxActor.rigidBody;
+		PxRigidDynamic* rigidDynamic = static_cast<PxRigidDynamic*>(rigidBody);
+		rigidDynamicList.push_back(rigidDynamic);
+		transformList.push_back(new Transform());
+
+		// Set collision filter
+		PxFilterData vehicleFilter(COLLISION_FLAG_CHASSIS, COLLISION_FLAG_CHASSIS_AGAINST, 0, 0);
+		PxU32 shapes = rigidBody->getNbShapes();
+		for (PxU32 j = 0; j < shapes; j++) {
+			PxShape* shape = nullptr;
+			rigidBody->getShapes(&shape, 1, j);
+			if (shape->getGeometry().getType() == PxGeometryType::eBOX) {
+				const PxBoxGeometry& box = static_cast<const PxBoxGeometry&>(shape->getGeometry());
+				transformList.back()->scale = glm::vec3(box.halfExtents.x, box.halfExtents.y, box.halfExtents.z);
+			}
+			shape->setSimulationFilterData(vehicleFilter);
+			shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+			shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+			shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
+		}
+
+		// Set initial gear states
+		vehicleData.vehicle.mEngineDriveState.gearboxState.currentGear = vehicleData.vehicle.mEngineDriveParams.gearBoxParams.neutralGear + 1;
+		vehicleData.vehicle.mEngineDriveState.gearboxState.targetGear = vehicleData.vehicle.mEngineDriveParams.gearBoxParams.neutralGear + 1;
+		vehicleData.vehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
+
+		// Set initial previous position and direction
+		vehicleData.prevPos = pose.p;
+		vehicleData.prevDir = pose.q.getBasisVector2();
 	}
 
-	//Set the vehicle in 1st gear.
-	gVehicle.mEngineDriveState.gearboxState.currentGear = gVehicle.mEngineDriveParams.gearBoxParams.neutralGear + 1;
-	gVehicle.mEngineDriveState.gearboxState.targetGear = gVehicle.mEngineDriveParams.gearBoxParams.neutralGear + 1;
-
-	//Set the vehicle to use the automatic gearbox.
-	gVehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
-
-	//Set up the simulation context.
-	//The snippet is set up with
-	//a) z as the longitudinal axis
-	//b) x as the lateral axis
-	//c) y as the vertical axis.
-	//d) metres  as the lengthscale.
+	// Set up simulation context (only needs to be done once)
 	gVehicleSimulationContext.setToDefault();
 	gVehicleSimulationContext.frame.lngAxis = PxVehicleAxes::ePosZ;
 	gVehicleSimulationContext.frame.latAxis = PxVehicleAxes::ePosX;
@@ -160,19 +173,19 @@ bool PhysicsSystem::initVehicles() {
 	gVehicleSimulationContext.physxScene = gScene;
 	gVehicleSimulationContext.physxActorUpdateMode = PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
 
-	// set the spaw location
-	vehiclePrevPos = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
-	vehiclePrevDir = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
-
-	// set the vehicle state
-	gState.playerVehicle.curDir = vehiclePrevDir.getNormalized();
-	gState.playerVehicle.curPos = vehiclePrevPos;
+	// Set initial player vehicle state (assuming first vehicle is the player's)
+	gState.playerVehicle.curPos = vehicles[0].prevPos;
+	gState.playerVehicle.curDir = vehicles[0].prevDir.getNormalized();
 
 	return true;
 }
 
 void PhysicsSystem::cleanupVehicles() {
-	gVehicle.destroy();
+	for (auto& vehicleData : vehicles) {
+		vehicleData.vehicle.destroy();
+	}
+	vehicles.clear();
+	vehicleCommands.clear();
 }
 
 bool PhysicsSystem::initPhysics() {
@@ -279,6 +292,8 @@ physx::PxVec3 PhysicsSystem::getPos(int i) {
 	return position;
 }
 
+
+
 Transform* PhysicsSystem::getTransformAt(int i) { return transformList[i]; }
 
 void PhysicsSystem::updateTransforms(std::vector<Entity>& entityList) {
@@ -299,54 +314,64 @@ void PhysicsSystem::updatePhysics(double dt) {
 	gScene->fetchResults(true);
 
 	updateTransforms(gState.dynamicEntities);
-}
-
-void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
+}void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
 	using namespace physx;
 	using namespace snippetvehicle2;
 
-	//Apply the brake, throttle and steer to the command state of the vehicle.
-	gVehicle.mCommandState.brakes[0] = command.brake + controllerCommand.brake;
-	gVehicle.mCommandState.nbBrakes = 1;
-	gVehicle.mCommandState.throttle = command.throttle + controllerCommand.throttle;
-	gVehicle.mCommandState.steer = command.steer + controllerCommand.steer;
-	// gVehicle.mTransmissionCommandState.targetGear = physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState::eREVERSE;
-	gVehicle.mTransmissionCommandState.targetGear = snippetvehicle2::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
+	// Update commands for the first vehicle (player-controlled)
+	vehicleCommands[0].brake = command.brake + controllerCommand.brake;
+	vehicleCommands[0].throttle = command.throttle + controllerCommand.throttle;
+	vehicleCommands[0].steer = command.steer + controllerCommand.steer;
+	// Second vehicle commands remain zero (stationary) by default
 
-	//Forward integrate the vehicle by a single timestep.
-	const PxVec3 linVel = gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
-	const PxVec3 forwardDir = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
-	const PxReal forwardSpeed = linVel.dot(forwardDir);
-	const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
+	for (size_t i = 0; i < vehicles.size(); i++) {
+		VehicleData& vehicleData = vehicles[i];
+		EngineDriveVehicle& vehicle = vehicleData.vehicle;
 
-	gVehicle.mComponentSequence.setSubsteps(gVehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
-	gVehicle.step(timestep, gVehicleSimulationContext);
+		// Apply commands
+		vehicle.mCommandState.brakes[0] = vehicleCommands[i].brake;
+		vehicle.mCommandState.nbBrakes = 1;
+		vehicle.mCommandState.throttle = vehicleCommands[i].throttle;
+		vehicle.mCommandState.steer = vehicleCommands[i].steer;
+		vehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
 
-	const physx::PxVec3 currPos = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+		// Step the vehicle
+		const PxVec3 linVel = vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
+		const PxVec3 forwardDir = vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
+		const PxReal forwardSpeed = linVel.dot(forwardDir);
+		const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
+		vehicle.mComponentSequence.setSubsteps(vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
+		vehicle.step(timestep, gVehicleSimulationContext);
 
-	// Update after timestep
-	gState.playerVehicle.curPos = currPos;
-	gState.playerVehicle.curDir = forwardDir.getNormalized();
+		// Update trails
+		const PxVec3 currPos = vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+		PxVec3 travel = currPos - vehicleData.prevPos;
+		int steps = travel.magnitude() / trailStep;
+		for (int j = 0; j < steps; j++) {
+			float ratio = float(j + 1) / float(steps);
+			PxVec3 travNorm = ratio * vehicleData.prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
+			PxVec3 placementLoc = vehicleData.prevPos - 1.2f * gState.dynamicEntities.at(i).transform->scale.x * travNorm;
+			addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x));
+			vehicleData.prevPos += trailStep * travel.getNormalized();
+			if (j + 1 == steps) {
+				vehicleData.prevDir = travel;
+			}
+		}
 
-	physx::PxVec3 travel = currPos - vehiclePrevPos;
-
-	int steps = travel.magnitude() / trailStep;
-
-	for (int i=0; i < steps; i++) {
-		float ratio = float(i + 1) / float(steps);
-
-		physx::PxVec3 travNorm = ratio*vehiclePrevDir.getNormalized() + (1-ratio)*travel.getNormalized();
-		physx::PxVec3 placementLoc = vehiclePrevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
-		addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x));
-
-		vehiclePrevPos += trailStep*travel.getNormalized();
-
-		if (i + 1 == steps) {
-			vehiclePrevDir = travel;
+		// Update player vehicle state (only for the first vehicle)
+		if (i == 0) {
+			gState.playerVehicle.curPos = currPos;
+			gState.playerVehicle.curDir = forwardDir.getNormalized();
 		}
 	}
 
-	//Forward integrate the phsyx scene by a single timestep.
+	// Simulate the entire PhysX scene
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
+}
+
+void PhysicsSystem::setVehicleCommand(size_t vehicleIndex, const Command& cmd) {
+	if (vehicleIndex < vehicleCommands.size()) {
+		vehicleCommands[vehicleIndex] = cmd;
+	}
 }
