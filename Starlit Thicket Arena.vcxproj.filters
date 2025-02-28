@@ -114,6 +114,9 @@
     <ClCompile Include="project\src\UIManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="project\src\Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="project\assets\shaders\FragShader.frag" />
@@ -121,6 +124,8 @@
     <None Include="project\assets\shaders\textShader.vert" />
     <None Include="project\assets\shaders\textShader.frag" />
     <None Include="project\assets\shaders\CameraShader.vert" />
+    <None Include="project\assets\shaders\skyboxShader.frag" />
+    <None Include="project\assets\shaders\skyboxShader.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="project\include\Windowing.h">
@@ -1453,6 +1458,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\UIManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\Skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

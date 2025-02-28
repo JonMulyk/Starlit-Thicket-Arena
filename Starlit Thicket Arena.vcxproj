@@ -155,6 +155,8 @@
   <ItemGroup>
     <None Include="project\assets\shaders\CameraShader.vert" />
     <None Include="project\assets\shaders\FragShader.frag" />
+    <None Include="project\assets\shaders\skyboxShader.frag" />
+    <None Include="project\assets\shaders\skyboxShader.vert" />
     <None Include="project\assets\shaders\textShader.frag" />
     <None Include="project\assets\shaders\textShader.vert" />
     <None Include="project\assets\shaders\VertShader.vert" />
@@ -181,6 +183,7 @@
     <ClCompile Include="project\src\Model.cpp" />
     <ClCompile Include="project\src\PhysicsSystem.cpp" />
     <ClCompile Include="project\src\Shader.cpp" />
+    <ClCompile Include="project\src\Skybox.cpp" />
     <ClCompile Include="project\src\Text.cpp" />
     <ClCompile Include="project\src\Texture.cpp" />
     <ClCompile Include="project\src\TimeSeconds.cpp" />
@@ -628,6 +631,7 @@
     <ClInclude Include="project\include\Render.h" />
     <ClInclude Include="project\include\Shader.h" />
     <ClInclude Include="project\include\Text.h" />
+    <ClInclude Include="project\include\Skybox.h" />
     <ClInclude Include="project\include\Texture.h" />
     <ClInclude Include="project\include\TimeSeconds.h" />
     <ClInclude Include="project\include\tiny_obj_loader.h" />
