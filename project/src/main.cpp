@@ -24,12 +24,12 @@
 #include "Skybox.h"
 
 int main() {
-    GameState gState;
+    GameState gameState;
     InitManager::initGLFW();
     Command command;
 	Command controllerCommand;
     TimeSeconds timer;
-    Camera camera(gState, timer);
+    Camera camera(gameState, timer);
     Windowing window(1200, 1000);
 
     Input input(window, camera, timer, command);
@@ -57,13 +57,13 @@ int main() {
     Model trail(shader, fire, "project/assets/models/Trail.obj");
     Model tireModel = Model(shader, "project/assets/models/tire1/tire1.obj");
 
-    PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail);
+    PhysicsSystem* physicsSystem = new PhysicsSystem(gameState, trail);
 
     // Create Rendering System
-    RenderingSystem renderer(shader, camera, window, arial, gState);
+    RenderingSystem renderer(shader, camera, window, arial, gameState);
 
     // Entity setup
-    gState.dynamicEntities.emplace_back("car", redBrick, physicsSystem->getTransformAt(0));
+    gameState.dynamicEntities.emplace_back("car", redBrick, physicsSystem->getTransformAt(0));
 
     // Static scene data
     std::vector<Model> sceneModels;
@@ -83,12 +83,12 @@ int main() {
         for (unsigned int j = 0; j < size - i; j++) {
             physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
             physicsSystem->addItem(matProps, boxGeom, localTran, 10.f);
-            gState.dynamicEntities.emplace_back(Entity("box", tireModel, physicsSystem->getTransformAt(counter++)));
+            gameState.dynamicEntities.emplace_back(Entity("box", tireModel, physicsSystem->getTransformAt(counter++)));
         }
     }
     delete(boxGeom);
 
-    physicsSystem->updateTransforms(gState.dynamicEntities);
+    physicsSystem->updateTransforms(gameState.dynamicEntities);
 
     // Text Rendering Setup
     UIManager uiManager(window.getWidth(), window.getHeight());
