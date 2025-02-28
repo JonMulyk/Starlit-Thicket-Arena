@@ -20,8 +20,8 @@
 #include "Camera.h"
 #include "RenderingSystem.h"
 #include "GameState.h"
-//#include "Text.h"
 #include "UIManager.h"
+#include "Skybox.h"
 
 int main() {
     GameState gState;
@@ -95,6 +95,10 @@ int main() {
     
     const double roundDuration = (5.0 * 60.0);
 
+    //SKYBOX
+    Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
+    Skybox skybox("project/assets/textures/skybox/", skyboxShader);
+
     // Main Loop
     while (!window.shouldClose()) {
         window.clear();
@@ -110,7 +114,7 @@ int main() {
         }
 
         uiManager.updateUIText(timer, roundDuration);
-        renderer.updateRenderer(sceneModels, uiManager.getUIText());
+        renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
 
         glfwSwapBuffers(window);
     }
