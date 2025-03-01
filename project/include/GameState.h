@@ -17,6 +17,9 @@ class GameState
 		// public functions
 		void addDynamicEntity(const std::string name, Model& model, Transform* transform);
 		void addStaticEntity(const std::string name, Model& model, Transform* transform);
+		std::vector<Entity*> findDynamicEntitiesWithName(std::string name);
+		std::vector<Entity*> findStaticEntitiesWithName(std::string name);
+
 		
 		void startRound();
 		void resetRound();
