@@ -13,25 +13,41 @@
 #include <vector>
 #include <iostream>
 
-class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback {
-	void onContact(
-		const snippetvehicle2::PxContactPairHeader& pairHeader,
-		const snippetvehicle2::PxContactPair* pairs,
-		physx::PxU32 nbPairs
-	) {
-		PX_UNUSED(pairHeader);
-		PX_UNUSED(pairs);
-		PX_UNUSED(nbPairs);
-	}
-	void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count) {}
-	void onWake(physx::PxActor** actors, physx::PxU32 count) {}
-	void onSleep(physx::PxActor** actors, physx::PxU32 count) {}
-	void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) {}
-	void onAdvance(const physx::PxRigidBody* const* bodyBuffer,
-		const physx::PxTransform* poseBuffer,
-		const physx::PxU32 count) {}
-};
+class ContactReportCallback : public physx::PxSimulationEventCallback {
+public:
+	int collisions = 0;
+	std::vector<std::pair<physx::PxActor*, physx::PxActor*>> collisionPairs;
 
+	void onContact(
+		const physx::PxContactPairHeader& pairHeader,
+		const physx::PxContactPair* pairs,
+		physx::PxU32 nbPairs
+	) override {
+		std::cout << "Collision detected " << std::endl;
+		collisions++;
+		for (physx::PxU32 i = 0; i < nbPairs; i++) {
+			const physx::PxContactPair& cp = pairs[i];
+			if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND) {
+				// Store colliding actors
+				collisionPairs.push_back({ pairHeader.actors[0], pairHeader.actors[1] });
+			}
+		}
+	}
+
+	void clearCollisions() {
+		collisionPairs.clear();
+	}
+
+	int getCollisions() {
+		return collisions;
+	}
+
+	void onConstraintBreak(physx::PxConstraintInfo*, physx::PxU32) override {}
+	void onWake(physx::PxActor**, physx::PxU32) override {}
+	void onSleep(physx::PxActor**, physx::PxU32) override {}
+	void onTrigger(physx::PxTriggerPair*, physx::PxU32) override {}
+	void onAdvance(const physx::PxRigidBody* const*, const physx::PxTransform*, physx::PxU32) override {}
+};
 struct MaterialProp {
 	physx::PxReal staticFriction;
 	physx::PxReal dynamicFriction;
@@ -49,6 +65,7 @@ private:
 	std::vector<physx::PxRigidDynamic*> rigidDynamicList;
 	std::vector<Transform*> transformList;
 	GameState& gState;
+	ContactReportCallback* gContactReportCallback = nullptr;
 
 	//PhysX management class instances.
 	physx::PxDefaultCpuDispatcher* gDispatcher = NULL;

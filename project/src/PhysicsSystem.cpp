@@ -23,10 +23,11 @@ void PhysicsSystem::initPhysX() {
 	/// </NOTICE>
 	sceneDesc.filterShader = VehicleFilterShader;
 
-	ContactReportCallback* gContactReportCallback = new ContactReportCallback();
+	gContactReportCallback = new ContactReportCallback();
 	sceneDesc.simulationEventCallback = gContactReportCallback;
-
 	gScene = gPhysics->createScene(sceneDesc);
+
+	//gScene->setContactModifyCallback();
 	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
 	if (pvdClient)
 	{
@@ -188,6 +189,10 @@ void PhysicsSystem::cleanupPhysics() {
 	cleanupVehicles();
 	cleanupGroundPlane();
 	cleanupPhysX();
+
+	delete gContactReportCallback;
+	gContactReportCallback = nullptr;
+
 }
 
 PhysicsSystem::PhysicsSystem(GameState& gameState, Model& tModel) :
@@ -299,11 +304,15 @@ void PhysicsSystem::updatePhysics(double dt) {
 	gScene->fetchResults(true);
 
 	updateTransforms(gState.dynamicEntities);
+
 }
 
 void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
 	using namespace physx;
 	using namespace snippetvehicle2;
+
+	// Clear previous collision data
+	gContactReportCallback->clearCollisions();
 
 	//Apply the brake, throttle and steer to the command state of the vehicle.
 	gVehicle.mCommandState.brakes[0] = command.brake + controllerCommand.brake;
@@ -346,6 +355,8 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 		}
 	}
 
+	std::cout << gContactReportCallback->collisions << std::endl;
+	//std::cout << gContactReportCallback->Contact << std::endl;
 	//Forward integrate the phsyx scene by a single timestep.
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
