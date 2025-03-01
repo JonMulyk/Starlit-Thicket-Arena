@@ -63,7 +63,8 @@ int main() {
     RenderingSystem renderer(shader, camera, window, arial, gameState);
 
     // Entity setup
-    gameState.dynamicEntities.emplace_back("car", redBrick, physicsSystem->getTransformAt(0));
+    gameState.addDynamicEntity("car", redBrick, physicsSystem->getTransformAt(0));
+
 
     // Static scene data
     std::vector<Model> sceneModels;
@@ -83,7 +84,7 @@ int main() {
         for (unsigned int j = 0; j < size - i; j++) {
             physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
             physicsSystem->addItem(matProps, boxGeom, localTran, 10.f);
-            gameState.dynamicEntities.emplace_back(Entity("box", tireModel, physicsSystem->getTransformAt(counter++)));
+            gameState.addDynamicEntity("box", tireModel, physicsSystem->getTransformAt(counter++));
         }
     }
     delete(boxGeom);

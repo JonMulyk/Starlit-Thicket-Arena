@@ -15,8 +15,8 @@ class GameState
 		GameState();
 
 		// public functions
-		Entity* addDynamicEntity();
-		Entity* addStaticEntity();
+		void addDynamicEntity(const std::string name, Model& model, Transform* transform);
+		void addStaticEntity(const std::string name, Model& model, Transform* transform);
 		
 		void startRound();
 		void resetRound();

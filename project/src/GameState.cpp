@@ -4,15 +4,16 @@ GameState::GameState()
 {
 }
 
-Entity* GameState::addDynamicEntity()
+void GameState::addDynamicEntity(const std::string name, Model& model, Transform* transform)
 {
-	return nullptr;
+	this->dynamicEntities.emplace_back(name, model, transform);
 }
 
-Entity* GameState::addStaticEntity()
+void GameState::addStaticEntity(const std::string name, Model& model, Transform* transform)
 {
-	return nullptr;
+	this->staticEntities.emplace_back(name, model, transform);
 }
+
 
 void GameState::startRound()
 {
