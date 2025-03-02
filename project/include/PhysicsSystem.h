@@ -13,41 +13,45 @@
 #include <vector>
 #include <iostream>
 
-class ContactReportCallback : public physx::PxSimulationEventCallback {
-public:
-	int collisions = 0;
-	std::vector<std::pair<physx::PxActor*, physx::PxActor*>> collisionPairs;
+class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback {
+	std::pair<physx::PxActor*, physx::PxActor*> collisionPair;
+	bool newCollision = false;
 
 	void onContact(
-		const physx::PxContactPairHeader& pairHeader,
-		const physx::PxContactPair* pairs,
+		const snippetvehicle2::PxContactPairHeader& pairHeader,
+		const snippetvehicle2::PxContactPair* pairs,
 		physx::PxU32 nbPairs
-	) override {
-		std::cout << "Collision detected " << std::endl;
-		collisions++;
-		for (physx::PxU32 i = 0; i < nbPairs; i++) {
-			const physx::PxContactPair& cp = pairs[i];
-			if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND) {
-				// Store colliding actors
-				collisionPairs.push_back({ pairHeader.actors[0], pairHeader.actors[1] });
-			}
+	) {
+		PX_UNUSED(pairHeader);
+		PX_UNUSED(pairs);
+		PX_UNUSED(nbPairs);
+
+		newCollision = true;
+		collisionPair = { pairHeader.actors[0], pairHeader.actors[1] };
+	}
+	void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count) {}
+	void onWake(physx::PxActor** actors, physx::PxU32 count) {}
+	void onSleep(physx::PxActor** actors, physx::PxU32 count) {}
+	void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) {}
+	void onAdvance(const physx::PxRigidBody* const* bodyBuffer,
+		const physx::PxTransform* poseBuffer,
+		const physx::PxU32 count) {}
+
+	public:
+		std::pair<physx::PxActor*, physx::PxActor*> getCollisionPair() {
+			return collisionPair;
 		}
-	}
 
-	void clearCollisions() {
-		collisionPairs.clear();
-	}
+		bool checkCollision() {
+			return newCollision;
+		}
 
-	int getCollisions() {
-		return collisions;
-	}
+		void readNewCollision() {
+			newCollision = false;
+		}
 
-	void onConstraintBreak(physx::PxConstraintInfo*, physx::PxU32) override {}
-	void onWake(physx::PxActor**, physx::PxU32) override {}
-	void onSleep(physx::PxActor**, physx::PxU32) override {}
-	void onTrigger(physx::PxTriggerPair*, physx::PxU32) override {}
-	void onAdvance(const physx::PxRigidBody* const*, const physx::PxTransform*, physx::PxU32) override {}
 };
+
 struct MaterialProp {
 	physx::PxReal staticFriction;
 	physx::PxReal dynamicFriction;

@@ -224,8 +224,9 @@ void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, phys
 	shape->setSimulationFilterData(itemFilter);
 	body->attachShape(*shape);
 
-
+	// Actor properties
 	physx::PxRigidBodyExt::updateMassAndInertia(*body, density);
+	body->setName("obstacle");
 	gScene->addActor(*body);
 
 	// Clean up
@@ -256,6 +257,7 @@ void PhysicsSystem::addTrail(float x, float z, float rot) {
 	shape->setSimulationFilterData(itemFilter);
 
 	body->attachShape(*shape);
+	body->setName("trail");
 
 	gState.staticEntities.push_back(Entity("trail", trailModel, new Transform()));
 
@@ -311,9 +313,6 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 	using namespace physx;
 	using namespace snippetvehicle2;
 
-	// Clear previous collision data
-	gContactReportCallback->clearCollisions();
-
 	//Apply the brake, throttle and steer to the command state of the vehicle.
 	gVehicle.mCommandState.brakes[0] = command.brake + controllerCommand.brake;
 	gVehicle.mCommandState.nbBrakes = 1;
@@ -355,9 +354,15 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 		}
 	}
 
-	std::cout << gContactReportCallback->collisions << std::endl;
-	//std::cout << gContactReportCallback->Contact << std::endl;
-	//Forward integrate the phsyx scene by a single timestep.
+
+	auto collisionPair = gContactReportCallback->getCollisionPair();
+	if (gContactReportCallback->checkCollision()) {
+		const char* colliding1 = collisionPair.first->getName();
+		const char* colliding2 = collisionPair.second->getName();
+		std::cout << colliding1 << " has collided with " << colliding2 << std::endl;
+		gContactReportCallback->readNewCollision();
+	}
+
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
 }
