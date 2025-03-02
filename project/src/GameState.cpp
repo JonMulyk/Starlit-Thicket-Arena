@@ -17,13 +17,12 @@ void GameState::addStaticEntity(const std::string name, Model& model, Transform*
 std::vector<Entity*> GameState::findDynamicEntitiesWithName(std::string name)
 {
 	std::vector<Entity*> matches;
-	for (const auto& entity : dynamicEntities)
+	for (auto& entity : dynamicEntities)
 	{
 		if (entity.name == name)
 		{
-			matches.emplace_back(entity);
+			matches.emplace_back(&entity);
 		}
-
 	}
 
 	return matches;
@@ -32,13 +31,12 @@ std::vector<Entity*> GameState::findDynamicEntitiesWithName(std::string name)
 std::vector<Entity*> GameState::findStaticEntitiesWithName(std::string name)
 {
 	std::vector<Entity*> matches;
-	for (const auto& entity : staticEntities)
+	for (auto& entity : staticEntities)
 	{
 		if (entity.name == name)
 		{
-			matches.emplace_back(entity);
+			matches.emplace_back(&entity);
 		}
-
 	}
 
 	return matches;
