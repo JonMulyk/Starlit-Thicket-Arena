@@ -3,6 +3,8 @@
 #include <iostream>
 #include <glm.hpp>
 
+#include <chrono>
+
 #include "PxPhysicsAPI.h"
 #include "TimeSeconds.h"
 #include "InitManager.h"
@@ -18,6 +20,8 @@
 #include "Camera.h"
 #include "RenderingSystem.h"
 #include "GameState.h"
+#include "UIManager.h"
+#include "Skybox.h"
 #include <Vehicle.h>
 
 int main() {
@@ -31,7 +35,7 @@ int main() {
     Windowing window(1200, 1000);
 
     Input input(window, camera, timer, command);
-    Controller controller1(1, controllerCommand);
+    Controller controller1(1, camera, controllerCommand);
     if (!controller1.isConnected()) { 
         std::cout << "Controller one not connected" << std::endl; 
 		controllerCommand.brake = 0.0f;
@@ -39,7 +43,8 @@ int main() {
 		controllerCommand.steer = 0.0f;
     }
 
-    Shader shader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
+    Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
+    Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
     TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
     Texture container("project/assets/textures/container.jpg", true);
     Texture gold("project/assets/textures/gold.jpg", true);
@@ -52,7 +57,7 @@ int main() {
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
     Model cube(shader, container, verts, verts, coord);
-    Model redBrick(shader, "project/assets/models/redBrick.obj");
+    Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
     Model trail(shader, fire, "project/assets/models/Trail.obj");
     Model tireModel = Model(shader, "project/assets/models/tire1/tire1.obj");
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
@@ -91,6 +96,15 @@ int main() {
 
     physicsSystem->updateTransforms(gState.dynamicEntities);
 
+    // Text Rendering Setup
+    UIManager uiManager(window.getWidth(), window.getHeight());
+    
+    const double roundDuration = (5.0 * 60.0);
+
+    //SKYBOX
+    Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
+    Skybox skybox("project/assets/textures/skybox/", skyboxShader);
+
     // Main Loop
     while (!window.shouldClose()) {
         window.clear();
@@ -105,12 +119,6 @@ int main() {
             physicsSystem->updatePhysics(timer.dt);
             timer.advance();
         }
-
-        Command aiCommand1;
-        aiCommand1.throttle = 0.5f; 
-        aiCommand1.brake = 0.0f;   //no braking
-        aiCommand1.steer = -0.5f;   //right is negative, left is positive floats
-        physicsSystem->setVehicleCommand(1, aiCommand1);
 
 		//renderer.renderScene(sceneModels);
         renderer.updateRenderer(sceneModels, "FPS: " + std::to_string(timer.getFPS()));

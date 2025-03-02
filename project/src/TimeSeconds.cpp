@@ -1,4 +1,6 @@
 #include "TimeSeconds.h"
+#include <iomanip>
+#include <sstream>
 
 // Ctor
 TimeSeconds::TimeSeconds() : m_currentTime(glfwGetTime()) {}
@@ -36,4 +38,27 @@ double TimeSeconds::getAccumultor() const {
 
 double TimeSeconds::getElapsedTime() const {
     return m_elapsedTime;
+}
+
+double TimeSeconds::getRemainingTime(double countDownDuration) const
+{
+    double timeLeft = countDownDuration - m_elapsedTime;
+    if (timeLeft <= 0)
+        return 0;
+
+    return timeLeft;
+}
+
+
+std::string TimeSeconds::formatTimeToHumanReadable(double timeInSeconds) const
+{
+    int minutes = timeInSeconds / 60;
+    int seconds = static_cast<int>(timeInSeconds) % 60;
+    
+    std::ostringstream stream;
+    stream  << std::setw(2) << minutes << ":" 
+            << std::setw(2) << std::setfill('0') << seconds;
+    return stream.str();
+
+    // change formatting on this
 }

@@ -23,10 +23,11 @@ void PhysicsSystem::initPhysX() {
 	/// </NOTICE>
 	sceneDesc.filterShader = VehicleFilterShader;
 
-	ContactReportCallback* gContactReportCallback = new ContactReportCallback();
+	gContactReportCallback = new ContactReportCallback();
 	sceneDesc.simulationEventCallback = gContactReportCallback;
-
 	gScene = gPhysics->createScene(sceneDesc);
+
+	//gScene->setContactModifyCallback();
 	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
 	if (pvdClient)
 	{
@@ -201,6 +202,10 @@ void PhysicsSystem::cleanupPhysics() {
 	cleanupVehicles();
 	cleanupGroundPlane();
 	cleanupPhysX();
+
+	delete gContactReportCallback;
+	gContactReportCallback = nullptr;
+
 }
 
 PhysicsSystem::PhysicsSystem(GameState& gameState, Model& tModel) :
@@ -232,8 +237,9 @@ void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, phys
 	shape->setSimulationFilterData(itemFilter);
 	body->attachShape(*shape);
 
-
+	// Actor properties
 	physx::PxRigidBodyExt::updateMassAndInertia(*body, density);
+	body->setName("obstacle");
 	gScene->addActor(*body);
 
 	// Clean up
@@ -264,6 +270,7 @@ void PhysicsSystem::addTrail(float x, float z, float rot) {
 	shape->setSimulationFilterData(itemFilter);
 
 	body->attachShape(*shape);
+	body->setName("trail");
 
 	gState.staticEntities.push_back(Entity("trail", trailModel, new Transform()));
 
@@ -314,7 +321,9 @@ void PhysicsSystem::updatePhysics(double dt) {
 	gScene->fetchResults(true);
 
 	updateTransforms(gState.dynamicEntities);
-}void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
+}
+
+void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
 	using namespace physx;
 	using namespace snippetvehicle2;
 

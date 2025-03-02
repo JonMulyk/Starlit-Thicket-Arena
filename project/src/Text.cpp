@@ -1,0 +1,47 @@
+#include "Text.h"
+
+Text::Text(const std::string& name, const std::string& text, float x, float y, float scale, const glm::vec3& color)
+	: name(name), textToRender(text), x(x), y(y), scale(scale), color(color) 
+{
+}
+
+Text::Text(const std::string& text, float x, float y, float scale, const glm::vec3& color)
+	: name(""), textToRender(text), x(x), y(y), scale(scale), color(color) 
+{
+}
+
+
+const std::string& Text::getName() const
+{
+	return this->name;
+}
+
+const std::string& Text::getTextToRender() const
+{
+	return this->textToRender;
+}
+
+void Text::setTextToRender(std::string text)
+{
+	this->textToRender = text;
+}
+
+float Text::getX() const
+{
+	return this->x;
+}
+
+float Text::getY() const
+{
+	return this->y;
+}
+
+float Text::getScale() const
+{
+	return this->scale;
+}
+
+glm::vec3 Text::getColor() const
+{
+	return this->color;
+}

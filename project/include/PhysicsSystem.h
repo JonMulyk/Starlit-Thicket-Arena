@@ -22,6 +22,9 @@ struct VehicleData {
 };
 
 class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback {
+	std::pair<physx::PxActor*, physx::PxActor*> collisionPair;
+	bool newCollision = false;
+
 	void onContact(
 		const snippetvehicle2::PxContactPairHeader& pairHeader,
 		const snippetvehicle2::PxContactPair* pairs,
@@ -30,6 +33,9 @@ class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback 
 		PX_UNUSED(pairHeader);
 		PX_UNUSED(pairs);
 		PX_UNUSED(nbPairs);
+
+		newCollision = true;
+		collisionPair = { pairHeader.actors[0], pairHeader.actors[1] };
 	}
 	void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count) {}
 	void onWake(physx::PxActor** actors, physx::PxU32 count) {}
@@ -38,6 +44,20 @@ class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback 
 	void onAdvance(const physx::PxRigidBody* const* bodyBuffer,
 		const physx::PxTransform* poseBuffer,
 		const physx::PxU32 count) {}
+
+	public:
+		std::pair<physx::PxActor*, physx::PxActor*> getCollisionPair() {
+			return collisionPair;
+		}
+
+		bool checkCollision() {
+			return newCollision;
+		}
+
+		void readNewCollision() {
+			newCollision = false;
+		}
+
 };
 
 struct MaterialProp {
@@ -57,6 +77,7 @@ private:
 	std::vector<physx::PxRigidDynamic*> rigidDynamicList;
 	std::vector<Transform*> transformList;
 	GameState& gState;
+	ContactReportCallback* gContactReportCallback = nullptr;
 
 	//PhysX management class instances.
 	physx::PxDefaultCpuDispatcher* gDispatcher = NULL;

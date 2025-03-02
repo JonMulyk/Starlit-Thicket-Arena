@@ -66,6 +66,11 @@ float Camera::getZoom() const {
     return Zoom;
 }
 
+const glm::vec3 Camera::getPosition() const
+{
+    return this->Position;
+}
+
 glm::vec3 vec3(physx::PxVec3 v) { return glm::vec3(v.x, v.y, v.z); }
 
 glm::mat4 Camera::GetViewMatrix() {

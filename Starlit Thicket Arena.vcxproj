@@ -155,6 +155,8 @@
   <ItemGroup>
     <None Include="project\assets\shaders\CameraShader.vert" />
     <None Include="project\assets\shaders\FragShader.frag" />
+    <None Include="project\assets\shaders\skyboxShader.frag" />
+    <None Include="project\assets\shaders\skyboxShader.vert" />
     <None Include="project\assets\shaders\textShader.frag" />
     <None Include="project\assets\shaders\textShader.vert" />
     <None Include="project\assets\shaders\VertShader.vert" />
@@ -181,10 +183,13 @@
     <ClCompile Include="project\src\Model.cpp" />
     <ClCompile Include="project\src\PhysicsSystem.cpp" />
     <ClCompile Include="project\src\Shader.cpp" />
+    <ClCompile Include="project\src\Skybox.cpp" />
+    <ClCompile Include="project\src\Text.cpp" />
     <ClCompile Include="project\src\Texture.cpp" />
     <ClCompile Include="project\src\TimeSeconds.cpp" />
     <ClCompile Include="project\src\tiny_obj_loader.cc" />
     <ClCompile Include="project\src\Transform.cpp" />
+    <ClCompile Include="project\src\UIManager.cpp" />
     <ClCompile Include="project\src\Vehicle.cpp" />
     <ClCompile Include="project\src\Windowing.cpp" />
     <ClCompile Include="project\src\TTF.cpp" />
@@ -627,10 +632,13 @@
     <ClInclude Include="project\include\PhysicsSystem.h" />
     <ClInclude Include="project\include\Render.h" />
     <ClInclude Include="project\include\Shader.h" />
+    <ClInclude Include="project\include\Text.h" />
+    <ClInclude Include="project\include\Skybox.h" />
     <ClInclude Include="project\include\Texture.h" />
     <ClInclude Include="project\include\TimeSeconds.h" />
     <ClInclude Include="project\include\tiny_obj_loader.h" />
     <ClInclude Include="project\include\Transform.h" />
+    <ClInclude Include="project\include\UIManager.h" />
     <ClInclude Include="project\include\Windowing.h" />
     <ClInclude Include="project\include\TTF.h" />
     <ClInclude Include="project\include\stb_image.h" />
