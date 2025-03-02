@@ -374,7 +374,7 @@ void PhysicsSystem::updatePhysics(double dt) {
 	if (gContactReportCallback->checkCollision()) {
 		const char* colliding1 = collisionPair.first->getName();
 		const char* colliding2 = collisionPair.second->getName();
-		std::cout << colliding1 << " has collided with " << colliding2 << std::endl;
+		std::cout << colliding1 << " has collided with " << colliding2 << " trail!" << std::endl;
 		gContactReportCallback->readNewCollision();
 	}
 
