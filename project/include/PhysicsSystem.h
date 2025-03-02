@@ -138,7 +138,7 @@ public:
 
 	void addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density=10.f);
 
-	void addTrail(float x, float z, float rot);
+	void addTrail(float x, float z, float rot, const char* name);
 	physx::PxVec3 getPos(int i);
 	Transform* getTransformAt(int i);
 	void updateTransforms(std::vector<Entity>& entityList);

@@ -25,9 +25,8 @@ void PhysicsSystem::initPhysX() {
 
 	gContactReportCallback = new ContactReportCallback();
 	sceneDesc.simulationEventCallback = gContactReportCallback;
-	gScene = gPhysics->createScene(sceneDesc);
 
-	//gScene->setContactModifyCallback();
+	gScene = gPhysics->createScene(sceneDesc);
 	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
 	if (pvdClient)
 	{
@@ -115,7 +114,7 @@ bool PhysicsSystem::initVehicles() {
 		vehicleData.vehicle.mBaseParams = baseParams;
 		vehicleData.vehicle.mPhysXParams = physxParams;
 		vehicleData.vehicle.mEngineDriveParams = engineDriveParams;
-
+		
 		// Initialize the vehicle
 		if (!vehicleData.vehicle.initialize(*gPhysics, PxCookingParams(PxTolerancesScale()), *gMaterial, EngineDriveVehicle::eDIFFTYPE_FOURWHEELDRIVE)) {
 			return false;
@@ -205,7 +204,6 @@ void PhysicsSystem::cleanupPhysics() {
 
 	delete gContactReportCallback;
 	gContactReportCallback = nullptr;
-
 }
 
 PhysicsSystem::PhysicsSystem(GameState& gameState, Model& tModel) :
@@ -219,7 +217,7 @@ PhysicsSystem::~PhysicsSystem() {
 }
 
 void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density) {
-	physx::PxMaterial*pMaterial = gPhysics->createMaterial(material.staticFriction, material.dynamicFriction, material.restitution);
+	physx::PxMaterial* pMaterial = gPhysics->createMaterial(material.staticFriction, material.dynamicFriction, material.restitution);
 
 	// Define a item
 	physx::PxShape* shape = gPhysics->createShape(*geom, *pMaterial);
@@ -237,9 +235,8 @@ void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, phys
 	shape->setSimulationFilterData(itemFilter);
 	body->attachShape(*shape);
 
-	// Actor properties
+
 	physx::PxRigidBodyExt::updateMassAndInertia(*body, density);
-	body->setName("obstacle");
 	gScene->addActor(*body);
 
 	// Clean up
@@ -247,13 +244,13 @@ void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, phys
 	pMaterial = nullptr;
 }
 
-void PhysicsSystem::addTrail(float x, float z, float rot) {
+void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	physx::PxMaterial* pMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
 
 	// create shape
 	float height = .5f;
 	float width = 0.01f;
-	physx::PxBoxGeometry geom(trailStep/2, height,width);
+	physx::PxBoxGeometry geom(trailStep / 2, height, width);
 	physx::PxShape* shape = gPhysics->createShape(geom, *pMaterial);
 
 	physx::PxTransform wallTransform(
@@ -270,7 +267,7 @@ void PhysicsSystem::addTrail(float x, float z, float rot) {
 	shape->setSimulationFilterData(itemFilter);
 
 	body->attachShape(*shape);
-	body->setName("trail");
+	body->setName(name);
 
 	gState.staticEntities.push_back(Entity("trail", trailModel, new Transform()));
 
@@ -321,9 +318,7 @@ void PhysicsSystem::updatePhysics(double dt) {
 	gScene->fetchResults(true);
 
 	updateTransforms(gState.dynamicEntities);
-}
-
-void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
+}void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
 	using namespace physx;
 	using namespace snippetvehicle2;
 
@@ -360,7 +355,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			float ratio = float(j + 1) / float(steps);
 			PxVec3 travNorm = ratio * vehicleData.prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
 			PxVec3 placementLoc = vehicleData.prevPos - 1.2f * gState.dynamicEntities.at(i).transform->scale.x * travNorm;
-			addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x));
+			addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x), vehicleData.name.c_str());
 			vehicleData.prevPos += trailStep * travel.getNormalized();
 			if (j + 1 == steps) {
 				vehicleData.prevDir = travel;
@@ -372,6 +367,15 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			gState.playerVehicle.curPos = currPos;
 			gState.playerVehicle.curDir = forwardDir.getNormalized();
 		}
+	}
+
+	// Detect collisions
+	auto collisionPair = gContactReportCallback->getCollisionPair();
+	if (gContactReportCallback->checkCollision()) {
+		const char* colliding1 = collisionPair.first->getName();
+		const char* colliding2 = collisionPair.second->getName();
+		std::cout << colliding1 << " has collided with " << colliding2 << std::endl;
+		gContactReportCallback->readNewCollision();
 	}
 
 	// Simulate the entire PhysX scene

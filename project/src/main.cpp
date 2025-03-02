@@ -60,8 +60,8 @@ int main() {
     Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
     Model trail(shader, fire, "project/assets/models/Trail.obj");
     Model tireModel = Model(shader, "project/assets/models/tire1/tire1.obj");
-    Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
-
+    Model secondCar(lightingShader, gold, "project/assets/models/box.obj");
+    // Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
     PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail);
 
     // Create Rendering System
@@ -119,6 +119,12 @@ int main() {
             physicsSystem->updatePhysics(timer.dt);
             timer.advance();
         }
+
+        Command aiCommand1;
+        aiCommand1.throttle = 0.5f;
+        aiCommand1.brake = 0.0f;   //no braking
+        aiCommand1.steer = -0.5f;   //right is negative, left is positive floats
+        physicsSystem->setVehicleCommand(1, aiCommand1);
 
 		//renderer.renderScene(sceneModels);
         renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
