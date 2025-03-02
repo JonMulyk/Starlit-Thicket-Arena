@@ -121,7 +121,7 @@ int main() {
         }
 
 		//renderer.renderScene(sceneModels);
-        renderer.updateRenderer(sceneModels, "FPS: " + std::to_string(timer.getFPS()));
+        renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
 
         glfwSwapBuffers(window);
     }
