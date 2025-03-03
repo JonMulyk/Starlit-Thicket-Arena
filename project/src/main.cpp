@@ -134,7 +134,5 @@ int main() {
         glfwSwapBuffers(window);
     }
 
-    gState.gMap.printGraph();
-    gState.gMap.printGraph(gState.gMap.aStar(0, 0, GRID_SIZE - 1, GRID_SIZE - 1));
     return 0;
 }
