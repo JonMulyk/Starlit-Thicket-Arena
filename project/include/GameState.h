@@ -1,7 +1,8 @@
 #pragma once
-#include <vector>
+#include "GameMap.h"
 #include "PxPhysicsAPI.h"
 #include "Entity.h"
+
 
 struct PlayerVehicle {
 	physx::PxVec3 curDir;
@@ -14,6 +15,7 @@ class GameState {
 		uint64_t score = 0;
 
 	public:
+		GameMap gMap;
 		PlayerVehicle playerVehicle;
 		std::vector<Entity> dynamicEntities;
 		std::vector<Entity> staticEntities;
@@ -23,3 +25,4 @@ class GameState {
 		void addToScore(uint64_t amount);
 
 };
+

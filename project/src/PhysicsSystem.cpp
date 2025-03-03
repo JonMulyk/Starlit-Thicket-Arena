@@ -357,6 +357,14 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	// Clean up
 	shape->release();
 	pMaterial = nullptr;
+
+	// add the add the block to the graph
+	physx::PxVec3 dir = wallTransform.q.rotate(physx::PxVec3(0.f, 1.f, 0.f));
+	physx::PxVec3 start = wallTransform.p - trailStep * dir;
+	physx::PxVec3 end = wallTransform.p + trailStep * dir;
+
+	gState.gMap.updateMap({ start.x, start.z }, { end.x, end.z });
+
 }
 
 physx::PxVec3 PhysicsSystem::getPos(int i) {
