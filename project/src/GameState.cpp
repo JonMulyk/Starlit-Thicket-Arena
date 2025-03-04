@@ -45,12 +45,24 @@ std::vector<Entity*> GameState::findStaticEntitiesWithName(std::string name)
 
 void GameState::startRound()
 {
+	this->inRound = true;
 }
 
-void GameState::resetRound()
+void GameState::endRound()
 {
+	this->inRound = false;
+}
+
+
+void GameState::startGame()
+{
+	this->gameEnded = false;
+	this->inMenu = false;
+	this->inRound = true;
 }
 
 void GameState::endGame()
 {
+	this->inRound = false;
+	this->gameEnded = true;
 }

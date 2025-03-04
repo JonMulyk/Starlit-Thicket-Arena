@@ -20,9 +20,9 @@ class GameState
 		std::vector<Entity*> findDynamicEntitiesWithName(std::string name);
 		std::vector<Entity*> findStaticEntitiesWithName(std::string name);
 
-		
 		void startRound();
-		void resetRound();
+		void endRound();
+		void startGame();
 		void endGame();
 
 		// Flags
