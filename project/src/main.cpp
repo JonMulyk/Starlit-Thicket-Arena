@@ -22,25 +22,23 @@
 #include "GameState.h"
 #include "UIManager.h"
 #include "Skybox.h"
-#include <Vehicle.h>
 
 int main() {
     GameState gState;
     InitManager::initGLFW();
     Command command;
 	Command controllerCommand;
-    Command commandAI;
     TimeSeconds timer;
     Camera camera(gState, timer);
     Windowing window(1200, 1000);
 
     Input input(window, camera, timer, command);
     Controller controller1(1, camera, controllerCommand);
-    if (!controller1.isConnected()) { 
-        std::cout << "Controller one not connected" << std::endl; 
-		controllerCommand.brake = 0.0f;
-		controllerCommand.throttle = 0.0f;
-		controllerCommand.steer = 0.0f;
+    if (!controller1.isConnected()) {
+        std::cout << "Controller one not connected" << std::endl;
+        controllerCommand.brake = 0.0f;
+        controllerCommand.throttle = 0.0f;
+        controllerCommand.steer = 0.0f;
     }
 
     Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
@@ -51,9 +49,7 @@ int main() {
     Texture neon("project/assets/textures/neon.jpg", true);
     Texture fire("project/assets/textures/fire.jpg", true);
 
-
-
-    // Model Setups
+    // Model Setup
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
     Model cube(lightingShader, container, verts, verts, coord);
@@ -83,15 +79,15 @@ int main() {
     MaterialProp matProps = { 0.5f, 0.5f, 0.6f };
     physx::PxBoxGeometry* boxGeom = new physx::PxBoxGeometry(halfLen, halfLen, halfLen);
 
-    //int size = 5;
-    //int counter = 1;
-    //for (unsigned int i = 0; i < size; i++) {
-     //   for (unsigned int j = 0; j < size - i; j++) {
-     //       physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
-     //       physicsSystem->addItem(matProps, boxGeom, localTran, 10.f);
-     //       gState.dynamicEntities.emplace_back(Entity("box", tireModel, physicsSystem->getTransformAt(counter++)));
-     //   }
-    //}
+    int size = 5;
+    int counter = gState.dynamicEntities.size();
+    for (unsigned int i = 0; i < size; i++) {
+        for (unsigned int j = 0; j < size - i; j++) {
+            physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
+            physicsSystem->addItem(matProps, boxGeom, localTran, 10.f);
+            gState.dynamicEntities.emplace_back(Entity("box", tireModel, physicsSystem->getTransformAt(counter++)));
+        }
+    }
     delete(boxGeom);
 
     physicsSystem->updateTransforms(gState.dynamicEntities);

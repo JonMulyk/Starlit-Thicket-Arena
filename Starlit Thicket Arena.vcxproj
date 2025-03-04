@@ -628,6 +628,7 @@
     <ClInclude Include="project\include\Entity.h" />
     <ClInclude Include="project\include\GameMap.h" />
     <ClInclude Include="project\include\GameState.h" />
+    <ClInclude Include="project\include\Command.h" />
     <ClInclude Include="project\include\InitManager.h" />
     <ClInclude Include="project\include\Input.h" />
     <ClInclude Include="project\include\Mesh.h" />
@@ -642,6 +643,7 @@
     <ClInclude Include="project\include\tiny_obj_loader.h" />
     <ClInclude Include="project\include\Transform.h" />
     <ClInclude Include="project\include\UIManager.h" />
+    <ClInclude Include="project\include\Vehicle.h" />
     <ClInclude Include="project\include\Windowing.h" />
     <ClInclude Include="project\include\TTF.h" />
     <ClInclude Include="project\include\stb_image.h" />
