@@ -15,10 +15,12 @@ class UIManager
 		void initializeUIText();
 
 	public:
+		std::vector<Text> roundText;
 		UIManager(int windowWidth, int windowHeight);
 		
 		const std::vector<Text>& getUIText() const;
 		void updateUIText(TimeSeconds& timer, double roundDuration);
-
-
+		void updateRoundText();
 };
+
+
