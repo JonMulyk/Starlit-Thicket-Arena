@@ -3,4 +3,5 @@
 /lib/glfw-3.4.bin.WIN64/*
 /lib/glm/*
 /lib/assimp/*
+/lib/fmod/*
 /.vs/*
