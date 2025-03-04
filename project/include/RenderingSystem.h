@@ -21,6 +21,8 @@ public:
         Skybox& skybox
     );
 
+    void renderText(const std::vector<Text>& renderingText);
+
 private:
     Shader& shader;
     Camera& camera;
@@ -31,7 +33,6 @@ private:
     void updateProjectionView(Shader& viewShader);
     void setShaderUniforms(Shader* shader);
     void renderEntities(const std::vector<Entity>& entities);
-    void renderText(const std::vector<Text>& renderingText);
     void renderSkybox(Skybox& skybox);
     void renderScene(std::vector<Model>& sceneModels);
 };

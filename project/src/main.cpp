@@ -106,16 +106,31 @@ int main() {
         timer.tick();
         input.poll();
         controller1.Update();
+    
+		// Update physics
+		while (timer.getAccumultor() >= timer.dt) {
+			physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
+			physicsSystem->updatePhysics(timer.dt);
+			timer.advance();
+		}
 
-        // Update physics
-        while (timer.getAccumultor() >= timer.dt) {
-            physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
-            physicsSystem->updatePhysics(timer.dt);
-            timer.advance();
+        if (gameState.inRound)
+        {
+
+            if (timer.getRemainingTime(roundDuration) <= 0.0f)
+            {
+                gameState.endGame();
+            }
+
+            uiManager.updateUIText(timer, roundDuration);
+            renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
         }
 
-        uiManager.updateUIText(timer, roundDuration);
-        renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+        if (gameState.gameEnded)
+        {
+            uiManager.updateRoundText();
+            renderer.renderText(uiManager.roundText);
+        }
 
         glfwSwapBuffers(window);
     }
