@@ -120,3 +120,29 @@ Model* ResourceManager::getModel(const std::string& name) const
 
 	return model->second.get();
 }
+
+void ResourceManager::initializeResources()
+{
+	// load shaders
+    this->loadShader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
+    this->loadShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
+    this->loadShader("sceneShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
+    this->loadShader("skyboxShader", "project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
+	
+	// textures
+
+    //this->loadTexture("container", "project/assets/textures/container.jpg", true);
+	//this->loadTexture("gold", "project/assets/textures/gold.jpg", true);
+	//this->loadTexture("neon", "project/assets/textures/neon.jpg", true);
+	//this->loadTexture("fire", "project/assets/textures/fire.jpg", true);
+	
+	// font
+    this->loadFont("arial", "project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
+	
+	//models
+	/*
+    loadModel("redBrick", this->getShader("lightingShader"), this->getTexture("gold"), "project/assets/models/box.obj");
+	loadModel("trail", this->getShader("basicShader"), this->getTexture("fire"), "project/assets/models/Trail.obj");
+	loadModel("tireModel", this->getShader("basicShader"), "project/assets/models/tire1/tire1.obj");
+	*/
+}

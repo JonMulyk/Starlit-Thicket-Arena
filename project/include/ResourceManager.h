@@ -34,4 +34,6 @@ class ResourceManager
 		void loadModel(const std::string& name, Shader* shader, const std::string& modelPath);
 		void loadModel(const std::string& name, Shader* shader, Texture* texture, const std::string& modelPath);
 		Model* getModel(const std::string& name) const;
+
+		void initializeResources();
 };
