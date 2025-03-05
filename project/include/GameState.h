@@ -9,8 +9,17 @@ struct PlayerVehicle {
 };
 
 class GameState {
-public:
-	PlayerVehicle playerVehicle;
-	std::vector<Entity> dynamicEntities;
-	std::vector<Entity> staticEntities;
+	private:
+
+		uint64_t score = 0;
+
+	public:
+		PlayerVehicle playerVehicle;
+		std::vector<Entity> dynamicEntities;
+		std::vector<Entity> staticEntities;
+
+		uint64_t getScore();
+		void incrementScore();
+		void addToScore(uint64_t amount);
+
 };
