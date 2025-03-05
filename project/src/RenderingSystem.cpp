@@ -27,9 +27,12 @@ void RenderingSystem::setShaderUniforms(Shader* shader)
     }
     else if(shader->getName() == "lightingShader")
     {
-        shader->setVec3("lightPos", glm::vec3(0.0f, 5.0f, 0.0f));
         shader->setVec3("viewPos", camera.getPosition());
         shader->setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        shader->setVec3("light.direction", glm::vec3(-0.5f, -1.0f, -0.5f));
+        shader->setVec3("light.ambient", glm::vec3(0.45f, 0.45f, 0.45f));
+        shader->setVec3("light.diffuse", glm::vec3(0.65f, 0.65f, 0.65f));
+        shader->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
     }
 }
 
