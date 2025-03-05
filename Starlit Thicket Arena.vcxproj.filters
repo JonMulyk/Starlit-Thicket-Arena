@@ -117,6 +117,9 @@
     <ClCompile Include="project\src\Skybox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="project\src\GameState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="project\src\Vehicle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
