@@ -22,6 +22,7 @@
 #include "GameState.h"
 #include "UIManager.h"
 #include "Skybox.h"
+#include "AudioSystem.h"
 
 int main() {
     GameState gState;
@@ -31,6 +32,10 @@ int main() {
     TimeSeconds timer;
     Camera camera(gState, timer);
     Windowing window(1200, 1000);
+    AudioSystem audio;
+    AudioSystem* audio_ptr = &audio;
+	audio.init();
+    bool audioMove = false, first = true;
 
     Input input(window, camera, timer, command);
     Controller controller1(1, camera, controllerCommand);
@@ -106,9 +111,15 @@ int main() {
         input.poll();
         controller1.Update();
 
+        if (audioMove && first) {
+            audio.startBattleMusic();
+            audioMove = false;
+			first = false;
+        }
+
         // Update physics
         while (timer.getAccumultor() >= timer.dt) {
-            physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
+            physicsSystem->stepPhysics(timer.dt, command, controllerCommand, audioMove);
             physicsSystem->updatePhysics(timer.dt);
             timer.advance();
         }

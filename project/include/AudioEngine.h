@@ -51,6 +51,7 @@ public:
     // Sound and bank functions.
     void LoadBank(const std::string& strBankName, FMOD_STUDIO_LOAD_BANK_FLAGS flags);
     void LoadEvent(const std::string& strEventName);
+    void LoadEventInstanced(const string& strEventName, const string& strEventInstanceName);
     void LoadSound(const std::string& strSoundName, bool b3d = true, bool bLooping = false, bool bStream = false);
     void UnLoadSound(const std::string& strSoundName);
 

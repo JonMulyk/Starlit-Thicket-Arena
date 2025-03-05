@@ -4,4 +4,5 @@
 /lib/glm/*
 /lib/assimp/*
 /lib/fmod/*
+/project/assets/audio/*
 /.vs/*

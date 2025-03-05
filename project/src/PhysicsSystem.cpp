@@ -301,7 +301,7 @@ void PhysicsSystem::updatePhysics(double dt) {
 	updateTransforms(gState.dynamicEntities);
 }
 
-void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
+void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand, bool& audioMove) {
 	using namespace physx;
 	using namespace snippetvehicle2;
 
@@ -331,6 +331,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 	physx::PxVec3 travel = currPos - vehiclePrevPos;
 
 	int steps = travel.magnitude() / trailStep;
+	if (steps > 0) audioMove = true;
 
 	for (int i=0; i < steps; i++) {
 		float ratio = float(i + 1) / float(steps);

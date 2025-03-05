@@ -144,6 +144,23 @@ void CAudioEngine::LoadEvent(const std::string& strEventName) {
     }
 }
 
+void CAudioEngine::LoadEventInstanced(const std::string& strEventName, const string& strEventInstanceName) {
+    auto tFoundIt = sgpImplementation->mEvents.find(strEventInstanceName);
+    if (tFoundIt != sgpImplementation->mEvents.end())
+        return;
+
+    // This can't be right, but wtf should it be?
+    FMOD::Studio::EventDescription* pEventDescription = NULL;
+    CAudioEngine::ErrorCheck(sgpImplementation->mpStudioSystem->getEvent(strEventName.c_str(), &pEventDescription));
+    if (pEventDescription) {
+        FMOD::Studio::EventInstance* pEventInstance = NULL;
+        CAudioEngine::ErrorCheck(pEventDescription->createInstance(&pEventInstance));
+        if (pEventInstance) {
+            sgpImplementation->mEvents[strEventInstanceName] = pEventInstance;
+        }
+    }
+}
+
 void CAudioEngine::PlayEvent(const string& strEventName) {
     auto tFoundit = sgpImplementation->mEvents.find(strEventName);
     if (tFoundit == sgpImplementation->mEvents.end()) {
