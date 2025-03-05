@@ -57,10 +57,10 @@ int main() {
     // Model Setup
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
-    Model cube(shader, container, verts, verts, coord);
+    Model cube(lightingShader, container, verts, verts, coord);
     Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
-    Model trail(shader, fire, "project/assets/models/Trail.obj");
-    Model tireModel = Model(shader, "project/assets/models/tire1/tire1.obj");
+    Model trail(lightingShader, fire, "project/assets/models/Trail.obj");
+    Model tireModel = Model(lightingShader, "project/assets/models/tire1/tire1.obj");
 
     PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail);
 
@@ -123,8 +123,8 @@ int main() {
             physicsSystem->updatePhysics(timer.dt);
             timer.advance();
         }
-
-        uiManager.updateUIText(timer, roundDuration);
+    
+        uiManager.updateUIText(timer, roundDuration, gState.getScore());
         renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
 
         glfwSwapBuffers(window);

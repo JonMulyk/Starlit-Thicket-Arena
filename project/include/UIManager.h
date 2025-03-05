@@ -18,7 +18,7 @@ class UIManager
 		UIManager(int windowWidth, int windowHeight);
 		
 		const std::vector<Text>& getUIText() const;
-		void updateUIText(TimeSeconds& timer, double roundDuration);
+		void updateUIText(TimeSeconds& timer, double roundDuration, uint64_t score);
 
 
 };
