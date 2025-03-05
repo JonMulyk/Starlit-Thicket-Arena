@@ -22,6 +22,7 @@
 #include "GameState.h"
 #include "UIManager.h"
 #include "Skybox.h"
+#include "ResourceManager.h"
 
 int main() {
     GameState gState;
@@ -41,9 +42,9 @@ int main() {
 		controllerCommand.steer = 0.0f;
     }
 
-    Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
-    Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
-    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
+    ResourceManager resourceManager;
+    resourceManager.initializeResources();
+
     Texture container("project/assets/textures/container.jpg", true);
     Texture gold("project/assets/textures/gold.jpg", true);
     Texture neon("project/assets/textures/neon.jpg", true);
@@ -52,15 +53,15 @@ int main() {
     // Model Setup
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
-    Model cube(shader, container, verts, verts, coord);
-    Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
-    Model trail(shader, fire, "project/assets/models/Trail.obj");
-    Model tireModel = Model(shader, "project/assets/models/tire1/tire1.obj");
+    Model cube(*resourceManager.getShader("basicShader"), container, verts, verts, coord);
+    Model redBrick(*resourceManager.getShader("lightingShader"), gold, "project/assets/models/box.obj");
+    Model trail(*resourceManager.getShader("basicShader"), fire, "project/assets/models/Trail.obj");
+    Model tireModel = Model(*resourceManager.getShader("basicShader"), "project/assets/models/tire1/tire1.obj");
 
     PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail);
 
     // Create Rendering System
-    RenderingSystem renderer(shader, camera, window, arial, gState);
+    RenderingSystem renderer(*resourceManager.getShader("basicShader"), camera, window, *resourceManager.getFont("arial"), gState);
 
     // Entity setup
     gState.dynamicEntities.emplace_back("car", redBrick, physicsSystem->getTransformAt(0));
@@ -68,8 +69,7 @@ int main() {
     // Static scene data
     std::vector<Model> sceneModels;
 
-    Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
-    Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
+    Model groundPlaneModel(*resourceManager.getShader("sceneShader"), neon, "project/assets/models/reallySquareArena.obj");
     sceneModels.push_back(groundPlaneModel);
 
     // PhysX item setup
@@ -96,8 +96,7 @@ int main() {
     const double roundDuration = (5.0 * 60.0);
 
     //SKYBOX
-    Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
-    Skybox skybox("project/assets/textures/skybox/", skyboxShader);
+    Skybox skybox("project/assets/textures/skybox/", *resourceManager.getShader("skyboxShader"));
 
     // Main Loop
     while (!window.shouldClose()) {
