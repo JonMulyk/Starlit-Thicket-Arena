@@ -32,10 +32,6 @@ int main() {
     TimeSeconds timer;
     Camera camera(gState, timer);
     Windowing window(1200, 1000);
-    AudioSystem audio;
-    AudioSystem* audio_ptr = &audio;
-	audio.init();
-    bool audioMove = false, first = true;
 
     Input input(window, camera, timer, command);
     Controller controller1(1, camera, controllerCommand);
@@ -63,6 +59,11 @@ int main() {
     Model tireModel = Model(lightingShader, "project/assets/models/tire1/tire1.obj");
 
     PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail);
+
+    AudioSystem audio;
+    AudioSystem* audio_ptr = &audio;
+    audio.init(physicsSystem);
+    bool audioMove = false, first = true;
 
     // Create Rendering System
     RenderingSystem renderer(shader, camera, window, arial, gState);
@@ -110,6 +111,7 @@ int main() {
         timer.tick();
         input.poll();
         controller1.Update();
+		audio.update();
 
         if (audioMove && first) {
             audio.startBattleMusic();
@@ -129,6 +131,8 @@ int main() {
 
         glfwSwapBuffers(window);
     }
+
+	audio.shutdown();
 
     return 0;
 }

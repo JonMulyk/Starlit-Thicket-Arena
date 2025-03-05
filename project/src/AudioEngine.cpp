@@ -99,6 +99,35 @@ int CAudioEngine::PlaySounds(const string& strSoundName, const Vector3& vPositio
     return nChannelId;
 }
 
+// Inside CAudioEngine.cpp:
+int CAudioEngine::PlaySounds(const std::string& soundFile, Vector3 position, float volume, FMOD::Channel** channel) {
+	auto tFoundIt = sgpImplementation->mSounds.find(soundFile);
+	if (tFoundIt == sgpImplementation->mSounds.end()) {
+		LoadSound(soundFile);
+		tFoundIt = sgpImplementation->mSounds.find(soundFile);
+		if (tFoundIt == sgpImplementation->mSounds.end()) {
+			return -1;
+		}
+	}
+	FMOD::Channel* pChannel = nullptr;
+	CAudioEngine::ErrorCheck(sgpImplementation->mpSystem->playSound(tFoundIt->second, nullptr, true, &pChannel));
+	if (pChannel) {
+		FMOD_MODE currMode;
+		tFoundIt->second->getMode(&currMode);
+		if (currMode & FMOD_3D) {
+			FMOD_VECTOR pos = VectorToFmod(position);
+			CAudioEngine::ErrorCheck(pChannel->set3DAttributes(&pos, nullptr));
+		}
+		CAudioEngine::ErrorCheck(pChannel->setVolume(dbToVolume(volume)));
+		CAudioEngine::ErrorCheck(pChannel->setPaused(false));
+		sgpImplementation->mChannels[sgpImplementation->mnNextChannelId] = pChannel;
+		*channel = pChannel;
+		return sgpImplementation->mnNextChannelId++;
+	}
+	return -1;
+}
+
+
 void CAudioEngine::SetChannel3dPosition(int nChannelId, const Vector3& vPosition)
 {
     auto tFoundIt = sgpImplementation->mChannels.find(nChannelId);

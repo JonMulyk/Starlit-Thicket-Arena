@@ -58,6 +58,8 @@ public:
     // Listener and channel functions.
     void Set3dListenerAndOrientation(const Vector3& vPosition, const Vector3& vLook, const Vector3& vUp);
     int PlaySounds(const std::string& strSoundName, const Vector3& vPos = Vector3{ 0, 0, 0 }, float fVolumedB = 0.0f);
+    // New signature with an output channel parameter:
+    int PlaySounds(const std::string& soundFile, Vector3 position, float volume, FMOD::Channel** channel);
     void StopChannel(int nChannelId);
     void StopAllChannels();
     bool IsPlaying(int nChannelId) const;

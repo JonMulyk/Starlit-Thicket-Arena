@@ -351,3 +351,29 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
 }
+
+float PhysicsSystem::getCarSpeed() {
+	using namespace physx;
+	// Get the vehicle's current linear velocity
+	PxVec3 linVel = gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
+	// Get the vehicle's forward direction (assuming basis vector 2 is the forward axis)
+	PxVec3 forwardDir = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
+	// Return the speed as the dot product of the velocity and forward direction
+	return linVel.dot(forwardDir);
+}
+
+float PhysicsSystem::calculateEngineRPM(float speed) {
+	// Define idle and maximum RPM values.
+	const float idleRPM = 800.0f;
+	const float maxRPM = 7000.0f;
+	// Define an assumed maximum speed (m/s) at which the engine reaches max RPM.
+	// Adjust this value to suit your game's balance.
+	const float maxSpeed = 50.0f;
+
+	// Clamp the speed between 0 and maxSpeed to avoid overshooting.
+	speed = std::max(0.0f, std::min(speed, maxSpeed));
+
+	// Calculate engine RPM with a simple linear interpolation.
+	float rpm = idleRPM + ((maxRPM - idleRPM) * (speed / maxSpeed));
+	return rpm;
+}

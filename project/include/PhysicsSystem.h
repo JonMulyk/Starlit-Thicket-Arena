@@ -107,4 +107,7 @@ public:
 	Transform* getTransformAt(int i);
 	void updateTransforms(std::vector<Entity>& entityList);
 	void updatePhysics(double dt);
+
+	float getCarSpeed();
+	float calculateEngineRPM(float speed);
 };
