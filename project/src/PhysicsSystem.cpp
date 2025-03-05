@@ -138,8 +138,8 @@ void PhysicsSystem::initBoarder() {
 
 		// Clean up
 		shape->release();
-		pMaterial = nullptr;
 	}
+	pMaterial = nullptr;
 }
 
 
