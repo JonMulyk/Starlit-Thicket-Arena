@@ -7,13 +7,24 @@
 #include "snippetvehicle2common/SnippetVehicleHelpers.h"
 #include "snippetcommon/SnippetPVD.h"
 
+
 #include "Transform.h"
 #include "Entity.h"
 #include "GameState.h"
 #include <vector>
 #include <iostream>
 
+struct VehicleData {
+	snippetvehicle2::EngineDriveVehicle vehicle; // The PhysX vehicle instance
+	physx::PxVec3 prevPos;                       // Previous position for trail calculation
+	physx::PxVec3 prevDir;                       // Previous direction for trail calculation
+	std::string name;                            // Unique name for the vehicle actor
+};
+
 class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback {
+	std::pair<physx::PxActor*, physx::PxActor*> collisionPair;
+	bool newCollision = false;
+
 	void onContact(
 		const snippetvehicle2::PxContactPairHeader& pairHeader,
 		const snippetvehicle2::PxContactPair* pairs,
@@ -22,6 +33,9 @@ class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback 
 		PX_UNUSED(pairHeader);
 		PX_UNUSED(pairs);
 		PX_UNUSED(nbPairs);
+
+		newCollision = true;
+		collisionPair = { pairHeader.actors[0], pairHeader.actors[1] };
 	}
 	void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count) {}
 	void onWake(physx::PxActor** actors, physx::PxU32 count) {}
@@ -30,6 +44,20 @@ class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback 
 	void onAdvance(const physx::PxRigidBody* const* bodyBuffer,
 		const physx::PxTransform* poseBuffer,
 		const physx::PxU32 count) {}
+
+	public:
+		std::pair<physx::PxActor*, physx::PxActor*> getCollisionPair() {
+			return collisionPair;
+		}
+
+		bool checkCollision() {
+			return newCollision;
+		}
+
+		void readNewCollision() {
+			newCollision = false;
+		}
+
 };
 
 struct MaterialProp {
@@ -49,6 +77,7 @@ private:
 	std::vector<physx::PxRigidDynamic*> rigidDynamicList;
 	std::vector<Transform*> transformList;
 	GameState& gState;
+	ContactReportCallback* gContactReportCallback = nullptr;
 
 	//PhysX management class instances.
 	physx::PxDefaultCpuDispatcher* gDispatcher = NULL;
@@ -68,24 +97,31 @@ private:
 	// physical properties
 	physx::PxVec3 gGravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
 
-
 	// Ground plane
 	physx::PxRigidStatic* gGroundPlane = NULL;
+
+
 
 	// Vehicles
 	const char* gVehicleDataPath = "project/assets/vehicleData";
 	const char* gVehicleName = "engineDrive";
 	snippetvehicle2::PxVehiclePhysXSimulationContext gVehicleSimulationContext;
 
-	snippetvehicle2::EngineDriveVehicle gVehicle;
-	physx::PxVec3 vehiclePrevPos;
-	physx::PxVec3 vehiclePrevDir;
+	//snippetvehicle2::EngineDriveVehicle gVehicle;
+
+	//physx::PxVec3 vehiclePrevPos;
+	//physx::PxVec3 vehiclePrevDir;
+
+	std::vector<VehicleData> vehicles;  
+	std::vector<Command> vehicleCommands; 
+
 	Model& trailModel;
 	float trailStep = 2.f;
 
 	void initPhysX();
 	void cleanupPhysX();
 	void initGroundPlane();
+	void initBoarder();
 	void cleanupGroundPlane();
 	void initMaterialFrictionTable();
 	bool initVehicles();
@@ -100,9 +136,11 @@ public:
 
 	void stepPhysics(float timestep, Command& command, Command& controllerCommand);
 
+	void setVehicleCommand(size_t vehicleIndex, const Command& cmd);
+
 	void addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density=10.f);
 
-	void addTrail(float x, float z, float rot);
+	void addTrail(float x, float z, float rot, const char* name);
 	physx::PxVec3 getPos(int i);
 	Transform* getTransformAt(int i);
 	void updateTransforms(std::vector<Entity>& entityList);

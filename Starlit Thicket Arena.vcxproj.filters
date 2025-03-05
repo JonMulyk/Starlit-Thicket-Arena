@@ -120,6 +120,9 @@
     <ClCompile Include="project\src\GameState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="project\src\Vehicle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="project\assets\shaders\FragShader.frag" />
@@ -1455,15 +1458,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="project\include\Text.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="project\include\UIManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="project\include\Skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
