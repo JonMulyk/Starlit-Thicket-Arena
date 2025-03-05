@@ -97,9 +97,10 @@ private:
 	// physical properties
 	physx::PxVec3 gGravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
 
-
 	// Ground plane
 	physx::PxRigidStatic* gGroundPlane = NULL;
+
+
 
 	// Vehicles
 	const char* gVehicleDataPath = "project/assets/vehicleData";
@@ -120,6 +121,7 @@ private:
 	void initPhysX();
 	void cleanupPhysX();
 	void initGroundPlane();
+	void initBoarder();
 	void cleanupGroundPlane();
 	void initMaterialFrictionTable();
 	bool initVehicles();

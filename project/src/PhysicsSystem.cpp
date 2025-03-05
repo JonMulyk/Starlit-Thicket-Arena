@@ -77,6 +77,72 @@ void PhysicsSystem::cleanupGroundPlane() {
 	gGroundPlane->release();
 }
 
+void PhysicsSystem::initBoarder() {
+
+	// Dimensions
+	float length = 100.0f;  // Length of the area
+	float height = 1.0f;    // Height of the wall
+	float thickness = 1.0f; // Thickness of the wall
+
+	// Physics material
+	physx::PxMaterial* pMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
+
+	// Collision filter
+	physx::PxFilterData itemFilter(
+		COLLISION_FLAG_OBSTACLE,
+		COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0
+	);
+
+	// Geometry of the wall
+	physx::PxBoxGeometry wallGeom(length, height, thickness);
+
+	// Wall positions and rotations
+	struct WallData {
+		physx::PxVec3 position;
+		float rotationY; // Rotation around Y axis in radians
+	};
+
+	std::vector<WallData> walls = {
+		{{0, height, length}, 0.0f},                          // Front wall
+		{{0, height, -length}, 0.0f},                         // Back wall
+		{{length, height, 0}, physx::PxPi / 2},               // Right wall
+		{{-length, height, 0}, physx::PxPi / 2}               // Left wall
+	};
+
+	for (const auto& wall : walls) {
+		// Transform
+		physx::PxTransform wallTransform(
+			wall.position,
+			physx::PxQuat(wall.rotationY, physx::PxVec3(0, 1, 0))
+		);
+
+		// Create shape
+		physx::PxShape* shape = gPhysics->createShape(wallGeom, *pMaterial);
+		shape->setSimulationFilterData(itemFilter);
+
+		// Create body
+		physx::PxRigidStatic* body = gPhysics->createRigidStatic(wallTransform);
+		body->attachShape(*shape);
+		body->setName("boundary");
+		gScene->addActor(*body);
+
+		// Rendering
+		gState.staticEntities.push_back(Entity("boarder", trailModel, new Transform()));
+		gState.staticEntities.back().transform->pos = glm::vec3(
+			wallTransform.p.x,
+			wallTransform.p.y,
+			wallTransform.p.z
+		);
+		gState.staticEntities.back().transform->scale = glm::vec3(length, height, thickness);
+		gState.staticEntities.back().transform->rot = glm::vec3(0, wall.rotationY, 0);
+
+		// Clean up
+		shape->release();
+		pMaterial = nullptr;
+	}
+}
+
+
 void PhysicsSystem::initMaterialFrictionTable() {
 	//Each physx material can be mapped to a tire friction value on a per tire basis.
 	//If a material is encountered that is not mapped to a friction value, the friction value used is the specified default value.
@@ -87,6 +153,7 @@ void PhysicsSystem::initMaterialFrictionTable() {
 	gPhysXDefaultMaterialFriction = 1.0f;
 	gNbPhysXMaterialFrictions = 1;
 }
+
 bool PhysicsSystem::initVehicles() {
 	using namespace physx;
 	using namespace snippetvehicle2;
@@ -191,6 +258,7 @@ void PhysicsSystem::cleanupVehicles() {
 bool PhysicsSystem::initPhysics() {
 	initPhysX();
 	initGroundPlane();
+	initBoarder();
 	initMaterialFrictionTable();
 	if (!initVehicles())
 		return false;
