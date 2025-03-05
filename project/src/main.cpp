@@ -112,8 +112,10 @@ int main() {
             physicsSystem->updatePhysics(timer.dt);
             timer.advance();
         }
+    
+        gState.addToScore(UINT64_MAX / 100);
 
-        uiManager.updateUIText(timer, roundDuration);
+        uiManager.updateUIText(timer, roundDuration, gState.getScore());
         renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
 
         glfwSwapBuffers(window);
