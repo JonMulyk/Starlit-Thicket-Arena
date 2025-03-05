@@ -1,21 +1,37 @@
 #pragma once
 
-#include "Model.h"
 #include <unordered_map>
+#include <memory>
+#include <string>
+#include <iostream>
 
+#include "Shader.h"
+#include "Texture.h"
+#include "TTF.h"
+#include "Model.h"
 
 class ResourceManager
 {
 	private:
-		std::unordered_map<std::string, Model> models;
-		std::unordered_map<std::string, Texture> textures;
-		std::unordered_map<std::string, Shader> shaders;
+		std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
+		std::unordered_map<std::string, std::unique_ptr<Shader>> shaders;
+		std::unordered_map<std::string, std::unique_ptr<TTF>> fonts;
+		std::unordered_map<std::string, std::unique_ptr<Model>> models;
 
 	public:
-		ResourceManager();
+		ResourceManager() = default;
+		~ResourceManager() = default;
+		
+		void loadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath);
+		Shader* getShader(const std::string& name) const;
 
-		void addModel(std::string name, Model &model);
-		void addTexture(std::string name, Model &texture);
-		void addShader(std::string name, Model &shader);
+		void loadTexture(const std::string& name, const std::string& path, bool isJPG = false);
+		Texture* getTexture(const std::string& name) const;
 
+		void loadFont(const std::string& name, const std::string& vertPath, const std::string& fragPath, const std::string& fontPath);
+		TTF* getFont(const std::string& name) const;
+
+		void loadModel(const std::string& name, Shader* shader, const std::string& modelPath);
+		void loadModel(const std::string& name, Shader* shader, Texture* texture, const std::string& modelPath);
+		Model* getModel(const std::string& name) const;
 };
