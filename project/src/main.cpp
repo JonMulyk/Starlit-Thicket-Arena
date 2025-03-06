@@ -82,7 +82,6 @@ int main() {
 
     // Main Loop
     timer.advance();
-    bool started = false;
     while (!window.shouldClose()) {
         window.clear();
         timer.tick();
@@ -90,7 +89,7 @@ int main() {
         controller1.Update();
 
         // Update physics
-        while (started && timer.getAccumultor() >= timer.dt) {
+        while (timer.getAccumultor() > 5  && timer.getAccumultor() >= timer.dt) {
             physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
 
             physicsSystem->updatePhysics(timer.dt);
@@ -103,7 +102,6 @@ int main() {
         renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
 
         glfwSwapBuffers(window);
-        started = true;
     }
 
     return 0;
