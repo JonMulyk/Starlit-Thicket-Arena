@@ -32,6 +32,7 @@ public:
 	std::string battleMusic = "project/assets/audio/battleMusic.wav";
 	std::string explosionSound = "project/assets/audio/explosion.wav";
 	std::string carSound = "project/assets/audio/futureCycle.wav";
+	std::string AISound = "project/assets/audio/AIVehicle.wav";
 
 	FMOD::Channel* carChannel = nullptr;
 	std::vector<FMOD::Channel*> aiChannels;

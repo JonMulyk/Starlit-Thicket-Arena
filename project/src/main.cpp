@@ -22,6 +22,7 @@
 #include "GameState.h"
 #include "UIManager.h"
 #include "Skybox.h"
+#include "AudioSystem.h"
 #include <Vehicle.h>
 
 int main() {
@@ -126,7 +127,7 @@ int main() {
 
         // Update physics
         while (timer.getAccumultor() >= timer.dt) {
-            physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
+            physicsSystem->stepPhysics(timer.dt, command, controllerCommand, audioMove);
 
             physicsSystem->updatePhysics(timer.dt);
             timer.advance();

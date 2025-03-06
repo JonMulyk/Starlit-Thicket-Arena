@@ -386,7 +386,9 @@ void PhysicsSystem::updatePhysics(double dt) {
 	gScene->fetchResults(true);
 
 	updateTransforms(gState.dynamicEntities);
-}void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
+}
+
+void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand, bool& audioMove) {
 	using namespace physx;
 	using namespace snippetvehicle2;
 
@@ -419,6 +421,7 @@ void PhysicsSystem::updatePhysics(double dt) {
 		const PxVec3 currPos = vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
 		PxVec3 travel = currPos - vehicleData.prevPos;
 		int steps = travel.magnitude() / trailStep;
+		if (i == 0 && steps > 0) audioMove = true;
 		for (int j = 0; j < steps; j++) {
 			float ratio = float(j + 1) / float(steps);
 			PxVec3 travNorm = ratio * vehicleData.prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
@@ -455,4 +458,48 @@ void PhysicsSystem::setVehicleCommand(size_t vehicleIndex, const Command& cmd) {
 	if (vehicleIndex < vehicleCommands.size()) {
 		vehicleCommands[vehicleIndex] = cmd;
 	}
+}
+
+float PhysicsSystem::getCarSpeed() {
+	using namespace physx;
+	// Ensure there is at least one vehicle (assumed to be the player's vehicle)
+	if (vehicles.empty())
+		return 0.0f;
+
+	// Retrieve the player's vehicle rigid body.
+	PxRigidBody* playerRigidBody = vehicles[0].vehicle.mPhysXState.physxActor.rigidBody;
+
+	// Get the vehicle's current linear velocity.
+	PxVec3 linVel = playerRigidBody->getLinearVelocity();
+
+	// Get the vehicle's forward direction.
+	// Here, getBasisVector2() is used assuming that the forward (longitudinal) axis is basis vector 2.
+	PxVec3 forwardDir = playerRigidBody->getGlobalPose().q.getBasisVector2();
+
+	// The forward speed is the component of linear velocity in the forward direction.
+	return linVel.dot(forwardDir);
+}
+
+float PhysicsSystem::calculateEngineRPM(float speed) {
+	// Define idle and maximum RPM values.
+	const float idleRPM = 800.0f;
+	const float maxRPM = 7000.0f;
+	// Define an assumed maximum speed (m/s) at which the engine reaches max RPM.
+	// Adjust this value to suit your game's balance.
+	const float maxSpeed = 50.0f;
+
+	// Clamp the speed between 0 and maxSpeed to avoid overshooting.
+	speed = std::max(0.0f, std::min(speed, maxSpeed));
+
+	// Calculate engine RPM with a simple linear interpolation.
+	float rpm = idleRPM + ((maxRPM - idleRPM) * (speed / maxSpeed));
+	return rpm;
+}
+
+std::vector<physx::PxVec3> PhysicsSystem::getAIPositions() {
+	std::vector<physx::PxVec3> positions;
+	for (size_t i = 1; i < vehicles.size(); i++) {
+		positions.push_back(vehicles[i].vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p);
+	}
+	return positions;
 }

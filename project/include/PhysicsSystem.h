@@ -148,4 +148,7 @@ public:
 
 	float getCarSpeed();
 	float calculateEngineRPM(float speed);
+
+	//return position of all AI vehicles
+	std::vector<physx::PxVec3> getAIPositions();
 };
