@@ -189,20 +189,20 @@ bool PhysicsSystem::initVehicles(int numAI) {
 	// hard limit the number of AI
 	numAI = (numAI > 3) ? 3 : numAI;
 
+	// Load parameters once (assuming all vehicles use the same params)
+	snippetvehicle2::BaseVehicleParams baseParams;
+	readBaseParamsFromJsonFile(gVehicleDataPath, "Base.json", baseParams);
+
+	snippetvehicle2::PhysXIntegrationParams physxParams;
+	setPhysXIntegrationParams(baseParams.axleDescription,
+		gPhysXMaterialFrictions, gNbPhysXMaterialFrictions, gPhysXDefaultMaterialFriction,
+		physxParams);
+
+	EngineDrivetrainParams engineDriveParams;
+	readEngineDrivetrainParamsFromJsonFile(gVehicleDataPath, "EngineDrive.json", engineDriveParams);
+
 	// Create player + Number of AI
 	for (int i = 0; i < numAI + 1; i++) {
-		// Load parameters once (assuming all vehicles use the same params)
-		snippetvehicle2::BaseVehicleParams baseParams;
-		readBaseParamsFromJsonFile(gVehicleDataPath, "Base.json", baseParams);
-
-		snippetvehicle2::PhysXIntegrationParams physxParams;
-		setPhysXIntegrationParams(baseParams.axleDescription,
-			gPhysXMaterialFrictions, gNbPhysXMaterialFrictions, gPhysXDefaultMaterialFriction,
-			physxParams);
-
-		EngineDrivetrainParams engineDriveParams;
-		readEngineDrivetrainParamsFromJsonFile(gVehicleDataPath, "EngineDrive.json", engineDriveParams);
-
 		Vehicle* vehicle = new Vehicle();
 
 		// Set parameters
@@ -225,16 +225,16 @@ bool PhysicsSystem::initVehicles(int numAI) {
 		PxTransform pose;
 		
 		if (i == 0) {
-			pose = PxTransform(PxVec3(45.f, 1.f, -45.f), PxQuat(PxIdentity)); // Top left
+			pose = PxTransform(PxVec3(80.f, 0.f, -80.f), PxQuat(0, PxVec3(0, 1, 0))); // bottom right
 		}
 		else if (i == 1) {
-			pose = PxTransform(PxVec3(45.f, 1.f, 45.f), PxQuat(PxIdentity)); // Top right
+			pose = PxTransform(PxVec3(-80.f, 0.f, 80.f), PxQuat(3.1415, PxVec3(0, 1, 0))); // top left
 		}
 		else if (i == 2) {
-			pose = PxTransform(PxVec3(-45.f, 1.f, -45.f), PxQuat(PxIdentity)); // Bottom Left
+			pose = PxTransform(PxVec3(-80.f, 0.f, -80.f), PxQuat(0, PxVec3(0, 1, 0))); // bottom left
 		} 
 		else {
-			pose = PxTransform(PxVec3(-45.f, 1.f, 45.f), PxQuat(PxIdentity)); // Bottom Right
+			pose = PxTransform(PxVec3(80.f, 0.f, 80.f), PxQuat(3.1415, PxVec3(0,1,0))); // top right
 		}
 
 		// create a physX actor
@@ -267,6 +267,9 @@ bool PhysicsSystem::initVehicles(int numAI) {
 			shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
 			shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
 		}
+
+		// set max speed
+		vehicle->vehicle.mPhysXState.physxActor.rigidBody->setMaxLinearVelocity(10);
 
 		// Set initial gear states
 		vehicle->vehicle.mEngineDriveState.gearboxState.currentGear = vehicle->vehicle.mEngineDriveParams.gearBoxParams.neutralGear + 1;
@@ -312,12 +315,17 @@ bool PhysicsSystem::initPhysics() {
 	initGroundPlane();
 	initBoarder();
 	initMaterialFrictionTable();
-	if (!initVehicles(3))
+	if (!initVehicles(1))
 		return false;
 	return true;
 }
 
 void PhysicsSystem::cleanupPhysics() {
+	for (auto entity : gState.dynamicEntities) {
+		if (entity.vehicle != nullptr) {
+			entity.vehicle->vehicle.destroy();
+		}
+	}
 	cleanupGroundPlane();
 	cleanupPhysX();
 
@@ -408,9 +416,9 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	pMaterial = nullptr;
 
 	// add the add the block to the graph
-	physx::PxVec3 dir = wallTransform.q.rotate(physx::PxVec3(0.f, 1.f, 0.f));
-	physx::PxVec3 start = wallTransform.p - trailStep * dir;
-	physx::PxVec3 end = wallTransform.p + trailStep * dir;
+	physx::PxVec3 dir = wallTransform.q.getBasisVector0();
+	physx::PxVec3 start = wallTransform.p - .5f * trailStep * dir;
+	physx::PxVec3 end = wallTransform.p + .5f * trailStep * dir;
 
 	gState.gMap.updateMap({ start.x, start.z }, { end.x, end.z });
 
@@ -454,13 +462,14 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			cmd.throttle = command.throttle + controllerCommand.throttle;
 			cmd.steer = command.steer + controllerCommand.steer;
 
-			entity.vehicle->updateCommand(cmd);
+			entity.vehicle->setPhysxCommand(cmd);
 
 			// Step the vehicle
-			const PxVec3 linVel = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
-			const PxVec3 forwardDir = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
-			const PxReal forwardSpeed = linVel.dot(forwardDir);
+			entity.vehicle->forward = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
+			entity.vehicle->velocity = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
+			PxReal forwardSpeed = entity.vehicle->velocity.dot(entity.vehicle->forward);
 			const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
+
 			entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
 			entity.vehicle->vehicle.step(timestep, gVehicleSimulationContext);
 
@@ -468,24 +477,56 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			const PxVec3 currPos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
 			PxVec3 travel = currPos - entity.vehicle->prevPos;
 			int steps = travel.magnitude() / trailStep;
-			for (int j = 0; j < steps; j++) {
-				float ratio = float(j + 1) / float(steps);
-				PxVec3 travNorm = ratio * entity.vehicle->prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
-				PxVec3 placementLoc = entity.vehicle->prevPos - 1.2f * entity.transform->scale.x * travNorm;
+
+			for (int i = 0; i < steps; i++) {
+				float ratio = float(i + 1) / float(steps);
+
+				physx::PxVec3 travNorm = ratio * entity.vehicle->prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
+				physx::PxVec3 placementLoc = entity.vehicle->prevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
 				addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x));
+
 				entity.vehicle->prevPos += trailStep * travel.getNormalized();
-				if (j + 1 == steps) {
+
+				if (i + 1 == steps) {
 					entity.vehicle->prevDir = travel;
 				}
 			}
 
+
 			// Update player vehicle state
 			gState.playerVehicle.curPos = currPos;
-			gState.playerVehicle.curDir = forwardDir.getNormalized();
+			gState.playerVehicle.curDir = entity.vehicle->forward.getNormalized();
 		}
 		else if (entity.name == "aiCar") {
-			// 1. get position
-			// 2. FSM
+			entity.vehicle->update(gState);
+
+			// Step the vehicle
+			entity.vehicle->forward = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
+			entity.vehicle->velocity = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
+			const PxReal forwardSpeed = entity.vehicle->velocity.dot(entity.vehicle->forward);
+			const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
+
+			entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
+			entity.vehicle->vehicle.step(timestep, gVehicleSimulationContext);
+
+			// Update trails
+			const PxVec3 currPos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+			PxVec3 travel = currPos - entity.vehicle->prevPos;
+			int steps = travel.magnitude() / trailStep;
+
+			for (int i = 0; i < steps; i++) {
+				float ratio = float(i + 1) / float(steps);
+
+				physx::PxVec3 travNorm = ratio * entity.vehicle->prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
+				physx::PxVec3 placementLoc = entity.vehicle->prevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
+				addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x));
+
+				entity.vehicle->prevPos += trailStep * travel.getNormalized();
+
+				if (i + 1 == steps) {
+					entity.vehicle->prevDir = travel;
+				}
+			}
 		}
 	}
 

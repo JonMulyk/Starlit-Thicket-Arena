@@ -74,6 +74,7 @@ int main() {
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
     sceneModels.push_back(groundPlaneModel);
 
+    /*
     // PhysX item setup
     float halfLen = 0.5f;
     MaterialProp matProps = { 0.5f, 0.5f, 0.6f };
@@ -89,6 +90,7 @@ int main() {
         }
     }
     delete(boxGeom);
+    */
 
     physicsSystem->updateTransforms(gState.dynamicEntities);
 
@@ -102,6 +104,7 @@ int main() {
     Skybox skybox("project/assets/textures/skybox/", skyboxShader);
 
     // Main Loop
+    timer.advance();
     while (!window.shouldClose()) {
         window.clear();
         timer.tick();

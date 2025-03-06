@@ -16,6 +16,7 @@
 #include "Entity.h"
 #include "GameState.h"
 #include "Command.h"
+#include "Vehicle.h"
 
 
 

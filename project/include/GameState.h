@@ -1,8 +1,8 @@
 #pragma once
 #include "GameMap.h"
 #include "PxPhysicsAPI.h"
-#include "Entity.h"
 
+class Entity;
 
 struct PlayerVehicle {
 	physx::PxVec3 curDir;
