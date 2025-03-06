@@ -459,7 +459,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 		if (entity.name == "playerCar") {
 			Command cmd;
 			cmd.brake = 0; command.brake + controllerCommand.brake;
-			cmd.throttle = std::max(command.throttle + controllerCommand.throttle, 0.8f);
+			cmd.throttle = physx::PxClamp(command.throttle + controllerCommand.throttle, .6f, .8f);
 			cmd.steer = command.steer + controllerCommand.steer;
 
 			entity.vehicle->setPhysxCommand(cmd);
