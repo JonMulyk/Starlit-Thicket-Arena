@@ -2,14 +2,18 @@
 
 GameMap::GameMap()
 	: grid(GRID_SIZE, std::vector<int>(GRID_SIZE, GRID_SIZE)),
-	REQUIRED_CLEARANCE(ceil((1.5) * (GRID_SIZE - 1) / float(2 * MAX_ACTUAL))) {
+	REQUIRED_CLEARANCE(ceil((0.85) * (GRID_SIZE - 1) / float(2 * MAX_ACTUAL))) {
 	REQUIRED_CLEARANCE = (REQUIRED_CLEARANCE < 1) ? 1 : REQUIRED_CLEARANCE;
-	std::cout << "Clearance" << REQUIRED_CLEARANCE << std::endl;
 }
 
 // --- Helpers
 bool GameMap::outOfBound(int a) {
 	return (a < 0 || a >= GRID_SIZE);
+}
+
+bool GameMap::outOfBound(int a, int b) {
+	return outOfBound(a) || outOfBound(b);
+
 }
 
 int GameMap::toGridSpace(float a) {
@@ -161,8 +165,7 @@ float GameMap::dirToAngle(int idx) {
 }
 
 int GameMap::heuristic(int x, int y, int goalX, int goalY) {
-	// manhattan distance
-	return std::abs(x - goalX) + std::abs(y - goalY);
+	return std::sqrt((x - goalX) * (x - goalX) + (y - goalY) * (y - goalY));
 }
 
 std::vector<std::shared_ptr<Node>> GameMap::reconstructPath(std::shared_ptr<Node> goalNode) {
@@ -281,7 +284,7 @@ std::vector<std::shared_ptr<Node>> GameMap::aStar(float angle, int startX, int s
 				continue;
 
 			// Check clearance.
-			if (grid[newX][newY] < REQUIRED_CLEARANCE)
+			if ((grid[newX][newY] < 8) && (current->sCost+1 > 8))
 				continue;
 
 			// Check if already visited.
@@ -330,22 +333,22 @@ void GameMap::printGraph(std::vector<std::shared_ptr<Node>> path) {
 }
 
 // -- Obstacle Avoidance
-float GameMap::rayCast(int x0, int y0, float angle) {
-
+float GameMap::rayCast(int x0, int y0, float angle, float step) {
 	float dist = 0.0f;
-	float step = 0.5f;
 
 	while(true) {
 		int x = x0 + int(round(dist * cos(angle)));
 		int y = y0 + int(round(dist * sin(angle)));
 
 		// Check bounds
-		if (outOfBound(x) || outOfBound(y))
+		if (outOfBound(x) || outOfBound(y)) {
 			break;
+		}
 
-		// Check if clearance is below threshold
-		if (grid[x][y] < REQUIRED_CLEARANCE)
+		// check or obstacle
+		if (grid[x][y] < 1) {
 			break;
+		}
 
 		dist += step;
 	}
@@ -353,8 +356,8 @@ float GameMap::rayCast(int x0, int y0, float angle) {
 	return dist;
 }
 
-float GameMap::rayCast(float x0, float y0, float angle) {
-	return rayCast(toGridSpace(x0), toGridSpace(y0), angle);
+float GameMap::rayCast(float x0, float y0, float angle, float step) {
+	return rayCast(toGridSpace(x0), toGridSpace(y0), angle, step);
 }
 
 physx::PxVec2 GameMap::openArea(float x0, float y0) {
@@ -365,16 +368,10 @@ physx::PxVec2 GameMap::openArea(float x0, float y0) {
 	float dist = 0.0f;
 	float angle = 0.0f;
 
-	// check angle at 5 deg increments
-	for (float theta = -PI/3; theta <= PI/3; theta += ( PI * 1 / 180)) {
-		float len = rayCast(x, y, theta);
-		if (len == dist) {
-			if (abs(theta) < abs(angle)) {
-				dist = len;
-				angle = theta;
-			}
-		}
-		else if (len > dist) {
+	// check angle at 1 deg increments
+	for (float theta = -PI/2; theta <= PI/2; theta += ( PI * 1.f / 180.f)) {
+		float len = rayCast(x, y, theta, 1.f);
+		if (len > dist) {
 			dist = len;
 			angle = theta;
 		}
@@ -386,36 +383,98 @@ physx::PxVec2 GameMap::openArea(float x0, float y0) {
 	);
 }
 
+bool GameMap::checkCollisions(int x0, int y0, int x1, int y1) {
+	// check if start or end is out of bounds
+	if (outOfBound(x0, y0) || outOfBound(x1, y1))
+		return false;
+
+	// convert start to float
+	float x = x0;
+	float y = y0;
+
+	// get x and y distance
+	int dx = x1 - x0;
+	int dy = y1 - y0;
+
+	// get step direction
+	int stepX = (dx > 0) ? 1 : (dx < 0) ? -1 : 0;
+	int stepY = (dy > 0) ? 1 : (dy < 0) ? -1 : 0;
+
+	// get discrete step range
+	float tDeltaX = (std::abs(dx) != 0) ? (1.0f / std::abs(dx)) : std::numeric_limits<float>::infinity();
+	float tDeltaY = (std::abs(dy) != 0) ? (1.0f / std::abs(dy)) : std::numeric_limits<float>::infinity();
+
+	// get first boundaries
+	float tMaxX, tMaxY;
+	if (dx == 0)
+		tMaxX = std::numeric_limits<float>::infinity();
+	else if (stepX > 0)
+		tMaxX = ((x0 + 1) - x) * tDeltaX;
+	else
+		tMaxX = (x - x0) * tDeltaX;
+
+	if (dy == 0)
+		tMaxY = std::numeric_limits<float>::infinity();
+	else if (stepY > 0)
+		tMaxY = ((y0 + 1) - y) * tDeltaY;
+	else
+		tMaxY = (y - y0) * tDeltaY;
+
+	// distance between two points (squared)
+	float dd = dx * dx + dy * dy;
+
+	// traverse till the checked cells equal dd
+	while ((((x - x0) * dx + (y - y0) * dy) / dd) < 1.0f) {
+
+		// check if boundary is x or y
+		if (tMaxX < tMaxY) {
+			// advance x
+			x += stepX;
+			tMaxX += tDeltaX;
+		}
+		else if (tMaxX > tMaxY) {
+			// advance y
+			y += stepY;
+			tMaxY += tDeltaY;
+		}
+		else {
+			// next boundary is a corner; advance both
+			x += stepX;
+			tMaxX += tDeltaX;
+			y += stepY;
+			tMaxY += tDeltaY;
+
+			// check bounds
+			if (outOfBound(int(std::floor(x)), int(std::floor(y))) ||
+				outOfBound(int(std::floor(x - stepX)), int(std::floor(y - stepY)))) {
+				return false;
+			}
+
+			// check for collision
+			if (grid[int(std::floor(x))][int(std::floor(y - stepY))] < 1 ||
+				grid[int(std::floor(x - stepX))][int(std::floor(y))] < 1)
+				return false;
+		}
+
+		// check bound
+		if (outOfBound(int(std::floor(x)), int(std::floor(y)))) {
+			return false;
+		}
+
+		// check collision
+		if (grid[int(std::floor(x))][int(std::floor(y))] < 1) {
+			return false;
+		}
+	}
+
+	// no collision found
+	return true;
+}
 
 // -- Direct Attack
 bool GameMap::castRayTo(float x0, float y0, float x1, float y1) {
-	physx::PxVec2 src = {
-		float(toGridSpace(x0)),
-		float(toGridSpace(y0))
-	};
-
-	physx::PxVec2 dst = {
-		float(toGridSpace(x1)),
-		float(toGridSpace(y1))
-	};
-
-	physx::PxVec2 vec = dst - src;
-
-	float magnitude = vec.magnitude();
-	vec = vec.getNormalized();
-
-	for (float dist = 0; dist < magnitude; dist += 0.2f) {
-		int x = src.x + int(round(dist * vec.x));
-		int y = src.y + int(round(dist * vec.y));
-
-		// Check bounds
-		if (outOfBound(x) || outOfBound(y))
-			return false;
-
-		// Check if clearance is below threshold
-		if (grid[x][y] < REQUIRED_CLEARANCE)
-			return false;
-	}
-
-	return true;
+	return checkCollisions(
+		float(toGridSpace(x0)), float(toGridSpace(y0)),
+		float(toGridSpace(x1)), float(toGridSpace(y1))
+	);
 }

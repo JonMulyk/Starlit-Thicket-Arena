@@ -228,13 +228,13 @@ bool PhysicsSystem::initVehicles(int numAI) {
 			pose = PxTransform(PxVec3(80.f, 0.f, -80.f), PxQuat(0, PxVec3(0, 1, 0))); // bottom right
 		}
 		else if (i == 1) {
-			pose = PxTransform(PxVec3(-80.f, 0.f, 80.f), PxQuat(3.1415, PxVec3(0, 1, 0))); // top left
+			pose = PxTransform(PxVec3(80.f, 0.f, 80.f), PxQuat(3.1415, PxVec3(0,1,0))); // top right
 		}
 		else if (i == 2) {
-			pose = PxTransform(PxVec3(-80.f, 0.f, -80.f), PxQuat(0, PxVec3(0, 1, 0))); // bottom left
+			pose = PxTransform(PxVec3(-80.f, 0.f, 80.f), PxQuat(3.1415, PxVec3(0, 1, 0))); // top left
 		} 
 		else {
-			pose = PxTransform(PxVec3(80.f, 0.f, 80.f), PxQuat(3.1415, PxVec3(0,1,0))); // top right
+			pose = PxTransform(PxVec3(-80.f, 0.f, -80.f), PxQuat(0, PxVec3(0, 1, 0))); // bottom left
 		}
 
 		// create a physX actor
@@ -315,7 +315,7 @@ bool PhysicsSystem::initPhysics() {
 	initGroundPlane();
 	initBoarder();
 	initMaterialFrictionTable();
-	if (!initVehicles(1))
+	if (!initVehicles(3))
 		return false;
 	return true;
 }

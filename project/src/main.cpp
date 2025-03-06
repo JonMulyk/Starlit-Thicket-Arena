@@ -2,9 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <glm.hpp>
-
 #include <chrono>
-
 #include "PxPhysicsAPI.h"
 #include "TimeSeconds.h"
 #include "InitManager.h"
@@ -74,23 +72,6 @@ int main() {
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
     sceneModels.push_back(groundPlaneModel);
 
-    /*
-    // PhysX item setup
-    float halfLen = 0.5f;
-    MaterialProp matProps = { 0.5f, 0.5f, 0.6f };
-    physx::PxBoxGeometry* boxGeom = new physx::PxBoxGeometry(halfLen, halfLen, halfLen);
-
-    int size = 5;
-    int counter = gState.dynamicEntities.size();
-    for (unsigned int i = 0; i < size; i++) {
-        for (unsigned int j = 0; j < size - i; j++) {
-            physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
-            physicsSystem->addItem(matProps, boxGeom, localTran, 10.f);
-            gState.dynamicEntities.emplace_back(Entity("box", tireModel, physicsSystem->getTransformAt(counter++)));
-        }
-    }
-    delete(boxGeom);
-    */
 
     physicsSystem->updateTransforms(gState.dynamicEntities);
 

@@ -37,28 +37,29 @@ private:
 		{-1,0}, {-1,-1}, {0,-1}, {1,-1}
 	};
 
-	bool outOfBound(int a);
+    bool outOfBound(int a);
+    bool outOfBound(int a, int b);
 	int toGridSpace(float a);
 	float toGameSpace(int a);
 
-	// --- Clearance based Graph
-	std::queue<physx::PxVec2T<int>> q;		// Queue of propogations
-	void addBlock(int x, int y);
-	void updateGrid(physx::PxVec2 start, physx::PxVec2 end);
-	void propogateWeights();
+    // --- Clearance based Graph
+    std::queue<physx::PxVec2T<int>> q;		// Queue of propogations
+    void addBlock(int x, int y);
+    void updateGrid(physx::PxVec2 start, physx::PxVec2 end);
+    void propogateWeights();
 
-	// --- A*
-	int REQUIRED_CLEARANCE; // car width
-
-	// Compute the manhattan distance between goal and location
-	int heuristic(int x, int y, int goalX, int goalY);
-	// convert coordinates to angle
-	float dirToAngle(int i);
-	// Convert pointer connected list to array
-	std::vector<std::shared_ptr<Node>> reconstructPath(std::shared_ptr<Node> goalNode);
+    // --- A*
+    // euclidean distance
+    int heuristic(int x, int y, int goalX, int goalY);
+    // convert coordinates to angle
+    float dirToAngle(int i);
+    // Convert pointer connected list to array
+    std::vector<std::shared_ptr<Node>> reconstructPath(std::shared_ptr<Node> goalNode);
 
 public:
 	GameMap();
+
+	int REQUIRED_CLEARANCE; // car width
 
 	// grid of clearance values
 	std::vector<std::vector<int>> grid;
@@ -74,10 +75,13 @@ public:
 	void printGraph(std::vector<std::shared_ptr<Node>> path);
 
 	// --- Obstacle Avoidance
-	float rayCast(int x0, int y0, float angle);
-	float rayCast(float x0, float y0, float angle);
+	float rayCast(int x0, int y0, float angle, float step);
+	float rayCast(float x0, float y0, float angle, float step);
 	physx::PxVec2 openArea(float x, float y);
 
 	// -- Direct Attack
 	bool castRayTo(float x0, float y0, float x1, float y1);
+
+    // a supercover DDA algorithm for finding obstructions between two points
+	bool checkCollisions(int x0, int y0, int x1, int y1);
 };
