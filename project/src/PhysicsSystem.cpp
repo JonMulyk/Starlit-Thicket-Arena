@@ -258,7 +258,7 @@ bool PhysicsSystem::initVehicles(int numAI) {
 			// Get dimensions of the car
 			if (shape->getGeometry().getType() == PxGeometryType::eBOX) {
 				const PxBoxGeometry& box = static_cast<const PxBoxGeometry&>(shape->getGeometry());
-				transformList.back()->scale = glm::vec3(box.halfExtents.x, box.halfExtents.y, box.halfExtents.z);
+				//transformList.back()->scale = glm::vec3(box.halfExtents.x, box.halfExtents.y, box.halfExtents.z);
 			}
 
 			// Set flags
@@ -288,11 +288,11 @@ bool PhysicsSystem::initVehicles(int numAI) {
 
 		// update the dynamicEntity list
 		if (i == 0) {
-			gState.dynamicEntities.emplace_back("playerCar", trailModel, transformList.back());
+			gState.dynamicEntities.emplace_back("playerCar", carModel, transformList.back());
 			gState.dynamicEntities.back().vehicle = vehicle;
 		}
 		else {
-			gState.dynamicEntities.emplace_back("aiCar", trailModel, transformList.back());
+			gState.dynamicEntities.emplace_back("aiCar", carModel, transformList.back());
 			gState.dynamicEntities.back().vehicle = vehicle;
 		}
 	}
@@ -333,8 +333,8 @@ void PhysicsSystem::cleanupPhysics() {
 	gContactReportCallback = nullptr;
 }
 
-PhysicsSystem::PhysicsSystem(GameState& gameState, Model& tModel) :
-	gState(gameState), trailModel(tModel) {
+PhysicsSystem::PhysicsSystem(GameState& gameState, Model& tModel, Model& cModel) :
+	gState(gameState), trailModel(tModel), carModel(cModel) {
 	initPhysics();
 }
 
@@ -459,7 +459,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 		if (entity.name == "playerCar") {
 			Command cmd;
 			cmd.brake = 0; command.brake + controllerCommand.brake;
-			cmd.throttle = physx::PxClamp(command.throttle + controllerCommand.throttle, .6f, .8f);
+			cmd.throttle = physx::PxClamp(command.throttle + controllerCommand.throttle, .5f, .9f);
 			cmd.steer = command.steer + controllerCommand.steer;
 
 			entity.vehicle->setPhysxCommand(cmd);

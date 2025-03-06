@@ -56,7 +56,7 @@ int main() {
     Model tireModel = Model(lightingShader, "project/assets/models/tire1/tire1.obj");
     //Model secondCar(lightingShader, gold, "project/assets/models/box.obj");
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
-    PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail);
+    PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
 
     // Create Rendering System
     RenderingSystem renderer(shader, camera, window, arial, gState);
