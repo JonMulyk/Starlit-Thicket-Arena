@@ -120,10 +120,10 @@
     <ClCompile Include="project\src\GameState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="project\src\GameMap.cpp">
+    <ClCompile Include="project\src\Vehicle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="project\src\Vehicle.cpp">
+    <ClCompile Include="project\src\GameMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -174,6 +174,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\tiny_obj_loader.h">
@@ -1460,25 +1463,22 @@
     <ClInclude Include="project\include\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="project\include\Text.h">
+    <ClInclude Include="project\include\Vehicle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="project\include\UIManager.h">
+    <ClInclude Include="project\include\Text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\Skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="project\include\GameMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="project\include\Vehicle.h">
+    <ClInclude Include="project\include\UIManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\Command.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="project\include\Entity.h">
+    <ClInclude Include="project\include\GameMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

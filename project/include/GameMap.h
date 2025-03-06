@@ -6,7 +6,7 @@
 #include <algorithm>
 
 #define GRID_SIZE 200
-#define MAX_ACTUAL 100.f
+#define MAX_ACTUAL 95
 
 // Node containing information about traversal
 struct Node {

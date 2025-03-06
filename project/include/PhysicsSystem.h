@@ -126,10 +126,6 @@ public:
 	void addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density = 10.f);
 
 	// vehicle and trail related
-	void setVehicleCommand(size_t vehicleIndex, const Command& cmd);
-
-	void addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density=10.f);
-
 	void addTrail(float x, float z, float rot, const char* name);
 
 	// get global position of rigidDynamic list object

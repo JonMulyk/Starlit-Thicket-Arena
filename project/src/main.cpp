@@ -61,10 +61,6 @@ int main() {
     // Create Rendering System
     RenderingSystem renderer(shader, camera, window, arial, gState);
 
-    // Entity setup
-    gState.dynamicEntities.emplace_back("car", secondCar, physicsSystem->getTransformAt(0));
-    gState.dynamicEntities.emplace_back("car", secondCar, physicsSystem->getTransformAt(1));
-
     // Static scene data
     std::vector<Model> sceneModels;
 
@@ -86,6 +82,7 @@ int main() {
 
     // Main Loop
     timer.advance();
+    bool started = false;
     while (!window.shouldClose()) {
         window.clear();
         timer.tick();
@@ -93,18 +90,12 @@ int main() {
         controller1.Update();
 
         // Update physics
-        while (timer.getAccumultor() >= timer.dt) {
+        while (started && timer.getAccumultor() >= timer.dt) {
             physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
 
             physicsSystem->updatePhysics(timer.dt);
             timer.advance();
         }
-
-        Command aiCommand1;
-        aiCommand1.throttle = 0.5f;
-        aiCommand1.brake = 0.0f;   //no braking
-        aiCommand1.steer = -0.5f;   //right is negative, left is positive floats
-        physicsSystem->setVehicleCommand(1, aiCommand1);
 
 		//renderer.renderScene(sceneModels);
     
@@ -112,6 +103,7 @@ int main() {
         renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
 
         glfwSwapBuffers(window);
+        started = true;
     }
 
     return 0;

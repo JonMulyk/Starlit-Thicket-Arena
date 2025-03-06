@@ -458,8 +458,8 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 	for (auto entity : gState.dynamicEntities) {
 		if (entity.name == "playerCar") {
 			Command cmd;
-			cmd.brake = command.brake + controllerCommand.brake;
-			cmd.throttle = command.throttle + controllerCommand.throttle;
+			cmd.brake = 0; command.brake + controllerCommand.brake;
+			cmd.throttle = std::max(command.throttle + controllerCommand.throttle, 0.8f);
 			cmd.steer = command.steer + controllerCommand.steer;
 
 			entity.vehicle->setPhysxCommand(cmd);
@@ -483,7 +483,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 
 				physx::PxVec3 travNorm = ratio * entity.vehicle->prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
 				physx::PxVec3 placementLoc = entity.vehicle->prevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
-				addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x));
+				addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x), entity.vehicle->name.c_str());
 
 				entity.vehicle->prevPos += trailStep * travel.getNormalized();
 
@@ -519,7 +519,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 
 				physx::PxVec3 travNorm = ratio * entity.vehicle->prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
 				physx::PxVec3 placementLoc = entity.vehicle->prevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
-				addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x));
+				addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x), entity.vehicle->name.c_str());
 
 				entity.vehicle->prevPos += trailStep * travel.getNormalized();
 
