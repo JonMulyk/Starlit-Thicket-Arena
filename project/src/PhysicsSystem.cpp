@@ -460,14 +460,14 @@ void PhysicsSystem::setVehicleCommand(size_t vehicleIndex, const Command& cmd) {
 	}
 }
 
-float PhysicsSystem::getCarSpeed() {
+float PhysicsSystem::getCarSpeed(int i) {
 	using namespace physx;
 	// Ensure there is at least one vehicle (assumed to be the player's vehicle)
 	if (vehicles.empty())
 		return 0.0f;
 
 	// Retrieve the player's vehicle rigid body.
-	PxRigidBody* playerRigidBody = vehicles[0].vehicle.mPhysXState.physxActor.rigidBody;
+	PxRigidBody* playerRigidBody = vehicles[i].vehicle.mPhysXState.physxActor.rigidBody;
 
 	// Get the vehicle's current linear velocity.
 	PxVec3 linVel = playerRigidBody->getLinearVelocity();

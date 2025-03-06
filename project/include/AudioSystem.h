@@ -2,6 +2,7 @@
 
 #include "AudioEngine.h"
 #include "PhysicsSystem.h"
+#include "Camera.h"
 #include <string>
 #include <glm/glm.hpp>
 #include <iostream>
@@ -10,7 +11,7 @@
 class AudioSystem {
 public:
 	void init();
-	void init(PhysicsSystem* physicsSystem);
+	void init(PhysicsSystem* physicsSystem, Camera* camera);
 	void startEvents();
 	void update();
 	void shutdown();
@@ -25,6 +26,7 @@ public:
 	CAudioEngine audioEngine;
 	CAudioEngine* audioEnginePtr;
 	PhysicsSystem* c_physicsSystem;
+	Camera* c_camera;
 	bool carPlaying = false;
 	float pitchAdjust = 2.0f;
 

@@ -146,7 +146,7 @@ public:
 	void updateTransforms(std::vector<Entity>& entityList);
 	void updatePhysics(double dt);
 
-	float getCarSpeed();
+	float getCarSpeed(int i);
 	float calculateEngineRPM(float speed);
 
 	//return position of all AI vehicles

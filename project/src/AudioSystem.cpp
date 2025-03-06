@@ -16,8 +16,9 @@ void AudioSystem::init() {
 	audioEngine.PlaySounds(menuMusic, Vector3{ 0, 0, 0 }, -35.0f);
 }
 
-void AudioSystem::init(PhysicsSystem* physicsSystem) {
+void AudioSystem::init(PhysicsSystem* physicsSystem, Camera* camera) {
 	c_physicsSystem = physicsSystem;
+	c_camera = camera;
 	audioEngine.Init();
 	std::cout << "Audio System Initialized" << std::endl;
 
@@ -37,8 +38,6 @@ void AudioSystem::startBattleMusic() {
 	startCar();
 	carPlaying = true;
 	audioEngine.PlaySounds(battleMusic, Vector3{ 0, 0, 0 }, -35.0f);
-	// Set the car sound channel to 3D mode so that it is positioned in the world.
-	carChannel->setMode(FMOD_3D);
 
 	//start AI sounds
 	std::vector<physx::PxVec3> aiPositions = c_physicsSystem->getAIPositions();
@@ -52,12 +51,16 @@ void AudioSystem::startEvents() {
 }
 
 void AudioSystem::update() {
-	audioEngine.Update();
+	// Update listener attributes
+	// Replace these dummy values with your actual listener (e.g., camera) data.
+	Vector3 listenerPosition = { 0.0f, 0.0f, 0.0f };
+	Vector3 listenerLook = { 0.0f, 0.0f, 1.0f };
+	Vector3 listenerUp = { 0.0f, 1.0f, 0.0f };
+	audioEngine.Set3dListenerAndOrientation(listenerPosition, listenerLook, listenerUp);
+
 	// Update the car sound pitch if the physics system is available.
 	if (carPlaying) {
-		// Get the current car speed from the physics system.
-		float carSpeed = c_physicsSystem->getCarSpeed();
-		// Calculate engine RPM based on the car's speed.
+		float carSpeed = c_physicsSystem->getCarSpeed(0);
 		float engineRPM = c_physicsSystem->calculateEngineRPM(carSpeed);
 
 		// Map engine RPM to a pitch multiplier.
@@ -65,8 +68,22 @@ void AudioSystem::update() {
 		float pitch = 1.0f + pitchAdjust * (engineRPM - 800.0f) / (7000.0f - 800.0f);
 		// Update the car sound channel with the new pitch.
 		carChannel->setPitch(pitch);
-	
-		// Update 3D attributes of AI sounds.
+
+		c_physicsSystem->getPos(0);
+		physx::PxVec3 pos = c_physicsSystem->getPos(0);
+
+		//set pos of carChannel
+		FMOD_VECTOR posFMOD;
+		posFMOD.x = pos.x;
+		posFMOD.y = pos.y;
+		posFMOD.z = pos.z;
+		carChannel->set3DAttributes(&posFMOD, 0);
+
+		//listener attributes
+		listenerPosition = { pos.x, pos.y, pos.z };
+		listenerLook = { 0.0f, 0.0f, 1.0f };
+		listenerUp = { 0.0f, 1.0f, 0.0f };
+		audioEngine.Set3dListenerAndOrientation(listenerPosition, listenerLook, listenerUp);
 		
 	}
 	std::vector<physx::PxVec3> aiPositions = c_physicsSystem->getAIPositions();
@@ -78,6 +95,13 @@ void AudioSystem::update() {
 		pos.z = aiPositions[i].z;
 		FMOD_VECTOR vel = { 0, 0, 0 };
 		aiChannels[i]->set3DAttributes(&pos, &vel);
+
+		//pitch adjust
+		float aiSpeed = c_physicsSystem->getCarSpeed(i + 1);
+		float aiEngineRPM = c_physicsSystem->calculateEngineRPM(aiSpeed);
+		float aiPitch = 1.0f + pitchAdjust * (aiEngineRPM - 800.0f) / (7000.0f - 800.0f);
+
+		aiChannels[i]->setPitch(aiPitch);
 	}
 }
 
@@ -90,24 +114,27 @@ void AudioSystem::explosion(glm::vec3 position) {
 }
 
 void AudioSystem::startCar() {
-	//audioEngine.PlaySounds(carSound, Vector3{ 0, 0, 0 }, -30.0f, &carChannel);
-	//carChannel->setMode(FMOD_LOOP_NORMAL);
+	audioEngine.PlaySounds(carSound, Vector3{ 0, 0, 0 }, -25.0f, &carChannel);
+	// Set the channel to loop in 3D mode:
+	carChannel->setMode(FMOD_LOOP_NORMAL | FMOD_3D);
+	carChannel->setLoopCount(-1);  // -1 means infinite looping.
 }
+
 
 // New function: play a 3D sound from an AI opponent.
 void AudioSystem::playAISound(glm::vec3 position) {
 	FMOD::Channel* aiChannel = nullptr;
-	aiChannel->setMode(FMOD_LOOP_NORMAL);
-	int result = audioEngine.PlaySounds(AISound, Vector3{ position.x, position.y, position.z }, 0.0f, &aiChannel);
-	std::cout << "Playing AI sound at position (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
-	if (result != FMOD_OK || aiChannel == nullptr) {
-		std::cout << "Error playing AI sound at position ("
-			<< position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
-	}
-	else {
-		// Set the channel to 3D mode so that it is positioned in the world.
-		aiChannel->setMode(FMOD_3D);
-		// Optionally, store the channel if you need to update its 3D attributes continuously.
-		aiChannels.push_back(aiChannel);
-	}
+	int result = audioEngine.PlaySounds(AISound, Vector3{ position.x, position.y, position.z }, -10.0f, &aiChannel);
+	aiChannel->setMode(FMOD_LOOP_NORMAL | FMOD_3D);
+	aiChannel->setLoopCount(-1);  // -1 means infinite looping.
+	aiChannels.push_back(aiChannel);
+	//std::cout << "Playing AI sound at position (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
+	//if (result != FMOD_OK || aiChannel == nullptr) {
+	//	std::cout << "Error playing AI sound at position ("
+	//		<< position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
+	//}
+	//else {
+	//	// Set the channel to 3D mode so that it is positioned in the world.
+	//	
+	//}
 }

@@ -67,7 +67,7 @@ int main() {
 
     AudioSystem audio;
     AudioSystem* audio_ptr = &audio;
-    audio.init(physicsSystem);
+	audio.init(physicsSystem, &camera);
     bool audioMove = false, first = true;
 
     // Create Rendering System
