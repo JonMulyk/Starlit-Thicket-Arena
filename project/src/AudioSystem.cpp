@@ -58,6 +58,17 @@ void AudioSystem::update() {
 		// Update the car sound channel with the new pitch.
 		carChannel->setPitch(pitch);
 	}
+
+	//update 3D attributes of AI
+	//for (auto& aiChannel : aiChannels) {
+	//	// Get the position of the AI from the channel.
+	//	FMOD_VECTOR position;
+	//	aiChannel->get3DAttributes(&position, nullptr);
+	//	// Optionally, update the position based on the AI's current position.
+	//	// For example, if the AI is moving, update the position accordingly.
+	//	// aiChannel->set3DAttributes(&newPosition, nullptr);
+	//}
+
 }
 
 void AudioSystem::shutdown() {
@@ -71,4 +82,20 @@ void AudioSystem::explosion(glm::vec3 position) {
 void AudioSystem::startCar() {
 	audioEngine.PlaySounds(carSound, Vector3{ 0, 0, 0 }, 0, &carChannel);
 	carChannel->setMode(FMOD_LOOP_NORMAL);
+}
+
+// New function: play a 3D sound from an AI opponent.
+void AudioSystem::playAISound(glm::vec3 position) {
+	FMOD::Channel* aiChannel = nullptr;
+	int result = audioEngine.PlaySounds(carSound, Vector3{ position.x, position.y, position.z }, 0, &aiChannel);
+	if (result != FMOD_OK || aiChannel == nullptr) {
+		std::cout << "Error playing AI sound at position ("
+			<< position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
+	}
+	else {
+		// Set the channel to 3D mode so that it is positioned in the world.
+		aiChannel->setMode(FMOD_3D);
+		// Optionally, store the channel if you need to update its 3D attributes continuously.
+		aiChannels.push_back(aiChannel);
+	}
 }

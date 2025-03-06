@@ -20,6 +20,8 @@ public:
 	void explosion(glm::vec3 position);
 	void startCar();
 
+	void playAISound(glm::vec3 position);
+
 	CAudioEngine audioEngine;
 	CAudioEngine* audioEnginePtr;
 	PhysicsSystem* c_physicsSystem;
@@ -32,5 +34,5 @@ public:
 	std::string carSound = "project/assets/audio/futureCycle.wav";
 
 	FMOD::Channel* carChannel = nullptr;
-
+	std::vector<FMOD::Channel*> aiChannels;
 };
