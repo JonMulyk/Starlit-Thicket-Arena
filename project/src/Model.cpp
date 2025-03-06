@@ -289,9 +289,9 @@ Model::Model(Shader& shader, const std::string& model_path)
 
 }
 
-Shader& Model::getShader()
+Shader* Model::getShader()
 {
-    return this->m_shader;
+    return &m_shader;
 }
 
 void Model::draw() {

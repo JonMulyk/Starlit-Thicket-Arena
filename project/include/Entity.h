@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 
 #include "Transform.h"
 #include "Model.h"
@@ -9,8 +8,8 @@ class Entity
 {
 public:
 	std::string name;
-	Model& model;
+	Model* model;
 	Transform* transform;
 
-	Entity(std::string name, Model& model, Transform* transform);
+	Entity(std::string name, Model* model, Transform* transform);
 };

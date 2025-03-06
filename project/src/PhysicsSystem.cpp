@@ -176,7 +176,7 @@ bool PhysicsSystem::initVehicles() {
 
 	for (size_t i = 0; i < numVehicles; i++) {
 		VehicleData& vehicleData = vehicles[i];
-
+		vehicleData.alive = true;
 		// Set parameters
 		vehicleData.vehicle.mBaseParams = baseParams;
 		vehicleData.vehicle.mPhysXParams = physxParams;
@@ -274,7 +274,7 @@ void PhysicsSystem::cleanupPhysics() {
 	gContactReportCallback = nullptr;
 }
 
-PhysicsSystem::PhysicsSystem(GameState& gameState, Model& tModel) :
+PhysicsSystem::PhysicsSystem(GameState& gameState, Model* tModel) :
 	gState(gameState), trailModel(tModel)
 {
 	initPhysics();
@@ -381,6 +381,7 @@ void PhysicsSystem::updateTransforms(std::vector<Entity>& entityList) {
 	}
 }
 
+
 void PhysicsSystem::updatePhysics(double dt) {
 	gScene->simulate(dt);
 	gScene->fetchResults(true);
@@ -399,42 +400,44 @@ void PhysicsSystem::updatePhysics(double dt) {
 	for (size_t i = 0; i < vehicles.size(); i++) {
 		VehicleData& vehicleData = vehicles[i];
 		EngineDriveVehicle& vehicle = vehicleData.vehicle;
+		if (vehicleData.alive) {
+			// Apply commands
+			vehicle.mCommandState.brakes[0] = vehicleCommands[i].brake;
+			vehicle.mCommandState.nbBrakes = 1;
+			vehicle.mCommandState.throttle = vehicleCommands[i].throttle;
+			vehicle.mCommandState.steer = vehicleCommands[i].steer;
+			vehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
 
-		// Apply commands
-		vehicle.mCommandState.brakes[0] = vehicleCommands[i].brake;
-		vehicle.mCommandState.nbBrakes = 1;
-		vehicle.mCommandState.throttle = vehicleCommands[i].throttle;
-		vehicle.mCommandState.steer = vehicleCommands[i].steer;
-		vehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
+			// Step the vehicle
+			const PxVec3 linVel = vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
+			const PxVec3 forwardDir = vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
+			const PxReal forwardSpeed = linVel.dot(forwardDir);
+			const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
+			vehicle.mComponentSequence.setSubsteps(vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
+			vehicle.step(timestep, gVehicleSimulationContext);
 
-		// Step the vehicle
-		const PxVec3 linVel = vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
-		const PxVec3 forwardDir = vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
-		const PxReal forwardSpeed = linVel.dot(forwardDir);
-		const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
-		vehicle.mComponentSequence.setSubsteps(vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
-		vehicle.step(timestep, gVehicleSimulationContext);
+			// Update trails
+			const PxVec3 currPos = vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+			PxVec3 travel = currPos - vehicleData.prevPos;
+			int steps = travel.magnitude() / trailStep;
+			for (int j = 0; j < steps; j++) {
+				float ratio = float(j + 1) / float(steps);
+				PxVec3 travNorm = ratio * vehicleData.prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
+				PxVec3 placementLoc = vehicleData.prevPos - 1.2f * gState.dynamicEntities.at(i).transform->scale.x * travNorm;
+				addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x), vehicleData.name.c_str());
+				vehicleData.prevPos += trailStep * travel.getNormalized();
+				if (j + 1 == steps) {
+					vehicleData.prevDir = travel;
+				}
+			}
 
-		// Update trails
-		const PxVec3 currPos = vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
-		PxVec3 travel = currPos - vehicleData.prevPos;
-		int steps = travel.magnitude() / trailStep;
-		for (int j = 0; j < steps; j++) {
-			float ratio = float(j + 1) / float(steps);
-			PxVec3 travNorm = ratio * vehicleData.prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
-			PxVec3 placementLoc = vehicleData.prevPos - 1.2f * gState.dynamicEntities.at(i).transform->scale.x * travNorm;
-			addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x), vehicleData.name.c_str());
-			vehicleData.prevPos += trailStep * travel.getNormalized();
-			if (j + 1 == steps) {
-				vehicleData.prevDir = travel;
+			// Update player vehicle state (only for the first vehicle)
+			if (i == 0) {
+				gState.playerVehicle.curPos = currPos;
+				gState.playerVehicle.curDir = forwardDir.getNormalized();
 			}
 		}
 
-		// Update player vehicle state (only for the first vehicle)
-		if (i == 0) {
-			gState.playerVehicle.curPos = currPos;
-			gState.playerVehicle.curDir = forwardDir.getNormalized();
-		}
 	}
 
 	// Detect collisions
@@ -443,7 +446,21 @@ void PhysicsSystem::updatePhysics(double dt) {
 		const char* colliding1 = collisionPair.first->getName();
 		const char* colliding2 = collisionPair.second->getName();
 		std::cout << colliding1 << " has collided with " << colliding2 << " trail!" << std::endl;
+		
 		gContactReportCallback->readNewCollision();
+
+		std::string s = colliding1;
+		for (int i = 0; i < gState.dynamicEntities.size(); i++) {
+			if (gState.dynamicEntities[i].name == colliding1) {
+				gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
+				VehicleData& vehicleData = vehicles[i];
+				vehicleData.alive = false;
+				std::cout << colliding1 << " removed" << std::endl;
+			}
+		}
+
+		gScene->removeActor(*collisionPair.first);
+		collisionPair.first->release();
 	}
 
 	// Simulate the entire PhysX scene

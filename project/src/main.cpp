@@ -62,14 +62,15 @@ int main() {
     Model tireModel = Model(lightingShader, "project/assets/models/tire1/tire1.obj");
     //Model secondCar(lightingShader, gold, "project/assets/models/box.obj");
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
-    PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail);
+    PhysicsSystem* physicsSystem = new PhysicsSystem(gState, &trail);
 
     // Create Rendering System
     RenderingSystem renderer(shader, camera, window, arial, gState);
 
     // Entity setup
-    gState.dynamicEntities.emplace_back("car", secondCar, physicsSystem->getTransformAt(0));
-    gState.dynamicEntities.emplace_back("car", secondCar, physicsSystem->getTransformAt(1));
+    gState.dynamicEntities.emplace_back("vehicle0", &secondCar, physicsSystem->getTransformAt(0));
+    gState.dynamicEntities.emplace_back("vehicle1", &secondCar, physicsSystem->getTransformAt(1));
+
 
     // Static scene data
     std::vector<Model> sceneModels;

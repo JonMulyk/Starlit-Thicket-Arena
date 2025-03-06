@@ -34,7 +34,7 @@ public:
     // Constructor for loading an OBJ file without a texture
     Model(Shader& shader, const std::string& model_path);
     
-    Shader& getShader();
+    Shader* getShader();
 
     void draw();
     std::vector<Mesh> meshes;

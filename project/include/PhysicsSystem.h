@@ -19,6 +19,7 @@ struct VehicleData {
 	physx::PxVec3 prevPos;                       // Previous position for trail calculation
 	physx::PxVec3 prevDir;                       // Previous direction for trail calculation
 	std::string name;                            // Unique name for the vehicle actor
+	bool alive;
 };
 
 class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback {
@@ -115,7 +116,7 @@ private:
 	std::vector<VehicleData> vehicles;  
 	std::vector<Command> vehicleCommands; 
 
-	Model& trailModel;
+	Model* trailModel;
 	float trailStep = 2.f;
 
 	void initPhysX();
@@ -130,7 +131,7 @@ private:
 	void cleanupPhysics();
 
 public:
-	PhysicsSystem(GameState& gameState, Model& tModel);
+	PhysicsSystem(GameState& gameState, Model* tModel);
 
 	~PhysicsSystem();
 

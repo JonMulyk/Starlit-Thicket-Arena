@@ -36,45 +36,46 @@ void RenderingSystem::setShaderUniforms(Shader* shader)
     }
 }
 
-void RenderingSystem::renderEntities(const std::vector<Entity>& entities) 
+void RenderingSystem::renderEntities(const std::vector<Entity>& entities)
 {
-	std::unordered_map<Shader*, std::vector<const Entity*>> shaderBatches;
-    
-    // optimiazation by batching entities that have the same shader together
-	for (const auto& entity : entities)
-	{
-		shaderBatches[&entity.model.getShader()].push_back(&entity);
-	}
+    std::unordered_map<Shader*, std::vector<const Entity*>> shaderBatches;
 
-	for (auto it = shaderBatches.begin(); it != shaderBatches.end(); ++it)
-	{
+    // optimization by batching entities that have the same shader together
+    for (const Entity& entity : entities)
+    {
+        shaderBatches[entity.model->getShader()].push_back(&entity);
+    }
+
+    for (auto it = shaderBatches.begin(); it != shaderBatches.end(); ++it)
+    {
         // Shader
-		Shader* shaderPtr = it->first;
+        Shader* shaderPtr = it->first;
         // Grouped entities that share the same shader
-		std::vector<const Entity*>& entityBatch = it->second;
+        std::vector<const Entity*>& entityBatch = it->second;
 
-		shaderPtr->use();
-		updateProjectionView(*shaderPtr);
-		setShaderUniforms(shaderPtr);
+        shaderPtr->use();
+        updateProjectionView(*shaderPtr);
+        setShaderUniforms(shaderPtr);
 
-		for (const Entity* entity : entityBatch)
-		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, entity->transform->pos);
-			model *= glm::mat4_cast(entity->transform->rot);
-            if (entity->name == "car") {
-				model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        for (const Entity* entity : entityBatch)
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, entity->transform->pos);
+            model *= glm::mat4_cast(entity->transform->rot);
+            if (entity->name == "vehicle0" || entity->name == "vehicle1") {
+                model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 model = glm::scale(model, entity->transform->scale * glm::vec3(0.5f, 1.0f, 0.4f));
             }
             else {
                 model = glm::scale(model, entity->transform->scale);
             }
 
-			shaderPtr->setMat4("model", model);
-			entity->model.draw();
-		}
-	}
+            shaderPtr->setMat4("model", model);
+            entity->model->draw();
+        }
+    }
 }
+
 
 /*
 void RenderingSystem::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color) {
@@ -91,19 +92,18 @@ void RenderingSystem::renderText(const std::vector<Text>& renderingText) {
 
 void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 {
-    sceneModels[0].getShader().use();
-    updateProjectionView(sceneModels[0].getShader()); // set the correct matrices
-    shader.setFloat("repeats", 100.f);
-
+    sceneModels[0].getShader()->use();
+    updateProjectionView(*sceneModels[0].getShader()); // set the correct matrices
+    sceneModels[0].getShader()->setFloat("repeats", 100.f);
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::scale(model, glm::vec3(23.0f, 1.0f, 23.0f)); // Scale the ground
     model = glm::translate(model, glm::vec3(4.5f, 0.0f, 4.5f)); // translate ground
-    //model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate 180 degrees around X-axis
-    sceneModels[0].getShader().setMat4("model", model);
+    sceneModels[0].getShader()->setMat4("model", model);
 
     sceneModels[0].draw();
 }
+
 
 void RenderingSystem::renderSkybox(Skybox& skybox)
 {
