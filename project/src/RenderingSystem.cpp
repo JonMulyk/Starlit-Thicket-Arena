@@ -64,7 +64,7 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities)
             model *= glm::mat4_cast(entity->transform->rot);
             if (entity->name == "vehicle0" || entity->name == "vehicle1") {
                 model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-                model = glm::scale(model, entity->transform->scale * glm::vec3(0.5f, 1.0f, 0.4f));
+                model = glm::scale(model, entity->transform->scale * glm::vec3(0.7f, 1.0f, 0.4f));
             }
             else {
                 model = glm::scale(model, entity->transform->scale);
