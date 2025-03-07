@@ -62,7 +62,7 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities)
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, entity->transform->pos);
 			model *= glm::mat4_cast(entity->transform->rot);
-            if (entity->name == "car") {
+            if (entity->name == "playerCar" || entity->name == "aiCar") {
 				model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 model = glm::scale(model, entity->transform->scale * glm::vec3(0.5f, 1.0f, 0.4f));
             }

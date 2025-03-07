@@ -47,6 +47,8 @@ PxFilterFlags VehicleFilterShader(
 	if ((filterData0.word0 == COLLISION_FLAG_OBSTACLE && filterData1.word0 == COLLISION_FLAG_CHASSIS) ||
 		(filterData0.word0 == COLLISION_FLAG_CHASSIS && filterData1.word0 == COLLISION_FLAG_OBSTACLE)) {
 		pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
+
+		//std::cout << "Whoa there!" << std::endl;
 	}
 	pairFlags |= PxPairFlags(PxU16(filterData0.word2) | PxU16(filterData1.word2));
 

@@ -126,6 +126,12 @@
     <ClCompile Include="project\src\GameMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="project\src\AudioEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="project\src\AudioSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="project\assets\shaders\FragShader.frag" />
@@ -135,6 +141,8 @@
     <None Include="project\assets\shaders\CameraShader.vert" />
     <None Include="project\assets\shaders\skyboxShader.frag" />
     <None Include="project\assets\shaders\skyboxShader.vert" />
+    <None Include="lib\fmod\core\lib\arm64\fmod.dll" />
+    <None Include="lib\fmod\core\lib\arm64\fmodL.dll" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="project\include\Windowing.h">
@@ -1481,5 +1489,15 @@
     <ClInclude Include="project\include\GameMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="project\include\AudioEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\AudioSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\fmod\core\lib\arm64\fmod_vc.lib" />
+    <Library Include="lib\fmod\core\lib\arm64\fmodL_vc.lib" />
   </ItemGroup>
 </Project>

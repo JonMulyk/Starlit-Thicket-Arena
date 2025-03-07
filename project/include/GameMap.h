@@ -64,6 +64,15 @@ public:
 	// grid of clearance values
 	std::vector<std::vector<int>> grid;
 
+	// reset graph
+	void resetMap() {
+		for (int i = 0; i < GRID_SIZE; i++) {
+			for (int j = 0; j < GRID_SIZE; j++) {
+				grid[i][j] = GRID_SIZE;
+			}
+		}
+	}
+
 	// --- Graph generation
 	void updateMap(physx::PxVec2 start, physx::PxVec2 end);
 	int isBlocked(double x0, double z0);
