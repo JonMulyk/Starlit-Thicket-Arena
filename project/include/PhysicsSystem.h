@@ -143,4 +143,10 @@ public:
 
 	// Do fixed step physics calculations
 	void stepPhysics(float timestep, Command& command, Command& controllerCommand);
+
+	float getCarSpeed(int i);
+	float calculateEngineRPM(float speed);
+
+	//return position of all AI vehicles
+	std::vector<physx::PxVec3> getAIPositions();
 };

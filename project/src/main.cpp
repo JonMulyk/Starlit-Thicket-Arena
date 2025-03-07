@@ -20,6 +20,8 @@
 #include "GameState.h"
 #include "UIManager.h"
 #include "Skybox.h"
+#include "AudioSystem.h"
+#include "Vehicle.h"
 
 int main() {
     GameState gState;
@@ -58,6 +60,9 @@ int main() {
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
     PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
 
+    AudioSystem audio;
+    audio.init(physicsSystem, &camera);
+
     // Create Rendering System
     RenderingSystem renderer(shader, camera, window, arial, gState);
 
@@ -87,6 +92,7 @@ int main() {
         timer.tick();
         input.poll();
         controller1.Update();
+		audio.update();
 
         // Update physics
         while (timer.getAccumultor() > 5  && timer.getAccumultor() >= timer.dt) {

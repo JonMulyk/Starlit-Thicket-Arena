@@ -543,3 +543,54 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
 }
+
+float PhysicsSystem::getCarSpeed(int i) {
+	using namespace physx;
+	// Ensure there is at least one vehicle (assumed to be the player's vehicle)
+	if (gState.dynamicEntities.size() == 0) {
+		return 0.0f;
+	}
+
+	// Retrieve the player's vehicle rigid body.
+	PxRigidBody* playerRigidBody = gState.dynamicEntities[i].vehicle->vehicle.mPhysXState.physxActor.rigidBody;
+
+	// Get the vehicle's current linear velocity.
+	PxVec3 linVel = playerRigidBody->getLinearVelocity();
+
+	// Get the vehicle's forward direction.
+	// Here, getBasisVector2() is used assuming that the forward (longitudinal) axis is basis vector 2.
+	PxVec3 forwardDir = playerRigidBody->getGlobalPose().q.getBasisVector2();
+
+	// The forward speed is the component of linear velocity in the forward direction.
+	return linVel.dot(forwardDir);
+}
+
+float PhysicsSystem::calculateEngineRPM(float speed) {
+	// Define idle and maximum RPM values.
+	const float idleRPM = 800.0f;
+	const float maxRPM = 7000.0f;
+	// Define an assumed maximum speed (m/s) at which the engine reaches max RPM.
+	// Adjust this value to suit your game's balance.
+	const float maxSpeed = 50.0f;
+
+	// Clamp the speed between 0 and maxSpeed to avoid overshooting.
+	speed = std::max(0.0f, std::min(speed, maxSpeed));
+
+	// Calculate engine RPM with a simple linear interpolation.
+	float rpm = idleRPM + ((maxRPM - idleRPM) * (speed / maxSpeed));
+	return rpm;
+}
+
+std::vector<physx::PxVec3> PhysicsSystem::getAIPositions() {
+	std::vector<physx::PxVec3> aiPositions;
+	// Loop through all dynamic entities
+	for (const auto& entity : gState.dynamicEntities) {
+		// Only process AI vehicles (skip the player)
+		if (entity.name == "aiCar" && entity.vehicle != nullptr) {
+			// Retrieve the global position from the vehicle's rigid body
+			physx::PxVec3 pos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+			aiPositions.push_back(pos);
+		}
+	}
+	return aiPositions;
+}

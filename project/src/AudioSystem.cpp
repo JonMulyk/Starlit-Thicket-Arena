@@ -13,7 +13,8 @@ void AudioSystem::init() {
 	audioEngine.LoadSound(menuMusic);
 	audioEngine.LoadSound(battleMusic);
 
-	audioEngine.PlaySounds(menuMusic, Vector3{ 0, 0, 0 }, -35.0f);
+	//audioEngine.PlaySounds(menuMusic, Vector3{ 0, 0, 0 }, musicVolume);
+	startBattleMusic();
 }
 
 void AudioSystem::init(PhysicsSystem* physicsSystem, Camera* camera) {
@@ -30,14 +31,19 @@ void AudioSystem::init(PhysicsSystem* physicsSystem, Camera* camera) {
 	audioEngine.LoadSound(menuMusic);
 	audioEngine.LoadSound(battleMusic);
 
-	audioEngine.PlaySounds(menuMusic, Vector3{ 0, 0, 0 }, -35.0f);
+	//audioEngine.PlaySounds(menuMusic, Vector3{ 0, 0, 0 }, musicVolume);
+	startBattleMusic();
 }
 
 void AudioSystem::startBattleMusic() {
-	audioEngine.StopAllChannels();
+	//audioEngine.StopAllChannels();
 	startCar();
 	carPlaying = true;
-	audioEngine.PlaySounds(battleMusic, Vector3{ 0, 0, 0 }, -35.0f);
+	audioEngine.PlaySounds(battleMusic, Vector3{ 0, 0, 0 }, musicVolume, &musicChannel);
+	//music is not 3d and loop
+	musicChannel->setMode(FMOD_LOOP_NORMAL | FMOD_2D);
+	musicChannel->setLoopCount(-1);
+
 
 	//start AI sounds
 	std::vector<physx::PxVec3> aiPositions = c_physicsSystem->getAIPositions();
@@ -110,11 +116,11 @@ void AudioSystem::shutdown() {
 }
 
 void AudioSystem::explosion(glm::vec3 position) {
-	audioEngine.PlaySounds(explosionSound, Vector3{ position.x, position.y, position.z }, -25.0f);
+	audioEngine.PlaySounds(explosionSound, Vector3{ position.x, position.y, position.z }, 0.0f);
 }
 
 void AudioSystem::startCar() {
-	audioEngine.PlaySounds(carSound, Vector3{ 0, 0, 0 }, -25.0f, &carChannel);
+	audioEngine.PlaySounds(carSound, Vector3{ 0, 0, 0 }, carVolume, &carChannel);
 	// Set the channel to loop in 3D mode:
 	carChannel->setMode(FMOD_LOOP_NORMAL | FMOD_3D);
 	carChannel->setLoopCount(-1);  // -1 means infinite looping.
@@ -124,7 +130,7 @@ void AudioSystem::startCar() {
 // New function: play a 3D sound from an AI opponent.
 void AudioSystem::playAISound(glm::vec3 position) {
 	FMOD::Channel* aiChannel = nullptr;
-	int result = audioEngine.PlaySounds(AISound, Vector3{ position.x, position.y, position.z }, -10.0f, &aiChannel);
+	int result = audioEngine.PlaySounds(AISound, Vector3{ position.x, position.y, position.z }, aiVolume, &aiChannel);
 	aiChannel->setMode(FMOD_LOOP_NORMAL | FMOD_3D);
 	aiChannel->setLoopCount(-1);  // -1 means infinite looping.
 	aiChannels.push_back(aiChannel);

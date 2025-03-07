@@ -29,6 +29,9 @@ public:
 	Camera* c_camera;
 	bool carPlaying = false;
 	float pitchAdjust = 2.0f;
+	float carVolume = -20.0f;
+	float aiVolume = 0.0f;
+	float musicVolume = -30.0f;
 
 	std::string menuMusic = "project/assets/audio/menuMusic.wav";
 	std::string battleMusic = "project/assets/audio/battleMusic.wav";
@@ -37,5 +40,6 @@ public:
 	std::string AISound = "project/assets/audio/AIVehicle.wav";
 
 	FMOD::Channel* carChannel = nullptr;
+	FMOD::Channel* musicChannel = nullptr;
 	std::vector<FMOD::Channel*> aiChannels;
 };
