@@ -22,14 +22,38 @@
 #include "Skybox.h"
 #include "AudioSystem.h"
 
+#pragma once
+#include <iostream>
+#include <GLFW/glfw3.h>
+#include "Shader.h"
+#include "Texture.h"
+#include "Windowing.h"
+#include <MainMenu.h>
+
+
+
+
 int main() {
     GameState gState;
     InitManager::initGLFW();
+
+
+    Windowing window(1200, 1000);
+
+
+    MainMenu menu(window);
+
+
+    // If the player exits the menu by pressing ESC, close the game
+    if (window.shouldClose()) {
+        return 0;
+    }
+
     Command command;
 	Command controllerCommand;
     TimeSeconds timer;
     Camera camera(gState, timer);
-    Windowing window(1200, 1000);
+
 
     Input input(window, camera, timer, command);
     Controller controller1(1, camera, controllerCommand);
@@ -88,6 +112,7 @@ int main() {
     // Main Loop
     timer.advance();
     while (!window.shouldClose()) {
+        menu.displayMenu();
         window.clear();
         timer.tick();
         input.poll();

@@ -628,9 +628,11 @@
     <ClInclude Include="lib\physx\include\vehicle\PxVehicleWheels.h" />
     <ClInclude Include="project\include\AudioEngine.h" />
     <ClInclude Include="project\include\AudioSystem.h" />
+    <ClInclude Include="project\include\Button.h" />
     <ClInclude Include="project\include\Camera.h" />
     <ClInclude Include="project\include\Command.h" />
     <ClInclude Include="project\include\GameMap.h" />
+    <ClInclude Include="project\include\MainMenu.h" />
     <ClInclude Include="project\include\Vehicle.h" />
     <ClInclude Include="project\include\Controller.h" />
     <ClInclude Include="project\include\Entity.h" />
