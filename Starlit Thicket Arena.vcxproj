@@ -120,14 +120,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)/lib/assimp/include;$(SolutionDir)lib\physx\include;$(SolutionDir)lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)lib\glm;$(SolutionDir)lib\freetype-2.13.3\include;$(SolutionDir)lib;$(SolutionDir)project\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/lib/assimp/include;$(SolutionDir)lib\physx\include;$(SolutionDir)lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)lib\glm;$(SolutionDir)lib\freetype-2.13.3\include;$(SolutionDir)lib;$(SolutionDir)project\include;$(SolutionDir)lib\fmod\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib/assimp/lib;$(SolutionDir)lib\physx\debug;$(SolutionDir)lib\glfw-3.4.bin.WIN64\lib-vc2019;$(SolutionDir)lib\freetype-2.13.3\objs\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>freetype.lib;glfw3_mt.lib;glfw3dll.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;PhysXVehicle2_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;SnippetRender_static_64.lib;SnippetUtils_static_64.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;glfw3_mt.lib;glfw3dll.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;PhysXVehicle2_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;$(SolutionDir)lib\fmod\objs\fmod_vc.lib;$(SolutionDir)lib\fmod\objs\fmodL_vc.lib;$(SolutionDir)lib\fmod\objs\fmodstudio_vc.lib;$(SolutionDir)lib\fmod\objs\fmodstudioL_vc.lib;SnippetRender_static_64.lib;SnippetUtils_static_64.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(SolutionDir)build\$(Platform)\$(Configuration)\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
@@ -139,7 +139,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)/lib/assimp/include;$(SolutionDir)lib\physx\include;$(SolutionDir)lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)lib\glm;$(SolutionDir)lib\freetype-2.13.3\include;$(SolutionDir)lib;$(SolutionDir)project\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/lib/assimp/include;$(SolutionDir)lib\physx\include;$(SolutionDir)lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)lib\glm;$(SolutionDir)lib\freetype-2.13.3\include;$(SolutionDir)lib;$(SolutionDir)project\include;$(SolutionDir)lib\fmod\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -148,7 +148,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/lib/assimp/lib;$(SolutionDir)lib\physx\release;$(SolutionDir)lib\glfw-3.4.bin.WIN64\lib-vc2019;$(SolutionDir)lib\freetype-2.13.3\objs\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>freetype.lib;glfw3_mt.lib;glfw3dll.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;PhysXVehicle2_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;glfw3_mt.lib;glfw3dll.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;PhysXVehicle2_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;$(SolutionDir)lib\fmod\objs\fmod_vc.lib;$(SolutionDir)lib\fmod\objs\fmodL_vc.lib;$(SolutionDir)lib\fmod\objs\fmodstudio_vc.lib;$(SolutionDir)lib\fmod\objs\fmodstudioL_vc.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(SolutionDir)build\$(Platform)\$(Configuration)\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
@@ -172,6 +172,8 @@
     <ClCompile Include="lib\physx\include\snippetvehicle2common\serialization\SerializationCommon.cpp" />
     <ClCompile Include="lib\physx\include\snippetvehicle2common\SnippetVehicleHelpers.cpp" />
     <ClCompile Include="lib\physx\include\snippetvehicle2common\SnippetVehicleRender.cpp" />
+    <ClCompile Include="project\src\AudioEngine.cpp" />
+    <ClCompile Include="project\src\AudioSystem.cpp" />
     <ClCompile Include="project\src\Camera.cpp" />
     <ClCompile Include="project\src\Controller.cpp" />
     <ClCompile Include="project\src\Entity.cpp" />
@@ -622,6 +624,8 @@
     <ClInclude Include="lib\physx\include\vehicle\PxVehicleUtilSetup.h" />
     <ClInclude Include="lib\physx\include\vehicle\PxVehicleUtilTelemetry.h" />
     <ClInclude Include="lib\physx\include\vehicle\PxVehicleWheels.h" />
+    <ClInclude Include="project\include\AudioEngine.h" />
+    <ClInclude Include="project\include\AudioSystem.h" />
     <ClInclude Include="project\include\Camera.h" />
     <ClInclude Include="project\include\Command.h" />
     <ClInclude Include="project\include\GameMap.h" />
