@@ -138,12 +138,20 @@ public:
 	// update the transforms based on physx
 	void updateTransforms(std::vector<Entity>& entityList);
 
+	// updates collsions
+	void updateCollisions();
+
+	// resets map
+	void reintialize();
+
 	// run physx simulation and update the transforms
 	void updatePhysics(double dt);
 
 	// Do fixed step physics calculations
 	void stepPhysics(float timestep, Command& command, Command& controllerCommand);
 
+	bool getExplosion();
+	glm::vec3 getExplosionLocation();
 	float getCarSpeed(int i);
 	float calculateEngineRPM(float speed);
 

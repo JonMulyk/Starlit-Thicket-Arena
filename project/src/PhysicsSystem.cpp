@@ -1,5 +1,5 @@
 #include "PhysicsSystem.h"
-
+#include "AudioEngine.h"
 // Initialize PVD, create scene, vehicle compatibility, and scene components (gravity and friction)
 void PhysicsSystem::initPhysX() {
 	// namespaces
@@ -321,7 +321,7 @@ bool PhysicsSystem::initPhysics() {
 }
 
 void PhysicsSystem::cleanupPhysics() {
-	for (auto entity : gState.dynamicEntities) {
+	for (auto& entity : gState.dynamicEntities) {
 		if (entity.vehicle != nullptr) {
 			entity.vehicle->vehicle.destroy();
 		}
@@ -394,7 +394,7 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	body->attachShape(*shape);
 	body->setName(name);
 
-	gState.staticEntities.push_back(Entity("trail", trailModel, new Transform()));
+	gState.staticEntities.push_back(Entity(name, trailModel, new Transform()));
 
 	gState.staticEntities.back().transform->pos = glm::vec3(
 		wallTransform.p.x,
@@ -444,6 +444,83 @@ void PhysicsSystem::updateTransforms(std::vector<Entity>& entityList) {
 	}
 }
 
+void PhysicsSystem::updateCollisions() {
+	// Detect collisions
+	auto collisionPair = gContactReportCallback->getCollisionPair();
+	if (gContactReportCallback->checkCollision()) {
+		const char* colliding1 = collisionPair.first->getName();
+		const char* colliding2 = collisionPair.second->getName();
+		std::string str = colliding1;
+		if (str.compare("playerVehicle") == 0) {
+			reintialize();
+		}
+		else {
+			for (int i = 0; i < gState.dynamicEntities.size(); i++) {
+				auto& entity = gState.dynamicEntities[i];
+
+				if (entity.vehicle->name == colliding1) {
+					entity.vehicle->vehicle.destroy();
+
+					// remove Dynamic Object
+					rigidDynamicList.erase(rigidDynamicList.begin() + i);
+					transformList.erase(transformList.begin() + i);
+					gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
+
+					// Remove all static physics objects
+					PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC);
+					std::vector<PxActor*> actors(gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC));
+					gScene->getActors(PxActorTypeFlag::eRIGID_STATIC, actors.data(), actorCount);
+					for (PxActor* actor : actors) {
+						const char* actorName = actor->getName();
+						if (actorName) {
+							if (actorName == colliding1) {
+								gScene->removeActor(*actor);
+							}
+						}
+					}
+					// Remove all static entity objects
+					for (int g = gState.staticEntities.size() - 1; g >= 0; g--) {
+						if (gState.staticEntities[g].name == colliding1) {
+							gState.staticEntities.erase(gState.staticEntities.begin() + g);
+						}
+					}
+					gState.addToScore(1);
+				}
+			}
+		}
+		gContactReportCallback->readNewCollision();
+	}
+}
+
+void PhysicsSystem::reintialize() {
+	for (int i = gState.dynamicEntities.size()-1; i >= 0; i--) {
+		//std::cout << gState.dynamicEntities[i].name << "\n";
+		auto& entity = gState.dynamicEntities[i];
+		entity.vehicle->vehicle.destroy();
+		// remove Dynamic Objects
+		rigidDynamicList.erase(rigidDynamicList.begin() + i);
+		transformList.erase(transformList.begin() + i);
+		gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
+	}
+
+	PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC);
+	std::vector<PxActor*> actors(gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC));
+	gScene->getActors(PxActorTypeFlag::eRIGID_STATIC, actors.data(), actorCount);
+	for (int f = actors.size()-1; f >= 5; f--) {
+		const char* actorName = actors[f]->getName();
+		if (actorName) {
+			gScene->removeActor(*actors[f]);
+		}
+	}
+
+	// Remove all static entity objects
+	for (int g = gState.staticEntities.size()-1; g >= 4; g--) {
+			gState.staticEntities.erase(gState.staticEntities.begin() + g);
+	}
+	//std::cout << gState.dynamicEntities.size() << " " << gState.staticEntities.size() << " " << actors.size() << "\n";
+	initVehicles(3);
+}
+
 void PhysicsSystem::updatePhysics(double dt) {
 	gScene->simulate(dt);
 	gScene->fetchResults(true);
@@ -455,7 +532,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 	// namespaces
 	using namespace physx; using namespace snippetvehicle2;
 
-	for (auto entity : gState.dynamicEntities) {
+	for (auto& entity : gState.dynamicEntities) {
 		if (entity.name == "playerCar") {
 			Command cmd;
 			cmd.brake = 0; command.brake + controllerCommand.brake;
@@ -529,19 +606,24 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			}
 		}
 	}
-
-	// Detect collisions
-	auto collisionPair = gContactReportCallback->getCollisionPair();
-	if (gContactReportCallback->checkCollision()) {
-		const char* colliding1 = collisionPair.first->getName();
-		const char* colliding2 = collisionPair.second->getName();
-		std::cout << colliding1 << " has collided with " << colliding2 << " trail!" << std::endl;
-		gContactReportCallback->readNewCollision();
-	}
+	updateCollisions();
 
 	// Simulate the entire PhysX scene
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
+}
+
+bool PhysicsSystem::getExplosion() {
+	return gContactReportCallback->checkCollision();
+}
+
+glm::vec3 PhysicsSystem::getExplosionLocation() {
+	for (const auto& entity : gState.dynamicEntities) {
+		if (entity.vehicle->name == gContactReportCallback->getCollisionPair().first->getName()) {
+			physx::PxVec3 pos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+			return glm::vec3(pos.x, pos.y, pos.z);
+		}
+	}
 }
 
 float PhysicsSystem::getCarSpeed(int i) {

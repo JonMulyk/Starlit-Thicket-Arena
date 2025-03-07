@@ -84,8 +84,10 @@ void AudioSystem::update() {
 		posFMOD.y = pos.y;
 		posFMOD.z = pos.z;
 		carChannel->set3DAttributes(&posFMOD, 0);
-		//test explosion at car position
-		//explosion(glm::vec3(pos.x, pos.y, pos.z));
+
+		//get explosion at explosion location
+		if (c_physicsSystem->getExplosion())
+			explosion(c_physicsSystem->getExplosionLocation());
 
 		//listener attributes
 		listenerPosition = { pos.x, pos.y, pos.z };
