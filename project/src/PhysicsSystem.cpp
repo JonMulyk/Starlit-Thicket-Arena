@@ -448,15 +448,27 @@ void PhysicsSystem::updateCollisions() {
 	// Detect collisions
 	auto collisionPair = gContactReportCallback->getCollisionPair();
 	if (gContactReportCallback->checkCollision()) {
+		int aiCounter = 0;
 		const char* colliding1 = collisionPair.first->getName();
 		const char* colliding2 = collisionPair.second->getName();
 		std::string str = colliding1;
+		std::string otherName = colliding2;
+
+		// check if player died
 		if (str.compare("playerVehicle") == 0) {
 			reintialize();
 		}
+		// check which vehicle it was
 		else {
 			for (int i = 0; i < gState.dynamicEntities.size(); i++) {
 				auto& entity = gState.dynamicEntities[i];
+
+				if (entity.name == "aiCar") {
+					aiCounter++;
+				}
+				else {
+					continue;
+				}
 
 				if (entity.vehicle->name == colliding1) {
 					entity.vehicle->vehicle.destroy();
@@ -484,8 +496,14 @@ void PhysicsSystem::updateCollisions() {
 							gState.staticEntities.erase(gState.staticEntities.begin() + g);
 						}
 					}
-					gState.addToScore(1);
+					if (otherName == "playerVehicle") {
+						gState.addToScore(1);
+					}
 				}
+			}
+
+			if (aiCounter <= 1) {
+				reintialize();
 			}
 		}
 		gContactReportCallback->readNewCollision();
