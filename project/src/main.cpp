@@ -21,7 +21,6 @@
 #include "UIManager.h"
 #include "Skybox.h"
 #include "AudioSystem.h"
-#include "Vehicle.h"
 
 int main() {
     GameState gState;
@@ -61,6 +60,7 @@ int main() {
     PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
 
     AudioSystem audio;
+	AudioSystem* audioPtr = &audio;
     audio.init(physicsSystem, &camera);
 
     // Create Rendering System

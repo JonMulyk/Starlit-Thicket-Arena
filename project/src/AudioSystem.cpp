@@ -84,6 +84,8 @@ void AudioSystem::update() {
 		posFMOD.y = pos.y;
 		posFMOD.z = pos.z;
 		carChannel->set3DAttributes(&posFMOD, 0);
+		//test explosion at car position
+		//explosion(glm::vec3(pos.x, pos.y, pos.z));
 
 		//listener attributes
 		listenerPosition = { pos.x, pos.y, pos.z };
@@ -109,6 +111,7 @@ void AudioSystem::update() {
 
 		aiChannels[i]->setPitch(aiPitch);
 	}
+	
 }
 
 void AudioSystem::shutdown() {
@@ -116,7 +119,7 @@ void AudioSystem::shutdown() {
 }
 
 void AudioSystem::explosion(glm::vec3 position) {
-	audioEngine.PlaySounds(explosionSound, Vector3{ position.x, position.y, position.z }, 0.0f);
+	audioEngine.PlaySounds(explosionSound, Vector3{ position.x, position.y, position.z }, explosionVolume);
 }
 
 void AudioSystem::startCar() {
@@ -132,6 +135,7 @@ void AudioSystem::playAISound(glm::vec3 position) {
 	FMOD::Channel* aiChannel = nullptr;
 	int result = audioEngine.PlaySounds(AISound, Vector3{ position.x, position.y, position.z }, aiVolume, &aiChannel);
 	aiChannel->setMode(FMOD_LOOP_NORMAL | FMOD_3D);
+	aiChannel->set3DMinMaxDistance(1.0f, 1000.0f);
 	aiChannel->setLoopCount(-1);  // -1 means infinite looping.
 	aiChannels.push_back(aiChannel);
 	//std::cout << "Playing AI sound at position (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
