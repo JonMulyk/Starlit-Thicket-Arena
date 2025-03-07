@@ -69,7 +69,6 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities)
             else {
                 model = glm::scale(model, entity->transform->scale);
             }
-
 			shaderPtr->setMat4("model", model);
 			entity->model.draw();
 		}

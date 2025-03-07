@@ -2,9 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <glm.hpp>
-
 #include <chrono>
-
 #include "PxPhysicsAPI.h"
 #include "TimeSeconds.h"
 #include "InitManager.h"
@@ -22,26 +20,23 @@
 #include "GameState.h"
 #include "UIManager.h"
 #include "Skybox.h"
-#include "AudioSystem.h"
-#include <Vehicle.h>
 
 int main() {
     GameState gState;
     InitManager::initGLFW();
     Command command;
 	Command controllerCommand;
-    Command commandAI;
     TimeSeconds timer;
     Camera camera(gState, timer);
     Windowing window(1200, 1000);
 
     Input input(window, camera, timer, command);
     Controller controller1(1, camera, controllerCommand);
-    if (!controller1.isConnected()) { 
-        std::cout << "Controller one not connected" << std::endl; 
-		controllerCommand.brake = 0.0f;
-		controllerCommand.throttle = 0.0f;
-		controllerCommand.steer = 0.0f;
+    if (!controller1.isConnected()) {
+        std::cout << "Controller one not connected" << std::endl;
+        controllerCommand.brake = 0.0f;
+        controllerCommand.throttle = 0.0f;
+        controllerCommand.steer = 0.0f;
     }
 
     Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
@@ -52,9 +47,7 @@ int main() {
     Texture neon("project/assets/textures/neon.jpg", true);
     Texture fire("project/assets/textures/fire.jpg", true);
 
-
-
-    // Model Setups
+    // Model Setup
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
     Model cube(lightingShader, container, verts, verts, coord);
@@ -63,19 +56,10 @@ int main() {
     Model tireModel = Model(lightingShader, "project/assets/models/tire1/tire1.obj");
     //Model secondCar(lightingShader, gold, "project/assets/models/box.obj");
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
-    PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail);
-
-    AudioSystem audio;
-    AudioSystem* audio_ptr = &audio;
-	audio.init(physicsSystem, &camera);
-    bool audioMove = false, first = true;
+    PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
 
     // Create Rendering System
     RenderingSystem renderer(shader, camera, window, arial, gState);
-
-    // Entity setup
-    gState.dynamicEntities.emplace_back("car", secondCar, physicsSystem->getTransformAt(0));
-    gState.dynamicEntities.emplace_back("car", secondCar, physicsSystem->getTransformAt(1));
 
     // Static scene data
     std::vector<Model> sceneModels;
@@ -84,21 +68,6 @@ int main() {
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
     sceneModels.push_back(groundPlaneModel);
 
-    // PhysX item setup
-    float halfLen = 0.5f;
-    MaterialProp matProps = { 0.5f, 0.5f, 0.6f };
-    physx::PxBoxGeometry* boxGeom = new physx::PxBoxGeometry(halfLen, halfLen, halfLen);
-
-    //int size = 5;
-    //int counter = 1;
-    //for (unsigned int i = 0; i < size; i++) {
-     //   for (unsigned int j = 0; j < size - i; j++) {
-     //       physx::PxTransform localTran(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 - 1), 0) * halfLen);
-     //       physicsSystem->addItem(matProps, boxGeom, localTran, 10.f);
-     //       gState.dynamicEntities.emplace_back(Entity("box", tireModel, physicsSystem->getTransformAt(counter++)));
-     //   }
-    //}
-    delete(boxGeom);
 
     physicsSystem->updateTransforms(gState.dynamicEntities);
 
@@ -112,32 +81,20 @@ int main() {
     Skybox skybox("project/assets/textures/skybox/", skyboxShader);
 
     // Main Loop
+    timer.advance();
     while (!window.shouldClose()) {
         window.clear();
         timer.tick();
         input.poll();
         controller1.Update();
-		audio.update();
-
-        if (audioMove && first) {
-            audio.startBattleMusic();
-            audioMove = false;
-			first = false;
-        }
 
         // Update physics
-        while (timer.getAccumultor() >= timer.dt) {
-            physicsSystem->stepPhysics(timer.dt, command, controllerCommand, audioMove);
+        while (timer.getAccumultor() > 5  && timer.getAccumultor() >= timer.dt) {
+            physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
 
             physicsSystem->updatePhysics(timer.dt);
             timer.advance();
         }
-
-        Command aiCommand1;
-        aiCommand1.throttle = 0.5f;
-        aiCommand1.brake = 0.0f;   //no braking
-        aiCommand1.steer = -0.5f;   //right is negative, left is positive floats
-        physicsSystem->setVehicleCommand(1, aiCommand1);
 
 		//renderer.renderScene(sceneModels);
     
@@ -146,8 +103,6 @@ int main() {
 
         glfwSwapBuffers(window);
     }
-
-	audio.shutdown();
 
     return 0;
 }
