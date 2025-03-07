@@ -518,6 +518,7 @@ void PhysicsSystem::reintialize() {
 			gState.staticEntities.erase(gState.staticEntities.begin() + g);
 	}
 	//std::cout << gState.dynamicEntities.size() << " " << gState.staticEntities.size() << " " << actors.size() << "\n";
+	gState.gMap.resetMap();
 	initVehicles(3);
 }
 
