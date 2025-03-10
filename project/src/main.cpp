@@ -43,7 +43,7 @@ int main() {
 
     MainMenu menu(window);
 
-
+    menu.displayMenu();
     // If the player exits the menu by pressing ESC, close the game
     if (window.shouldClose()) {
         return 0;
@@ -112,7 +112,7 @@ int main() {
     // Main Loop
     timer.advance();
     while (!window.shouldClose()) {
-        menu.displayMenu();
+
         window.clear();
         timer.tick();
         input.poll();
