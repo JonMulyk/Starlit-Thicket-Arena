@@ -143,6 +143,8 @@
     <None Include="project\assets\shaders\skyboxShader.vert" />
     <None Include="lib\fmod\core\lib\arm64\fmod.dll" />
     <None Include="lib\fmod\core\lib\arm64\fmodL.dll" />
+    <None Include="project\assets\shaders\mainMenuShader.vert" />
+    <None Include="project\assets\shaders\mainMenuShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="project\include\Windowing.h">

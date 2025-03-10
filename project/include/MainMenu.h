@@ -1,5 +1,6 @@
 #include <GLFW/glfw3.h>
 #include "stb_image.h"
+#include "Shader.h"
 
 class MainMenu {
 public:
@@ -24,16 +25,16 @@ public:
             if (glfwGetMouseButton(window.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
                 double xpos, ypos;
                 glfwGetCursorPos(window.getGLFWwindow(), &xpos, &ypos);
-                
+
                 // Get current window size
                 int windowWidth, windowHeight;
                 glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
                 //button bounds
-                float startX = 0.5f * windowWidth - (0.1f * windowWidth); 
-                float startY = 0.5f * windowHeight - (0.03125f * windowHeight); 
-                float startWidth = 0.2f * windowWidth;  
-                float startHeight = 0.0625f * windowHeight; 
+                float startX = 0.5f * windowWidth - (0.1f * windowWidth);
+                float startY = 0.5f * windowHeight - (0.03125f * windowHeight);
+                float startWidth = 0.2f * windowWidth;
+                float startHeight = 0.0625f * windowHeight;
                 if (isButtonClicked(xpos, ypos, startX, startY, startWidth, startHeight)) {
                     inMenu = false;
                     glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -41,9 +42,9 @@ public:
 
                 //button bounds for exit game
                 float exitX = 0.5f * windowWidth - (0.1f * windowWidth);
-                float exitY = startY + startHeight + (0.15f * windowHeight); 
+                float exitY = startY + startHeight + (0.15f * windowHeight);
                 float exitWidth = 0.2f * windowWidth;
-                float exitHeight = 0.0625f * windowHeight; 
+                float exitHeight = 0.0625f * windowHeight;
                 if (isButtonClicked(xpos, ypos, exitX, exitY, exitWidth, exitHeight)) {
                     glfwSetWindowShouldClose(window.getGLFWwindow(), true);
                 }
@@ -53,28 +54,26 @@ public:
 
 private:
     Windowing& window;
-    unsigned int shaderProgram;
+    Shader* shader; // Use Shader class instead of raw shader program
     unsigned int backgroundTexture;
 
     void renderMenu() {
         glDisable(GL_DEPTH_TEST);
         drawBackground();
 
-
         int windowWidth, windowHeight;
         glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
-
         float startX = 0.5f * windowWidth - (0.1f * windowWidth);
-        float startY = 0.5f * windowHeight - (0.03125f * windowHeight); 
-        float startWidth = 0.2f * windowWidth;    
-        float startHeight = 0.0625f * windowHeight; 
+        float startY = 0.5f * windowHeight - (0.03125f * windowHeight);
+        float startWidth = 0.2f * windowWidth;
+        float startHeight = 0.0625f * windowHeight;
         drawButton(startX, startY, startWidth, startHeight);
 
-        float exitX = 0.5f * windowWidth - (0.1f * windowWidth); 
+        float exitX = 0.5f * windowWidth - (0.1f * windowWidth);
         float exitY = startY + startHeight + (0.15f * windowHeight);
-        float exitWidth = 0.2f * windowWidth;   
-        float exitHeight = 0.0625f * windowHeight; 
+        float exitWidth = 0.2f * windowWidth;
+        float exitHeight = 0.0625f * windowHeight;
         drawButton(exitX, exitY, exitWidth, exitHeight);
     }
 
@@ -127,8 +126,8 @@ private:
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        glUseProgram(shaderProgram);
-        glUniform1i(glGetUniformLocation(shaderProgram, "useTexture"), 1);
+        shader->use();  
+        shader->setInt("useTexture", 1);
         glBindTexture(GL_TEXTURE_2D, backgroundTexture);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -172,9 +171,9 @@ private:
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        glUseProgram(shaderProgram);
-        glUniform1i(glGetUniformLocation(shaderProgram, "useTexture"), 0);
-        glUniform3f(glGetUniformLocation(shaderProgram, "solidColor"), 1.0f, 0.0f, 0.0f); // Red color
+        shader->use(); 
+        shader->setInt("useTexture", 0);
+        shader->setVec3("solidColor", glm::vec3(1.0f, 0.0f, 0.0f)); //red color for now
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -185,51 +184,11 @@ private:
 
     bool isButtonClicked(double mouseX, double mouseY, int btnX, int btnY, int btnWidth, int btnHeight) {
         return mouseX >= btnX && mouseX <= btnX + btnWidth &&
-               mouseY >= btnY && mouseY <= btnY + btnHeight;
+            mouseY >= btnY && mouseY <= btnY + btnHeight;
     }
 
     void compileShaders() {
-        const char* vertexShaderSource = R"(
-            #version 330 core
-            layout(location = 0) in vec2 aPos;
-            layout(location = 1) in vec2 aTexCoord;
-            out vec2 TexCoord;
-            void main() {
-                gl_Position = vec4(aPos, 0.0, 1.0);
-                TexCoord = aTexCoord;
-            }
-        )";
-
-        const char* fragmentShaderSource = R"(
-            #version 330 core
-            in vec2 TexCoord;
-            out vec4 FragColor;
-            uniform sampler2D texture1;
-            uniform bool useTexture;
-            uniform vec3 solidColor;
-            void main() {
-                if (useTexture) {
-                    FragColor = texture(texture1, TexCoord);
-                } else {
-                    FragColor = vec4(solidColor, 1.0);
-                }
-            }
-        )";
-
-        unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-        glCompileShader(vertexShader);
-
-        unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-        glCompileShader(fragmentShader);
-
-        shaderProgram = glCreateProgram();
-        glAttachShader(shaderProgram, vertexShader);
-        glAttachShader(shaderProgram, fragmentShader);
-        glLinkProgram(shaderProgram);
-
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
+        //shader class to load shaders
+        shader = new Shader("MainMenuShader", "project/assets/shaders/mainMenuShader.vert", "project/assets/shaders/mainMenuShader.frag");
     }
 };
