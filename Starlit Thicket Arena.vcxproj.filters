@@ -145,6 +145,8 @@
     <None Include="lib\fmod\core\lib\arm64\fmodL.dll" />
     <None Include="project\assets\shaders\mainMenuShader.vert" />
     <None Include="project\assets\shaders\mainMenuShader.frag" />
+    <None Include="project\assets\shaders\text.vert" />
+    <None Include="project\assets\shaders\text.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="project\include\Windowing.h">

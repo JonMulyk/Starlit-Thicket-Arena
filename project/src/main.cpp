@@ -40,8 +40,8 @@ int main() {
 
     Windowing window(1200, 1000);
 
-
-    MainMenu menu(window);
+    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
+    MainMenu menu(window, arial);
 
     menu.displayMenu();
     // If the player exits the menu by pressing ESC, close the game
@@ -66,7 +66,7 @@ int main() {
 
     Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
-    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
+    
     Texture container("project/assets/textures/container.jpg", true);
     Texture gold("project/assets/textures/gold.jpg", true);
     Texture neon("project/assets/textures/neon.jpg", true);

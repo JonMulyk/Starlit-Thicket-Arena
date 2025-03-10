@@ -161,6 +161,8 @@
     <None Include="project\assets\shaders\mainMenuShader.vert" />
     <None Include="project\assets\shaders\skyboxShader.frag" />
     <None Include="project\assets\shaders\skyboxShader.vert" />
+    <None Include="project\assets\shaders\text.frag" />
+    <None Include="project\assets\shaders\text.vert" />
     <None Include="project\assets\shaders\textShader.frag" />
     <None Include="project\assets\shaders\textShader.vert" />
     <None Include="project\assets\shaders\VertShader.vert" />

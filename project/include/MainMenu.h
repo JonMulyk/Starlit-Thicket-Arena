@@ -1,13 +1,16 @@
 #include <GLFW/glfw3.h>
 #include "stb_image.h"
 #include "Shader.h"
+#include "TTF.h"
 
 class MainMenu {
 public:
-    MainMenu(Windowing& window) : window(window) {
+    MainMenu(Windowing& window, TTF& textRenderer) : window(window), textRenderer(textRenderer) {
         compileShaders();
         loadBackgroundTexture();
+        initializeUIText();
     }
+
 
     ~MainMenu() {
         glDeleteTextures(1, &backgroundTexture);
@@ -27,7 +30,7 @@ public:
                 glfwGetCursorPos(window.getGLFWwindow(), &xpos, &ypos);
 
                 // Get current window size
-                int windowWidth, windowHeight;
+                
                 glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
                 //button bounds
@@ -53,9 +56,12 @@ public:
     }
 
 private:
+    std::vector<Text> uiText;
     Windowing& window;
     Shader* shader; // Use Shader class instead of raw shader program
     unsigned int backgroundTexture;
+    TTF& textRenderer;
+    int windowWidth, windowHeight;
 
     void renderMenu() {
         glDisable(GL_DEPTH_TEST);
@@ -75,7 +81,32 @@ private:
         float exitWidth = 0.2f * windowWidth;
         float exitHeight = 0.0625f * windowHeight;
         drawButton(exitX, exitY, exitWidth, exitHeight);
+
+        this->renderText(uiText);
     }
+
+    void initializeUIText() {
+        glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
+
+        // Align text with the "Start" button
+        float buttonX = 0.5f * windowWidth;  // Center X
+        float buttonY = 0.5f * windowHeight; // Center Y
+
+        Text Start = Text("Start", buttonX + 60, buttonY + 200.0f, 1.0f, glm::vec3(1, 1, 1));
+        Text Exit = Text("Exit", buttonX + 68.0f, buttonY - 100, 1.0f, glm::vec3(1, 1, 1));
+
+        uiText.push_back(Start);
+        uiText.push_back(Exit);
+    }
+
+
+    void renderText(const std::vector<Text>& renderingText) {
+        for (const auto& text : renderingText)
+        {
+            textRenderer.render(text.getTextToRender(), text.getX(), text.getY(), text.getScale(), text.getColor());
+        }
+    }
+
 
     void loadBackgroundTexture() {
         glGenTextures(1, &backgroundTexture);
