@@ -36,11 +36,11 @@ public:
                 glfwGetCursorPos(window.getGLFWwindow(), &xpos, &ypos);
                 glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
-                if (startButton.isClicked(xpos, ypos, windowWidth, windowHeight)) {
+                if (startButton.isClicked(xpos, ypos)) {
                     inMenu = false;
                     glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 }
-                if (exitButton.isClicked(xpos, ypos, windowWidth, windowHeight)) {
+                if (exitButton.isClicked(xpos, ypos)) {
                     glfwSetWindowShouldClose(window.getGLFWwindow(), true);
                 }
             }
@@ -80,7 +80,7 @@ private:
         float buttonY = 0.5f * windowHeight;
 
         Text Start = Text("Start", buttonX + 60, buttonY + 160.0f, 1.0f, glm::vec3(1, 1, 1));
-        Text Exit = Text("Exit", buttonX + 70.0f, buttonY - 60, 1.0f, glm::vec3(1, 1, 1));
+        Text Exit = Text("Exit", buttonX + 60.0f, buttonY - 60, 1.0f, glm::vec3(1, 1, 1));
 
         uiText.push_back(Start);
         uiText.push_back(Exit);

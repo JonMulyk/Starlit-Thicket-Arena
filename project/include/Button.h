@@ -50,19 +50,10 @@ public:
         glDeleteVertexArrays(1, &VAO);
     }
 
-    bool isClicked(double mouseX, double mouseY, int windowWidth, int windowHeight) {
-        float normX = mouseX / windowWidth;
-        float normY = mouseY / windowHeight;
-
-        float buttonNormX = x / windowWidth;
-        float buttonNormY = y / windowHeight;
-        float buttonNormW = width / windowWidth;
-        float buttonNormH = height / windowHeight;
-
-        return normX >= buttonNormX && normX <= (buttonNormX + buttonNormW) &&
-            normY >= buttonNormY && normY <= (buttonNormY + buttonNormH);
+    bool isClicked(double mouseX, double mouseY) {
+        return mouseX >= x && mouseX <= x + width &&
+            mouseY >= y && mouseY <= y + height;
     }
-
 
 private:
     float x, y, width, height;

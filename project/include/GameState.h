@@ -19,6 +19,7 @@ class GameState {
 		PlayerVehicle playerVehicle;
 		std::vector<Entity> dynamicEntities;
 		std::vector<Entity> staticEntities;
+		
 
 		uint64_t getScore();
 		void incrementScore();
