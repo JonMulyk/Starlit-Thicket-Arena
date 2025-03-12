@@ -13,7 +13,7 @@ void TimeSeconds::tick() {
     m_frameTime = m_newTime - m_currentTime;
     m_accumulator += m_frameTime;
     m_currentTime = m_newTime;
-}
+} 
 
 void TimeSeconds::advance() {
     m_accumulator -= dt;
@@ -38,6 +38,16 @@ double TimeSeconds::getAccumultor() const {
 
 double TimeSeconds::getElapsedTime() const {
     return m_elapsedTime;
+}
+
+void TimeSeconds::resetTime()
+{
+    m_newTime = glfwGetTime();
+
+    m_frameTime = 16.6f;
+
+    m_accumulator += 0;
+    m_currentTime = m_newTime;
 }
 
 double TimeSeconds::getRemainingTime(double countDownDuration) const

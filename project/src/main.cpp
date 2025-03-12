@@ -86,22 +86,23 @@ int main() {
     Skybox skybox("project/assets/textures/skybox/", skyboxShader);
 
     // Main Loop
-    timer.advance();
+    //timer.advance();
+    timer.resetTime();
     while (!window.shouldClose()) {
         window.clear();
         timer.tick();
         input.poll();
         controller1.Update();
 		audio.update();
-
+        
         // Update physics
-        while (timer.getAccumultor() > 5  && timer.getAccumultor() >= timer.dt) {
+        while (timer.getAccumultor() >= timer.dt) {
             physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
 
             physicsSystem->updatePhysics(timer.dt);
             timer.advance();
         }
-
+        
 		//renderer.renderScene(sceneModels);
     
         uiManager.updateUIText(timer, roundDuration, gState.getScore());

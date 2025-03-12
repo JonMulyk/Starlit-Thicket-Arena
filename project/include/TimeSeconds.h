@@ -32,5 +32,7 @@ public:
     double getElapsedTime() const;
     double getRemainingTime(double countDownDuration) const;
 
+    void resetTime();
+
     std::string formatTimeToHumanReadable(double timeInSeconds) const;
 };
