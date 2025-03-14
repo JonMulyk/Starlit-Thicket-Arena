@@ -191,9 +191,8 @@ void Camera::updateZoom(float speed) {
     // Compute the target zoom based on the speed
     float targetZoom = (speed * 3.5) + 40.f;
 
-    // Define an interpolation factor (t) between 0 and 1.
-    // A smaller value means a smoother (slower) transition.
-    float t = 0.1f; // Adjust this factor as needed
+    // interpolation factor (t) between 0 and 1.
+    float t = 0.1f;
 
     // Smoothly interpolate from the current zoom to the target zoom
     Zoom = lerp(Zoom, targetZoom, t);
