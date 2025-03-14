@@ -29,6 +29,7 @@
 #include "Texture.h"
 #include "Windowing.h"
 #include <MainMenu.h>
+#include <LevelSelect.h>
 
 
 
@@ -42,12 +43,26 @@ int main() {
 
     TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
     MainMenu menu(window, arial);
+    LevelSelectMenu levelSelectMenu(window, arial);
 
-    menu.displayMenu();
-    // If the player exits the menu by pressing ESC, close the game
-    if (window.shouldClose()) {
-        return 0;
+    bool startGame = false;
+    int selectedLevel = -1;
+    while (!window.shouldClose() && !startGame) {
+        menu.displayMenu();
+        if (window.shouldClose()) break; 
+
+
+        selectedLevel = levelSelectMenu.displayMenuLevel();
+        if (selectedLevel != -1) startGame = true; 
+
     }
+
+    if (!startGame || window.shouldClose()) {
+        return 0; 
+    }
+
+    // Proceed to game with selectedLevel
+    glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     Command command;
 	Command controllerCommand;

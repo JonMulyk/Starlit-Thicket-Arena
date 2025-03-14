@@ -188,6 +188,7 @@
     <ClCompile Include="project\src\glad.c" />
     <ClCompile Include="project\src\InitManager.cpp" />
     <ClCompile Include="project\src\Input.cpp" />
+    <ClCompile Include="project\src\LevelSelect.cpp" />
     <ClCompile Include="project\src\main.cpp" />
     <ClCompile Include="project\src\Mesh.cpp" />
     <ClCompile Include="project\src\Model.cpp" />
@@ -636,6 +637,7 @@
     <ClInclude Include="project\include\Camera.h" />
     <ClInclude Include="project\include\Command.h" />
     <ClInclude Include="project\include\GameMap.h" />
+    <ClInclude Include="project\include\LevelSelect.h" />
     <ClInclude Include="project\include\MainMenu.h" />
     <ClInclude Include="project\include\Vehicle.h" />
     <ClInclude Include="project\include\Controller.h" />

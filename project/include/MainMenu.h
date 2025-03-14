@@ -38,7 +38,7 @@ public:
 
                 if (startButton.isClicked(xpos, ypos)) {
                     inMenu = false;
-                    glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                    //glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 }
                 if (exitButton.isClicked(xpos, ypos)) {
                     glfwSetWindowShouldClose(window.getGLFWwindow(), true);
