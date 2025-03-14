@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
+#include <string>
 
 #include "Transform.h"
 #include "Model.h"
@@ -17,8 +18,6 @@
 #include "GameState.h"
 #include "Command.h"
 #include "Vehicle.h"
-
-
 
 class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback {
 	std::pair<physx::PxActor*, physx::PxActor*> collisionPair;
@@ -44,18 +43,18 @@ class ContactReportCallback : public snippetvehicle2::PxSimulationEventCallback 
 		const physx::PxTransform* poseBuffer,
 		const physx::PxU32 count) {}
 
-	public:
-		std::pair<physx::PxActor*, physx::PxActor*> getCollisionPair() {
-			return collisionPair;
-		}
+public:
+	std::pair<physx::PxActor*, physx::PxActor*> getCollisionPair() {
+		return collisionPair;
+	}
 
-		bool checkCollision() {
-			return newCollision;
-		}
+	bool checkCollision() {
+		return newCollision;
+	}
 
-		void readNewCollision() {
-			newCollision = false;
-		}
+	void readNewCollision() {
+		newCollision = false;
+	}
 
 };
 
@@ -64,8 +63,6 @@ struct MaterialProp {
 	physx::PxReal dynamicFriction;
 	physx::PxReal restitution;
 };
-
-
 
 class PhysicsSystem {
 private:
@@ -99,15 +96,27 @@ private:
 	// Ground plane
 	physx::PxRigidStatic* gGroundPlane = NULL;
 
-
-
 	// Vehicles
 	const char* gVehicleDataPath = "project/assets/vehicleData";
 	const char* gVehicleName = "engineDrive";
 	snippetvehicle2::PxVehiclePhysXSimulationContext gVehicleSimulationContext;
 	float trailStep = 2.f;
 
-	// Initialize phyx and vehicles
+	//Trail lifetime management
+	struct TrailSegment {
+		physx::PxRigidStatic* actor;
+		float creationTime;
+		std::string uniqueName;
+		std::string ownerName;
+	};
+	std::vector<TrailSegment> trailSegments;
+	float trailLifetime = 6.5f; // seconds
+	unsigned int trailCounter = 0;
+	float simulationTime = 0.0f; // running simulation time
+	void updateTrailLifetime(float dt);
+	void removeAllTrailSegmentsByOwner(const std::string& owner);
+
+	// Initialize PhysX and vehicles
 	void initPhysX();
 	void cleanupPhysX();
 	void initGroundPlane();
@@ -155,6 +164,6 @@ public:
 	float getCarSpeed(int i);
 	float calculateEngineRPM(float speed);
 
-	//return position of all AI vehicles
+	// Return positions of all AI vehicles
 	std::vector<physx::PxVec3> getAIPositions();
 };

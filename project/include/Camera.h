@@ -75,6 +75,8 @@ public:
     void incrementTheta(float dt);
 
     void incrementPhi(float dp);
+
+    void updateZoom(float speed);
 };
 
 

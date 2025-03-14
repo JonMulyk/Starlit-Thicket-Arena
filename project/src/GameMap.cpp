@@ -88,6 +88,34 @@ void GameMap::updateGrid(physx::PxVec2 start, physx::PxVec2 end) {
 	}
 }
 
+// NEW: Remove a trail’s blocks from the grid.
+// This mirrors updateGrid but instead resets the cells back to GRID_SIZE.
+void GameMap::removeTrailBlock(physx::PxVec2 start, physx::PxVec2 end) {
+	int gx0 = toGridSpace(start.x);
+	int gy0 = toGridSpace(start.y);
+	int gx1 = toGridSpace(end.x);
+	int gy1 = toGridSpace(end.y);
+
+	// Reset start and end cells to default.
+	if (!outOfBound(gx0, gy0))
+		grid[gx0][gy0] = GRID_SIZE;
+	if (!outOfBound(gx1, gy1))
+		grid[gx1][gy1] = GRID_SIZE;
+
+	int dx = gx1 - gx0;
+	int dy = gy1 - gy0;
+	int absDx = std::abs(dx), absDy = std::abs(dy);
+	int steps = std::max(absDx, absDy);
+	for (int i = 0; i <= steps; ++i) {
+		int xi = gx0 + i * dx / steps;
+		int yi = gy0 + i * dy / steps;
+		if (!outOfBound(xi, yi))
+			grid[xi][yi] = GRID_SIZE;
+	}
+	// Optionally, re-run the propagation so that neighbor weights are updated.
+	propogateWeights();
+}
+
 void GameMap::propogateWeights() {
 	while (!q.empty()) {
 		// get current position

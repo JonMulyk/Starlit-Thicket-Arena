@@ -94,6 +94,9 @@ void AudioSystem::update() {
 		listenerLook = { 0.0f, 0.0f, 1.0f };
 		listenerUp = { 0.0f, 1.0f, 0.0f };
 		audioEngine.Set3dListenerAndOrientation(listenerPosition, listenerLook, listenerUp);
+
+		//std::cout << carSpeed << std::endl;
+		c_camera->updateZoom(carSpeed);
 		
 	}
 	std::vector<physx::PxVec3> aiPositions = c_physicsSystem->getAIPositions();
