@@ -115,6 +115,7 @@ private:
 	float simulationTime = 0.0f; // running simulation time
 	void updateTrailLifetime(float dt);
 	void removeAllTrailSegmentsByOwner(const std::string& owner);
+	void updateWinCondition(float dt);
 
 	// Initialize PhysX and vehicles
 	void initPhysX();
@@ -127,6 +128,8 @@ private:
 	bool initPhysics();
 	void cleanupPhysics();
 
+	bool winTriggered = false;
+	float winTimer = 5.0f;  // countdown in seconds
 public:
 	// Ctor/Dtor
 	PhysicsSystem(GameState& gameState, Model& tModel, Model& cModel);

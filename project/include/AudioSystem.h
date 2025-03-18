@@ -10,8 +10,10 @@
 
 class AudioSystem {
 public:
-	void init();
-	void init(PhysicsSystem* physicsSystem, Camera* camera);
+	//constructor
+	//AudioSystem();
+	//void init();
+	void init(PhysicsSystem* physicsSystem, Camera* camera, GameState& gameState);
 	void startEvents();
 	void update();
 	void shutdown();
@@ -27,6 +29,7 @@ public:
 	CAudioEngine* audioEnginePtr;
 	PhysicsSystem* c_physicsSystem;
 	Camera* c_camera;
+	GameState& gState;
 	bool carPlaying = false;
 	float pitchAdjust = 2.0f;
 	float carVolume = -10.0f;

@@ -511,15 +511,16 @@ void PhysicsSystem::updateCollisions() {
 				}
 			}
 
-			if (aiCounter <= 1) {
-				reintialize();
-			}
+			//if (aiCounter <= 1) {
+			//	reintialize();
+			//}
 		}
 		gContactReportCallback->readNewCollision();
 	}
 }
 
 void PhysicsSystem::reintialize() {
+	gState.resetAudio = true;
 	for (int i = gState.dynamicEntities.size()-1; i >= 0; i--) {
 		//std::cout << gState.dynamicEntities[i].name << "\n";
 		auto& entity = gState.dynamicEntities[i];
@@ -556,6 +557,8 @@ void PhysicsSystem::updatePhysics(double dt) {
 	updateTransforms(gState.dynamicEntities);
 	// Update simulation time and remove expired trail segments.
 	updateTrailLifetime(dt);
+
+	updateWinCondition(dt);
 }
 
 void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
@@ -774,3 +777,30 @@ void PhysicsSystem::removeAllTrailSegmentsByOwner(const std::string& owner)
 	}
 }
 
+void PhysicsSystem::updateWinCondition(float dt) {
+	// If the win condition hasn’t been triggered yet…
+	if (!winTriggered) {
+		// Check if only the player's car remains.
+		if (gState.dynamicEntities.size() == 1 &&
+			gState.dynamicEntities[0].name == "playerCar") {
+			winTriggered = true;
+			winTimer = 10.0f;  // start 10 sec countdown
+
+			// Example: set a win text in your game state so that your rendering system shows it.
+			//gState.winText = "You win!";
+		}
+	}
+	else {
+		// Countdown the timer.
+		winTimer -= dt;
+		if (winTimer > 0.0f) {
+			// Optionally update win text display if needed.
+		}
+		else {
+			// Time’s up—reset the game.
+			reintialize();
+			winTriggered = false;
+			//gState.winText = "";  // clear win text
+		}
+	}
+}

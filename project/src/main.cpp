@@ -61,7 +61,7 @@ int main() {
 
     AudioSystem audio;
 	AudioSystem* audioPtr = &audio;
-    audio.init(physicsSystem, &camera);
+    audio.init(physicsSystem, &camera, gState);
 
     // Create Rendering System
     RenderingSystem renderer(shader, camera, window, arial, gState);

@@ -24,5 +24,6 @@ class GameState {
 		void incrementScore();
 		void addToScore(uint64_t amount);
 
+		bool resetAudio = false;
 };
 
