@@ -61,6 +61,24 @@ Camera::Camera(GameState& gameState, TimeSeconds& t, glm::vec3 position, glm::ve
     //updateCameraVectors();
 }
 
+Camera::Camera(GameState& gameState, TimeSeconds& t, bool isStaticCam, glm::vec3 position, glm::vec3 up, float yaw, float pitch, float theta, float phi) :
+    gState(gameState),
+    timer(t),
+    isStaticCam(isStaticCam),
+    Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+    MovementSpeed(SPEED),
+    MouseSensitivity(SENSITIVITY),
+    Zoom(ZOOM)
+{
+    time = timer.getCurrentTime();
+    Position = position;
+    WorldUp = up;
+    Yaw = yaw;
+    Pitch = pitch;
+    Theta = theta;
+    Phi = phi;
+}
+
 
 float Camera::getZoom() const {
     return Zoom;
@@ -74,6 +92,16 @@ const glm::vec3 Camera::getPosition() const
 glm::vec3 vec3(physx::PxVec3 v) { return glm::vec3(v.x, v.y, v.z); }
 
 glm::mat4 Camera::GetViewMatrix() {
+    if (isStaticCam)
+    {
+        /*
+        glm::vec3 minimapPos = glm::vec3(0.0f, 250.0f, 0.0f);
+        glm::vec3 lookAtTarget = glm::vec3(0.0f, -1.0f, 0.0f);
+		return glm::lookAt(minimapPos, lookAtTarget, glm::vec3(0.0f, 0.0f, -1.0f));
+        */
+		return glm::lookAt(this->getPosition(), this->Up, this->Front);
+    }
+
     glm::vec3 pos = vec3(gState.playerVehicle.curPos);
     glm::vec3 dir = vec3(gState.playerVehicle.curDir);
 
@@ -98,6 +126,11 @@ glm::mat4 Camera::GetViewMatrix() {
     pos.y += 4.f;
 
     return glm::lookAt(pos - 10.f * dir, pos + 2.f * dir, glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+glm::mat4 Camera::GetStaticViewMatrix(glm::vec3 staticPos, glm::vec3 staticDir) const
+{
+    return glm::lookAt(staticPos, staticPos + staticDir, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime) {
@@ -180,4 +213,9 @@ void Camera::incrementPhi(float dp) {
     else if (Phi < 0.0f) {
         Phi += 2.0 * M_PI;
     }
+}
+
+bool Camera::isStatic()
+{
+    return this->isStaticCam;
 }
