@@ -5,17 +5,17 @@
 RenderingSystem::RenderingSystem(Shader& shader, Camera& camera, Windowing& window, TTF& textRenderer, GameState& gameState)
     : shader(shader), camera(camera), window(window), textRenderer(textRenderer), gState(gameState) {}
 
-void RenderingSystem::updateProjectionView(Shader &viewShader) {
+void RenderingSystem::updateProjectionView(Shader &viewShader, Camera &cam) {
     viewShader.use();
 
     glm::mat4 projection = glm::perspective(
-        glm::radians(camera.getZoom()),
+        glm::radians(cam.getZoom()),
         float(window.getWidth()) / float(window.getHeight()),
         0.1f, 1000.0f
     );
     viewShader.setMat4("projection", projection);
 
-    glm::mat4 view = camera.GetViewMatrix();
+    glm::mat4 view = cam.GetViewMatrix();
     viewShader.setMat4("view", view);
 }
 
@@ -36,7 +36,7 @@ void RenderingSystem::setShaderUniforms(Shader* shader)
     }
 }
 
-void RenderingSystem::renderEntities(const std::vector<Entity>& entities) 
+void RenderingSystem::renderEntities(const std::vector<Entity>& entities, Camera& cam) 
 {
 	std::unordered_map<Shader*, std::vector<const Entity*>> shaderBatches;
     
@@ -54,7 +54,7 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities)
 		std::vector<const Entity*>& entityBatch = it->second;
 
 		shaderPtr->use();
-		updateProjectionView(*shaderPtr);
+		updateProjectionView(*shaderPtr, cam);
 		setShaderUniforms(shaderPtr);
 
 		for (const Entity* entity : entityBatch)
@@ -91,7 +91,7 @@ void RenderingSystem::renderText(const std::vector<Text>& renderingText) {
 void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 {
     sceneModels[0].getShader().use();
-    updateProjectionView(sceneModels[0].getShader()); // set the correct matrices
+    updateProjectionView(sceneModels[0].getShader(), this->camera); // set the correct matrices
     shader.setFloat("repeats", 100.f);
 
 
@@ -111,7 +111,7 @@ void RenderingSystem::renderSkybox(Skybox& skybox)
 	glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
 	skybox.getSkyboxShader().setMat4("view", view);
 	//skyboxShader.setMat4("projection", projection);
-    updateProjectionView(skybox.getSkyboxShader());
+    updateProjectionView(skybox.getSkyboxShader(), this->camera);
     
 
 	// skybox cube
@@ -130,13 +130,30 @@ void RenderingSystem::updateRenderer(
     Skybox& skybox
 )
 {
+    glViewport(0, 0, window.getWidth(), window.getHeight());
 
 	// Render Entities & Text
     this->renderSkybox(skybox);
-    this->renderEntities(gState.dynamicEntities);
-    this->renderEntities(gState.staticEntities);
+    this->renderEntities(gState.dynamicEntities, this->camera);
+    this->renderEntities(gState.staticEntities, this->camera);
     this->renderScene(sceneModels); // needs to be before any texture binds, otherwise it will take on those
     this->renderText(uiText);
 	//this->renderText(textToDisplay, 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
 
+}
+
+void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam)
+{
+    minimapShader.use();
+    
+    glViewport(
+        window.getWidth() - (window.getWidth() / 4), 
+		window.getHeight() - (window.getHeight() / 4),
+        window.getWidth() / 4,
+        window.getHeight() / 4
+    );
+    
+    
+    this->renderEntities(gState.dynamicEntities, minimapCam);
+    this->renderEntities(gState.staticEntities, minimapCam);
 }

@@ -21,6 +21,8 @@ public:
         Skybox& skybox
     );
 
+    void renderMinimap(Shader& minimapShader, Camera& minimapCam);
+
 private:
     Shader& shader;
     Camera& camera;
@@ -28,9 +30,9 @@ private:
     TTF& textRenderer;
     GameState& gState;
 
-    void updateProjectionView(Shader& viewShader);
+    void updateProjectionView(Shader& viewShader, Camera& cam);
     void setShaderUniforms(Shader* shader);
-    void renderEntities(const std::vector<Entity>& entities);
+    void renderEntities(const std::vector<Entity>& entities, Camera& cam);
     void renderText(const std::vector<Text>& renderingText);
     void renderSkybox(Skybox& skybox);
     void renderScene(std::vector<Model>& sceneModels);

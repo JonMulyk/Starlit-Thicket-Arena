@@ -150,6 +150,8 @@
     <None Include="project\assets\shaders\mainMenuShader.frag" />
     <None Include="project\assets\shaders\text.vert" />
     <None Include="project\assets\shaders\text.frag" />
+    <None Include="project\assets\shaders\minimapShader.vert" />
+    <None Include="project\assets\shaders\minimapShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="project\include\Windowing.h">
