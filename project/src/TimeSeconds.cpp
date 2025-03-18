@@ -62,3 +62,8 @@ std::string TimeSeconds::formatTimeToHumanReadable(double timeInSeconds) const
 
     // change formatting on this
 }
+
+void TimeSeconds::reset() {
+    m_accumulator = 0.0;
+    m_elapsedTime = 0.0;
+}

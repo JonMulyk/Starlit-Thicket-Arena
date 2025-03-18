@@ -116,9 +116,10 @@ private:
 	void initMaterialFrictionTable();
 	bool initVehicles(int numAI);
 	bool initPhysics();
-	void cleanupPhysics();
+	
 
 public:
+	void cleanupPhysics();
 	// Ctor/Dtor
 	PhysicsSystem(GameState& gameState, Model& tModel, Model& cModel);
 	~PhysicsSystem();
@@ -157,4 +158,5 @@ public:
 
 	//return position of all AI vehicles
 	std::vector<physx::PxVec3> getAIPositions();
+	void reset();
 };

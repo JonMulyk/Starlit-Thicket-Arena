@@ -33,4 +33,6 @@ public:
     double getRemainingTime(double countDownDuration) const;
 
     std::string formatTimeToHumanReadable(double timeInSeconds) const;
+
+    void reset();
 };

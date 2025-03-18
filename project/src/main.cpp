@@ -31,124 +31,131 @@
 #include <MainMenu.h>
 #include <LevelSelect.h>
 
-
-
+enum class GameStateEnum {
+    MENU,
+    PLAYING,
+    RESET
+};
 
 int main() {
     GameState gState;
     InitManager::initGLFW();
 
-
+    // Model Setup
+    std::vector<float> verts, coord;
+    InitManager::getCube(verts, coord);
     Windowing window(1200, 1000);
-
     TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
     MainMenu menu(window, arial);
     LevelSelectMenu levelSelectMenu(window, arial);
-
-    bool startGame = false;
-    int selectedLevel = -1;
-    while (!window.shouldClose() && !startGame) {
-        menu.displayMenu();
-        if (window.shouldClose()) break; 
-
-
-        selectedLevel = levelSelectMenu.displayMenuLevel();
-        if (selectedLevel != -1) startGame = true; 
-
-    }
-
-    if (!startGame || window.shouldClose()) {
-        return 0; 
-    }
-
-    // Proceed to game with selectedLevel
-    glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    Command command;
-	Command controllerCommand;
-    TimeSeconds timer;
-    Camera camera(gState, timer);
-
-
-    Input input(window, camera, timer, command);
-    Controller controller1(1, camera, controllerCommand);
-    if (!controller1.isConnected()) {
-        std::cout << "Controller one not connected" << std::endl;
-        controllerCommand.brake = 0.0f;
-        controllerCommand.throttle = 0.0f;
-        controllerCommand.steer = 0.0f;
-    }
-
     Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
-    
     Texture container("project/assets/textures/container.jpg", true);
     Texture gold("project/assets/textures/gold.jpg", true);
     Texture neon("project/assets/textures/neon.jpg", true);
     Texture fire("project/assets/textures/fire.jpg", true);
-
-    // Model Setup
-    std::vector<float> verts, coord;
-    InitManager::getCube(verts, coord);
     Model cube(lightingShader, container, verts, verts, coord);
     Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
     Model trail(lightingShader, fire, "project/assets/models/Trail.obj");
-    Model tireModel = Model(lightingShader, "project/assets/models/tire1/tire1.obj");
-    //Model secondCar(lightingShader, gold, "project/assets/models/box.obj");
+    Model tireModel(lightingShader, "project/assets/models/tire1/tire1.obj");
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
-    PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
-
+    std::vector<Model> sceneModels;
+    GameStateEnum gameState = GameStateEnum::MENU;
+    Command command;
+    Command controllerCommand;
+    TimeSeconds timer;
+    Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
+    Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
+    Skybox skybox("project/assets/textures/skybox/", skyboxShader);
     AudioSystem audio;
-	AudioSystem* audioPtr = &audio;
-    audio.init(physicsSystem, &camera);
-
-    // Create Rendering System
+    Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
+    Camera camera(gState, timer);
+    UIManager uiManager(window.getWidth(), window.getHeight());
+    int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
 
-    // Static scene data
-    std::vector<Model> sceneModels;
-
-    Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
-    Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
-    sceneModels.push_back(groundPlaneModel);
-
-
-    physicsSystem->updateTransforms(gState.dynamicEntities);
-
-    // Text Rendering Setup
-    UIManager uiManager(window.getWidth(), window.getHeight());
-    
-    const double roundDuration = (5.0 * 60.0);
-
-    //SKYBOX
-    Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
-    Skybox skybox("project/assets/textures/skybox/", skyboxShader);
-
-    // Main Loop
-    timer.advance();
     while (!window.shouldClose()) {
-
-        window.clear();
-        timer.tick();
-        input.poll();
-        controller1.Update();
-		audio.update();
-
-        // Update physics
-        while (timer.getAccumultor() > 5  && timer.getAccumultor() >= timer.dt) {
-            physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
-
-            physicsSystem->updatePhysics(timer.dt);
-            timer.advance();
+        if (gameState == GameStateEnum::MENU) {
+            bool startGame = false;
+            while (!window.shouldClose() && !startGame) {
+                menu.displayMenu();
+                if (window.shouldClose()) break;
+                selectedLevel = levelSelectMenu.displayMenuLevel();
+                if (selectedLevel != -1) startGame = true;
+            }
+            if (!startGame || window.shouldClose()) {
+                return 0;
+            }
+            gameState = GameStateEnum::PLAYING;
         }
 
-		//renderer.renderScene(sceneModels);
-    
-        uiManager.updateUIText(timer, roundDuration, gState.getScore());
-        renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+        // Game setup
+        glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        glfwSwapBuffers(window);
+
+
+        Input input(window, camera, timer, command);
+        Controller controller1(1, camera, controllerCommand);
+        if (!controller1.isConnected()) {
+            std::cout << "Controller one not connected" << std::endl;
+            controllerCommand.brake = 0.0f;
+            controllerCommand.throttle = 0.0f;
+            controllerCommand.steer = 0.0f;
+        }
+
+
+
+
+        PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
+
+        audio.init(physicsSystem, &camera);
+
+
+        // Static scene data
+        sceneModels.push_back(groundPlaneModel);
+
+        physicsSystem->updateTransforms(gState.dynamicEntities);
+
+        const double roundDuration = 20;// (5.0 * 60.0);
+
+
+
+        // Main Loop
+        timer.advance();
+        while (!window.shouldClose() && gameState == GameStateEnum::PLAYING) {
+            window.clear();
+            timer.tick();
+            input.poll();
+            controller1.Update();
+            audio.update();
+
+            // Update physics
+            while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
+                physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
+                physicsSystem->updatePhysics(timer.dt);
+                timer.advance();
+            }
+
+            uiManager.updateUIText(timer, roundDuration, gState.getScore());
+            renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+            glfwSwapBuffers(window);
+
+            // Check for round end
+            if (timer.getElapsedTime() >= roundDuration) {
+                gameState = GameStateEnum::RESET;
+            }
+        }
+        delete physicsSystem;
+
+        if (gameState == GameStateEnum::RESET) {
+            gameState = GameStateEnum::MENU;
+            gState.dynamicEntities.clear();
+            gState.staticEntities.clear();
+            sceneModels.clear();
+
+            //gState.reset();
+            timer.reset();
+        }
     }
-
     return 0;
 }

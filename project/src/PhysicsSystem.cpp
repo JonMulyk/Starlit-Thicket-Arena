@@ -695,3 +695,4 @@ std::vector<physx::PxVec3> PhysicsSystem::getAIPositions() {
 	}
 	return aiPositions;
 }
+
