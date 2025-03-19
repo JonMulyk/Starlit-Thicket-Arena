@@ -55,7 +55,18 @@ public:
             mouseY >= y && mouseY <= y + height;
     }
 
+    void resetColor() {
+        color = defaultColor;
+    }
+
+    // Function to set the color of the button
+    void setColor(const glm::vec3& newColor) {
+        color = newColor;
+    }
+
+
 private:
     float x, y, width, height;
     glm::vec3 color;
+    glm::vec3 defaultColor;
 };

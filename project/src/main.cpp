@@ -31,11 +31,7 @@
 #include <MainMenu.h>
 #include <LevelSelect.h>
 
-enum class GameStateEnum {
-    MENU,
-    PLAYING,
-    RESET
-};
+
 
 int main() {
     GameState gState;
@@ -46,8 +42,8 @@ int main() {
     InitManager::getCube(verts, coord);
     Windowing window(1200, 1000);
     TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
-    MainMenu menu(window, arial);
-    LevelSelectMenu levelSelectMenu(window, arial);
+    
+
     Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
     Texture container("project/assets/textures/container.jpg", true);
@@ -67,7 +63,8 @@ int main() {
     Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
     Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Skybox skybox("project/assets/textures/skybox/", skyboxShader);
-    AudioSystem audio;
+
+
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
     Camera camera(gState, timer);
     UIManager uiManager(window.getWidth(), window.getHeight());
@@ -75,9 +72,13 @@ int main() {
     RenderingSystem renderer(shader, camera, window, arial, gState);
     const double roundDuration = 20;// (5.0 * 60.0);
 
-
+    bool isAudioInitialized = false;
     Input input(window, camera, timer, command);
     Controller controller1(1, camera, controllerCommand);
+    AudioSystem audio;
+
+    MainMenu menu(window, arial, controller1);
+    LevelSelectMenu levelSelectMenu(window, arial);
 
     while (!window.shouldClose()) {
         if (gameState == GameStateEnum::MENU) {
@@ -87,6 +88,7 @@ int main() {
                 if (window.shouldClose()) break;
                 selectedLevel = levelSelectMenu.displayMenuLevel();
                 if (selectedLevel != -1) startGame = true;
+
             }
             if (!startGame || window.shouldClose()) {
                 return 0;
@@ -97,7 +99,6 @@ int main() {
         // Game setup
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-
         if (!controller1.isConnected()) {
             std::cout << "Controller one not connected" << std::endl;
             controllerCommand.brake = 0.0f;
@@ -107,7 +108,8 @@ int main() {
 
         PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
 
-        //audio.init(physicsSystem, &camera); //bugged, needs to also restart
+        audio.init(physicsSystem, &camera);
+
 
         // Static scene data
         sceneModels.push_back(groundPlaneModel);
@@ -123,7 +125,7 @@ int main() {
             timer.tick();
             input.poll();
             controller1.Update();
-            //audio.update();
+            audio.update();
 
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
@@ -141,16 +143,20 @@ int main() {
                 gameState = GameStateEnum::RESET;
             }
         }
-        delete physicsSystem;
 
+        //reset
         if (gameState == GameStateEnum::RESET) {
             gameState = GameStateEnum::MENU;
             gState.dynamicEntities.clear();
             gState.staticEntities.clear();
             sceneModels.clear();
 
-            //gState.reset();
+            gState.reset();
+            audio.shutdown(); 
             timer.reset();
+            delete physicsSystem;
+            //delete audio;
+
         }
     }
     return 0;

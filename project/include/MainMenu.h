@@ -3,14 +3,14 @@
 #include "Shader.h"
 #include "TTF.h"
 #include <Button.h>
-
+#include "Controller.h" 
 
 class MainMenu {
 public:
-    MainMenu(Windowing& window, TTF& textRenderer)
-        : window(window), textRenderer(textRenderer),
-        startButton(0, 0, 0, 0, glm::vec3(0, 0, 0)), 
-        exitButton(0, 0, 0, 0, glm::vec3(0, 0, 0)) 
+    MainMenu(Windowing& window, TTF& textRenderer, Controller& controller)
+        : window(window), textRenderer(textRenderer), controller(controller),
+        startButton(0, 0, 0, 0, glm::vec3(0, 0, 0)),
+        exitButton(0, 0, 0, 0, glm::vec3(0, 0, 0))
     {
         compileShaders();
         loadBackgroundTexture();
@@ -30,6 +30,8 @@ public:
             renderMenu();
             window.swapBuffer();
             glfwPollEvents();
+            handleControllerInput(inMenu);
+            handleKeyboardInput(inMenu);
 
             if (glfwGetMouseButton(window.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
                 double xpos, ypos;
@@ -48,6 +50,7 @@ public:
     }
 
 private:
+    Controller& controller;
     std::vector<Text> uiText;
     Windowing& window;
     Shader* shader;
@@ -55,6 +58,7 @@ private:
     TTF& textRenderer;
     int windowWidth, windowHeight;
     Button startButton, exitButton;
+    int currentSelection;   
 
     void renderMenu() {
         glDisable(GL_DEPTH_TEST);
@@ -65,6 +69,15 @@ private:
 
         startButton = Button(0.4f * windowWidth, 0.5f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
         exitButton = Button(0.4f * windowWidth, 0.65f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
+
+        if (currentSelection == 0) {
+            startButton.setColor(glm::vec3(0, 1, 0));  // Green for selected
+            exitButton.setColor(glm::vec3(1, 0, 0));   // Red for unselected
+        }
+        else {
+            startButton.setColor(glm::vec3(1, 0, 0));  // Red for unselected
+            exitButton.setColor(glm::vec3(0, 1, 0));   // Green for selected
+        }
 
         startButton.draw(shader, windowWidth, windowHeight);
         exitButton.draw(shader, windowWidth, windowHeight);
@@ -162,6 +175,82 @@ private:
         stbi_image_free(data);
         glBindTexture(GL_TEXTURE_2D, 0);
         stbi_set_flip_vertically_on_load(false);
+    }
+
+    void handleKeyboardInput(bool& inMenu) {
+        static bool keyUpPressed = false;
+        static bool keyDownPressed = false;
+
+        // Handle UP key
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_UP) == GLFW_PRESS) {
+            if (!keyUpPressed) {  // Only flip once when the key is first pressed
+                currentSelection = (currentSelection == 0) ? 1 : 0;
+                keyUpPressed = true;  // Set flag to true to avoid continuous flipping
+            }
+        }
+        else {
+            keyUpPressed = false;  // Reset flag when the key is released
+        }
+
+        // Handle DOWN key
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_DOWN) == GLFW_PRESS) {
+            if (!keyDownPressed) {  // Only flip once when the key is first pressed
+                currentSelection = (currentSelection == 1) ? 0 : 1;
+                keyDownPressed = true;  // Set flag to true to avoid continuous flipping
+            }
+        }
+        else {
+            keyDownPressed = false;  // Reset flag when the key is released
+        }
+
+        // Handle ENTER keyd
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
+            if (currentSelection == 0) {
+                inMenu = false;  // Start game or proceed to the next screen
+            }
+            if (currentSelection == 1) {
+                glfwSetWindowShouldClose(window.getGLFWwindow(), true);  // Exit the application
+            }
+        }
+    }
+
+    void handleControllerInput(bool& inMenu) {
+        static bool dpadUpPressed = false;
+        static bool dpadDownPressed = false;
+
+        if (!controller.isConnected()) return;
+
+
+        if (controller.isButtonPressed(XINPUT_GAMEPAD_DPAD_UP)) {
+            if (!dpadUpPressed) {  
+                currentSelection = (currentSelection == 0) ? 1 : 0;
+                dpadUpPressed = true; 
+            }
+        }
+        else {
+            dpadUpPressed = false; 
+        }
+
+
+        if (controller.isButtonPressed(XINPUT_GAMEPAD_DPAD_DOWN)) {
+            if (!dpadDownPressed) {
+                currentSelection = (currentSelection == 1) ? 0 : 1;
+                dpadDownPressed = true; 
+            }
+        }
+        else {
+            dpadDownPressed = false;  
+        }
+
+
+        if (controller.isButtonPressed(XINPUT_GAMEPAD_A)) {
+            if (currentSelection == 0) {
+                inMenu = false;  
+            }
+            if (currentSelection == 1) {
+                glfwSetWindowShouldClose(window.getGLFWwindow(), true);  
+            }
+        }
     }
 };
 

@@ -33,6 +33,8 @@ public:
             renderMenu();
             window.swapBuffer();
             glfwPollEvents();
+            handleKeyboardInput(selectedLevel);
+
 
             if (glfwGetMouseButton(window.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
                 double xpos, ypos;
@@ -54,6 +56,9 @@ private:
     TTF& textRenderer;
     int windowWidth, windowHeight;
     Button level1Button, level2Button, level3Button, backButton;
+
+    int currentSelection = 0;
+
     void renderMenu() {
         glDisable(GL_DEPTH_TEST);
         drawBackground();
@@ -88,11 +93,18 @@ private:
         uiText.push_back(Text("Level 3", startX + 2 * (buttonWidth + spacing) + buttonWidth / 2, textY, 1.0f, glm::vec3(1, 1, 1)));
         uiText.push_back(Text("Back", startX + 3 * (buttonWidth + spacing) + buttonWidth / 2, textY, 1.0f, glm::vec3(1, 1, 1)));
 
+
+        level1Button.setColor(currentSelection == 0 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));  // Green for selected
+        level2Button.setColor(currentSelection == 1 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
+        level3Button.setColor(currentSelection == 2 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
+        backButton.setColor(currentSelection == 3 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
+
         // Draw buttons
         level1Button.draw(shader, windowWidth, windowHeight);
         level2Button.draw(shader, windowWidth, windowHeight);
         level3Button.draw(shader, windowWidth, windowHeight);
         backButton.draw(shader, windowWidth, windowHeight);
+
 
         // Render text
         renderText(uiText);
@@ -158,6 +170,41 @@ private:
     void renderText(const std::vector<Text>& renderingText) {
         for (const auto& text : renderingText) {
             textRenderer.render(text.getTextToRender(), text.getX(), text.getY(), text.getScale(), text.getColor());
+        }
+    }
+
+
+    void handleKeyboardInput(int& selectedLevel) {
+        static bool keyUpPressed = false;
+        static bool keyDownPressed = false;
+
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_UP) == GLFW_PRESS) {
+            if (!keyUpPressed) {
+                currentSelection = (currentSelection - 1 + 4) % 4;
+                keyUpPressed = true;
+            }
+        }
+        else {
+            keyUpPressed = false;
+        }
+
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_DOWN) == GLFW_PRESS) {
+            if (!keyDownPressed) {
+                currentSelection = (currentSelection + 1) % 4;
+                keyDownPressed = true;
+            }
+        }
+        else {
+            keyDownPressed = false;
+        }
+
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
+            switch (currentSelection) {
+            case 0: selectedLevel = 1; break;
+            case 1: selectedLevel = 2; break;
+            case 2: selectedLevel = 3; break;
+            case 3: selectedLevel = -1; break;
+            }
         }
     }
 };

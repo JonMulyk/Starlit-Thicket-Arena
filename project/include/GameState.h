@@ -9,6 +9,12 @@ struct PlayerVehicle {
 	physx::PxVec3 curPos;
 };
 
+enum class GameStateEnum {
+	MENU,
+	PLAYING,
+	RESET
+};
+
 class GameState {
 	private:
 
@@ -25,10 +31,8 @@ class GameState {
 		void incrementScore();
 		void addToScore(uint64_t amount);
 		void reset() {
-			
+			gMap.resetMap();
 			score = 0;
-
-
 			playerVehicle.curPos = physx::PxVec3(0.0f, 0.0f, 0.0f);
 			playerVehicle.curDir = physx::PxVec3(1.0f, 0.0f, 0.0f); 
 			//gMap.reset();
