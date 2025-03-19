@@ -78,7 +78,7 @@ int main() {
     AudioSystem audio;
 
     MainMenu menu(window, arial, controller1);
-    LevelSelectMenu levelSelectMenu(window, arial);
+    LevelSelectMenu levelSelectMenu(window, arial, controller1);
 
     while (!window.shouldClose()) {
         if (gameState == GameStateEnum::MENU) {
@@ -108,8 +108,7 @@ int main() {
 
         PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
 
-        audio.init(physicsSystem, &camera);
-
+        //audio.init(physicsSystem, &camera);
 
         // Static scene data
         sceneModels.push_back(groundPlaneModel);
@@ -126,7 +125,7 @@ int main() {
             timer.tick();
             input.poll();
             controller1.Update();
-            audio.update();
+            //audio.update();
 
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
@@ -153,7 +152,7 @@ int main() {
             sceneModels.clear();
 
             gState.reset();
-            audio.shutdown(); 
+            //audio.shutdown(); 
             timer.reset();
             delete physicsSystem;
             //delete audio;

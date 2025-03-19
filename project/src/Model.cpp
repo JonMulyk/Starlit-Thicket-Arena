@@ -272,21 +272,17 @@ Model::Model(
     createBuffer();
 }
 
-//OBJ file with a texture
+//OBJ file with a texture //tinyobj
 Model::Model(Shader& shader, Texture& texture, const std::string& model_path)
     : m_shader(shader), m_texture(&texture), hasTexture(true) {
     loadOBJ(model_path);
     createBuffer();
 }
 
-//without a texture
+//without a texture, // assimp
 Model::Model(Shader& shader, const std::string& model_path)
     : m_shader(shader), m_texture(nullptr), hasTexture(false) {
     loadModel(model_path);
-
-
-
-
 }
 
 Shader& Model::getShader()

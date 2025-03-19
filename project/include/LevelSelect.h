@@ -7,11 +7,12 @@
 #include <Windowing.h>
 #include <vector>
 #include <Text.h>
+#include <Controller.h>
 
 class LevelSelectMenu {
 public:
-    LevelSelectMenu(Windowing& window, TTF& textRenderer)
-        : window(window), textRenderer(textRenderer),
+    LevelSelectMenu(Windowing& window, TTF& textRenderer, Controller& controller)
+        : window(window), textRenderer(textRenderer), controller(controller),
         level1Button(0, 0, 0, 0, glm::vec3(0, 0, 0)),
         level2Button(0, 0, 0, 0, glm::vec3(0, 0, 0)),
         level3Button(0, 0, 0, 0, glm::vec3(0, 0, 0)),
@@ -34,7 +35,7 @@ public:
             window.swapBuffer();
             glfwPollEvents();
             handleKeyboardInput(selectedLevel);
-
+            handleControllerInput(selectedLevel);
 
             if (glfwGetMouseButton(window.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
                 double xpos, ypos;
@@ -49,6 +50,8 @@ public:
     }
 
 private:
+
+    Controller& controller;
     std::vector<Text> uiText;
     Windowing& window;
     Shader* shader;
@@ -172,51 +175,79 @@ private:
             textRenderer.render(text.getTextToRender(), text.getX(), text.getY(), text.getScale(), text.getColor());
         }
     }
-
     void handleKeyboardInput(int& selectedLevel) {
-        static bool keyUpPressed = false;
-        static bool keyDownPressed = false;
-        static bool keyEnterPressed = false;
+        static bool keyUpReleased = false;  
+        static bool keyDownReleased = false;  
+        static bool keyEnterReleased = false;  
 
-        // Handle Up Key
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_UP) == GLFW_PRESS) {
-            if (!keyUpPressed) {
-                currentSelection = (currentSelection - 1 + 4) % 4;
-                keyUpPressed = true;
-                keyEnterPressed = false; // Reset Enter press status when navigation occurs
-            }
+ 
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_LEFT) == GLFW_RELEASE && keyUpReleased) {
+            currentSelection = (currentSelection - 1 + 4) % 4;
+            keyUpReleased = false; 
         }
-        else {
-            keyUpPressed = false;
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_LEFT) == GLFW_PRESS) {
+            keyUpReleased = true;  
         }
 
-        // Handle Down Key
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_DOWN) == GLFW_PRESS) {
-            if (!keyDownPressed) {
-                currentSelection = (currentSelection + 1) % 4;
-                keyDownPressed = true;
-                keyEnterPressed = false; // Reset Enter press status when navigation occurs
-            }
+
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_RIGHT) == GLFW_RELEASE && keyDownReleased) {
+            currentSelection = (currentSelection + 1) % 4; 
+            keyDownReleased = false;  
         }
-        else {
-            keyDownPressed = false;
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_RIGHT) == GLFW_PRESS) {
+            keyDownReleased = true;   
         }
 
-        // Handle Enter Key
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_T) == GLFW_PRESS) {
-            if (!keyEnterPressed) {
-                if (currentSelection == 3) {
-                    selectedLevel = -1;  // Back button pressed
-                }
-                else if (currentSelection != 3) {
-                    selectedLevel = currentSelection + 1;  // Start game with selected level
-                }
-                keyEnterPressed = true;
+
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_RELEASE && keyEnterReleased) {
+            if (currentSelection == 3) {
+                selectedLevel = -1; 
             }
+            else if (currentSelection != 3) {
+                selectedLevel = currentSelection + 1;
+            }
+            keyEnterReleased = false; 
         }
-        else {
-            keyEnterPressed = false;
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
+            keyEnterReleased = true;   
         }
     }
-    
+
+    void handleControllerInput(int& selectedLevel) {
+        static bool dpadUpReleased = false; 
+        static bool dpadDownReleased = false; 
+        static bool aButtonReleased = false;       
+
+        if (!controller.isConnected()) return;
+
+        if (controller.isButtonReleased(XINPUT_GAMEPAD_DPAD_LEFT) && dpadUpReleased) {
+            currentSelection = (currentSelection - 1 + 4) % 4;
+            dpadUpReleased = false;
+        }
+        if (controller.isButtonPressed(XINPUT_GAMEPAD_DPAD_LEFT)) {
+            dpadUpReleased = true;  
+        }
+
+        if (controller.isButtonReleased(XINPUT_GAMEPAD_DPAD_RIGHT) && dpadDownReleased) {
+            currentSelection = (currentSelection + 1) % 4;
+            dpadDownReleased = false; 
+        }
+        if (controller.isButtonPressed(XINPUT_GAMEPAD_DPAD_RIGHT)) {
+            dpadDownReleased = true;  
+        }
+
+        if (controller.isButtonReleased(XINPUT_GAMEPAD_A) && aButtonReleased) {
+            if (currentSelection == 3) {
+                selectedLevel = -1; 
+            }
+            else if (currentSelection != 3) {
+                selectedLevel = currentSelection + 1; 
+            }
+            aButtonReleased = false;
+        }
+        if (controller.isButtonPressed(XINPUT_GAMEPAD_A)) {
+            aButtonReleased = true; 
+        }
+    }
+
 };

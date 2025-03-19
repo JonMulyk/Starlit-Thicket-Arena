@@ -178,79 +178,81 @@ private:
     }
 
     void handleKeyboardInput(bool& inMenu) {
-        static bool keyUpPressed = false;
+        static bool keyUpPressed = false; 
         static bool keyDownPressed = false;
+        static bool enterPressed = false;
 
-        // Handle UP key
+
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_UP) == GLFW_RELEASE && keyUpPressed) {
+            currentSelection = (currentSelection == 0) ? 1 : 0;
+            keyUpPressed = false; 
+        }
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_UP) == GLFW_PRESS) {
-            if (!keyUpPressed) {  // Only flip once when the key is first pressed
-                currentSelection = (currentSelection == 0) ? 1 : 0;
-                keyUpPressed = true;  // Set flag to true to avoid continuous flipping
-            }
-        }
-        else {
-            keyUpPressed = false;  // Reset flag when the key is released
+            keyUpPressed = true; 
         }
 
-        // Handle DOWN key
+
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_DOWN) == GLFW_RELEASE && keyDownPressed) {
+            currentSelection = (currentSelection == 1) ? 0 : 1;
+            keyDownPressed = false; 
+        }
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_DOWN) == GLFW_PRESS) {
-            if (!keyDownPressed) {  // Only flip once when the key is first pressed
-                currentSelection = (currentSelection == 1) ? 0 : 1;
-                keyDownPressed = true;  // Set flag to true to avoid continuous flipping
-            }
-        }
-        else {
-            keyDownPressed = false;  // Reset flag when the key is released
+            keyDownPressed = true; 
         }
 
-        // Handle ENTER keyd
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_RELEASE && enterPressed) {
             if (currentSelection == 0) {
-                inMenu = false;  // Start game or proceed to the next screen
-            }
-            if (currentSelection == 1) {
-                glfwSetWindowShouldClose(window.getGLFWwindow(), true);  // Exit the application
-            }
-        }
-    }
-
-    void handleControllerInput(bool& inMenu) {
-        static bool dpadUpPressed = false;
-        static bool dpadDownPressed = false;
-
-        if (!controller.isConnected()) return;
-
-
-        if (controller.isButtonPressed(XINPUT_GAMEPAD_DPAD_UP)) {
-            if (!dpadUpPressed) {  
-                currentSelection = (currentSelection == 0) ? 1 : 0;
-                dpadUpPressed = true; 
-            }
-        }
-        else {
-            dpadUpPressed = false; 
-        }
-
-
-        if (controller.isButtonPressed(XINPUT_GAMEPAD_DPAD_DOWN)) {
-            if (!dpadDownPressed) {
-                currentSelection = (currentSelection == 1) ? 0 : 1;
-                dpadDownPressed = true; 
-            }
-        }
-        else {
-            dpadDownPressed = false;  
-        }
-
-
-        if (controller.isButtonPressed(XINPUT_GAMEPAD_A)) {
-            if (currentSelection == 0) {
-                inMenu = false;  
+                inMenu = false; 
             }
             if (currentSelection == 1) {
                 glfwSetWindowShouldClose(window.getGLFWwindow(), true);  
             }
+            enterPressed = false;
+        }
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
+            enterPressed = true; 
         }
     }
+    void handleControllerInput(bool& inMenu) {
+        static bool dpadUpPressed = false; 
+        static bool dpadDownPressed = false;
+        static bool aButtonPressed = false;
+
+        if (!controller.isConnected()) return;
+
+
+        if (!controller.isButtonPressed(XINPUT_GAMEPAD_DPAD_UP) && dpadUpPressed) {
+            currentSelection = (currentSelection == 0) ? 1 : 0;
+            dpadUpPressed = false;  
+        }
+        if (controller.isButtonPressed(XINPUT_GAMEPAD_DPAD_UP)) {
+            dpadUpPressed = true; 
+        }
+
+
+        if (!controller.isButtonPressed(XINPUT_GAMEPAD_DPAD_DOWN) && dpadDownPressed) {
+            currentSelection = (currentSelection == 1) ? 0 : 1;
+            dpadDownPressed = false;  
+        }
+        if (controller.isButtonPressed(XINPUT_GAMEPAD_DPAD_DOWN)) {
+            dpadDownPressed = true;  
+        }
+
+
+        if (!controller.isButtonPressed(XINPUT_GAMEPAD_A) && aButtonPressed) {
+            if (currentSelection == 0) {
+                inMenu = false; 
+            }
+            if (currentSelection == 1) {
+                glfwSetWindowShouldClose(window.getGLFWwindow(), true);  
+            }
+            aButtonPressed = false;  
+        }
+        if (controller.isButtonPressed(XINPUT_GAMEPAD_A)) {
+            aButtonPressed = true; 
+        }
+    }
+
+
 };
 
