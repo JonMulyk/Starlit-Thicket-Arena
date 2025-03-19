@@ -119,6 +119,7 @@ int main() {
 
 
         // Main Loop
+        timer.reset();
         timer.advance();
         while (!window.shouldClose() && gameState == GameStateEnum::PLAYING) {
             window.clear();

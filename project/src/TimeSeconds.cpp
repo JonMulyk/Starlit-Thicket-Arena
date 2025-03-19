@@ -64,6 +64,8 @@ std::string TimeSeconds::formatTimeToHumanReadable(double timeInSeconds) const
 }
 
 void TimeSeconds::reset() {
+    m_currentTime = glfwGetTime();  // Reset to current time
+    m_newTime = m_currentTime;
     m_accumulator = 0.0;
-    m_elapsedTime = 0.0;
+    m_elapsedTime = 0.0;  // Critical: ensure elapsed time starts at 0
 }

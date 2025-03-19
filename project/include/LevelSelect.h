@@ -173,38 +173,50 @@ private:
         }
     }
 
-
     void handleKeyboardInput(int& selectedLevel) {
         static bool keyUpPressed = false;
         static bool keyDownPressed = false;
+        static bool keyEnterPressed = false;
 
+        // Handle Up Key
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_UP) == GLFW_PRESS) {
             if (!keyUpPressed) {
                 currentSelection = (currentSelection - 1 + 4) % 4;
                 keyUpPressed = true;
+                keyEnterPressed = false; // Reset Enter press status when navigation occurs
             }
         }
         else {
             keyUpPressed = false;
         }
 
+        // Handle Down Key
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_DOWN) == GLFW_PRESS) {
             if (!keyDownPressed) {
                 currentSelection = (currentSelection + 1) % 4;
                 keyDownPressed = true;
+                keyEnterPressed = false; // Reset Enter press status when navigation occurs
             }
         }
         else {
             keyDownPressed = false;
         }
 
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
-            switch (currentSelection) {
-            case 0: selectedLevel = 1; break;
-            case 1: selectedLevel = 2; break;
-            case 2: selectedLevel = 3; break;
-            case 3: selectedLevel = -1; break;
+        // Handle Enter Key
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_T) == GLFW_PRESS) {
+            if (!keyEnterPressed) {
+                if (currentSelection == 3) {
+                    selectedLevel = -1;  // Back button pressed
+                }
+                else if (currentSelection != 3) {
+                    selectedLevel = currentSelection + 1;  // Start game with selected level
+                }
+                keyEnterPressed = true;
             }
         }
+        else {
+            keyEnterPressed = false;
+        }
     }
+    
 };
