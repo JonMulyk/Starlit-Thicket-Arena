@@ -73,6 +73,11 @@ int main() {
     UIManager uiManager(window.getWidth(), window.getHeight());
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
+    const double roundDuration = 20;// (5.0 * 60.0);
+
+
+    Input input(window, camera, timer, command);
+    Controller controller1(1, camera, controllerCommand);
 
     while (!window.shouldClose()) {
         if (gameState == GameStateEnum::MENU) {
@@ -93,9 +98,6 @@ int main() {
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 
-
-        Input input(window, camera, timer, command);
-        Controller controller1(1, camera, controllerCommand);
         if (!controller1.isConnected()) {
             std::cout << "Controller one not connected" << std::endl;
             controllerCommand.brake = 0.0f;
@@ -103,20 +105,14 @@ int main() {
             controllerCommand.steer = 0.0f;
         }
 
-
-
-
         PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
 
-        audio.init(physicsSystem, &camera);
-
+        //audio.init(physicsSystem, &camera); //bugged, needs to also restart
 
         // Static scene data
         sceneModels.push_back(groundPlaneModel);
 
         physicsSystem->updateTransforms(gState.dynamicEntities);
-
-        const double roundDuration = 20;// (5.0 * 60.0);
 
 
 
@@ -127,7 +123,7 @@ int main() {
             timer.tick();
             input.poll();
             controller1.Update();
-            audio.update();
+            //audio.update();
 
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
