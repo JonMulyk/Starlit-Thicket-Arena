@@ -213,9 +213,11 @@ private:
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_RELEASE && enterPressed) {
             if (currentSelection == 0) {
                 inMenu = false; 
+                audio.stopMusic();
             }
             if (currentSelection == 1) {
                 glfwSetWindowShouldClose(window.getGLFWwindow(), true);  
+                audio.stopMusic();
             }
             enterPressed = false;
         }
@@ -252,9 +254,11 @@ private:
         if (!controller.isButtonPressed(XINPUT_GAMEPAD_A) && aButtonPressed) {
             if (currentSelection == 0) {
                 inMenu = false; 
+                audio.stopMusic();
             }
             if (currentSelection == 1) {
                 glfwSetWindowShouldClose(window.getGLFWwindow(), true);  
+                audio.stopMusic();
             }
             aButtonPressed = false;  
         }

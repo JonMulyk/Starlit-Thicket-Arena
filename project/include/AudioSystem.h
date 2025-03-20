@@ -30,6 +30,8 @@ public:
 
 	void startMenuMusic();
 
+	void startLevelMusic();
+
 	void stopMusic();
 
 	CAudioEngine audioEngine;

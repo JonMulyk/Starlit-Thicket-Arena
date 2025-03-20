@@ -163,6 +163,16 @@ void AudioSystem::startMenuMusic() {
 	}
 }
 
+void AudioSystem::startLevelMusic() {
+	stopMusic();
+	if (musicChannel == nullptr) {
+		// If the music channel is null, create and initialize it
+		audioEngine.PlaySounds(battleMusic, Vector3{ 0, 0, 0 }, musicVolume, &musicChannel);
+		musicChannel->setMode(FMOD_LOOP_NORMAL | FMOD_2D);  // 2D for non-3D sound
+		musicChannel->setLoopCount(-1);  // Infinite looping
+	}
+}
+
 void AudioSystem::stopMusic() {
 	if (musicChannel != nullptr) {
 		musicChannel->stop();  // Stop the music channel

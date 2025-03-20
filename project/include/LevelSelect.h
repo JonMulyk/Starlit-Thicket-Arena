@@ -28,6 +28,13 @@ public:
 
     int displayMenuLevel() {
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        if (!audioInitialized) {
+            audio.init();
+            audio.startLevelMusic();
+            audioInitialized = true;
+        }
+
+        audio.startLevelMusic();
         int selectedLevel = 0; // 0 means no selection yet
         while (selectedLevel == 0 && !window.shouldClose()) {
             window.clear();
@@ -40,11 +47,25 @@ public:
             if (glfwGetMouseButton(window.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
                 double xpos, ypos;
                 glfwGetCursorPos(window.getGLFWwindow(), &xpos, &ypos);
-                if (level1Button.isClicked(xpos, ypos)) selectedLevel = 1;
-                else if (level2Button.isClicked(xpos, ypos)) selectedLevel = 2;
-                else if (level3Button.isClicked(xpos, ypos)) selectedLevel = 3;
-                else if (backButton.isClicked(xpos, ypos)) selectedLevel = -1;
+
+                if (level1Button.isClicked(xpos, ypos)) {
+                    selectedLevel = 1;
+                    audio.stopMusic(); // Stop the music when Level 1 is clicked
+                }
+                else if (level2Button.isClicked(xpos, ypos)) {
+                    selectedLevel = 2;
+                    audio.stopMusic(); // Stop the music when Level 2 is clicked
+                }
+                else if (level3Button.isClicked(xpos, ypos)) {
+                    selectedLevel = 3;
+                    audio.stopMusic(); // Stop the music when Level 3 is clicked
+                }
+                else if (backButton.isClicked(xpos, ypos)) {
+                    selectedLevel = -1;
+                    audio.stopMusic(); // Stop the music when 'Back' is clicked
+                }
             }
+
         }
         return selectedLevel;
     }
@@ -59,6 +80,8 @@ private:
     TTF& textRenderer;
     int windowWidth, windowHeight;
     Button level1Button, level2Button, level3Button, backButton;
+    AudioSystem audio;
+    bool audioInitialized;
 
     int currentSelection = 0;
 
@@ -202,9 +225,11 @@ private:
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_RELEASE && keyEnterReleased) {
             if (currentSelection == 3) {
                 selectedLevel = -1; 
+                audio.stopMusic();
             }
             else if (currentSelection != 3) {
                 selectedLevel = currentSelection + 1;
+                audio.stopMusic();
             }
             keyEnterReleased = false; 
         }
@@ -239,9 +264,11 @@ private:
         if (controller.isButtonReleased(XINPUT_GAMEPAD_A) && aButtonReleased) {
             if (currentSelection == 3) {
                 selectedLevel = -1; 
+                audio.stopMusic();
             }
             else if (currentSelection != 3) {
                 selectedLevel = currentSelection + 1; 
+                audio.stopMusic();
             }
             aButtonReleased = false;
         }
