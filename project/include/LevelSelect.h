@@ -84,7 +84,6 @@ private:
     bool audioInitialized;
 
     int currentSelection = 0;
-
     void renderMenu() {
         glDisable(GL_DEPTH_TEST);
         drawBackground();
@@ -113,13 +112,13 @@ private:
         backButton = Button(startX + 3 * (buttonWidth + spacing), buttonY, buttonWidth, buttonHeight, glm::vec3(1, 0, 0));
 
         // Add button texts
-        float textY = buttonY + buttonHeight / 2;  // Center text on buttons
+        float textY = buttonY + buttonHeight / 2.0f;  // Center text vertically inside button
         uiText.push_back(Text("Level 1", startX + buttonWidth / 2, textY, 1.0f, glm::vec3(1, 1, 1)));
         uiText.push_back(Text("Level 2", startX + buttonWidth + spacing + buttonWidth / 2, textY, 1.0f, glm::vec3(1, 1, 1)));
         uiText.push_back(Text("Level 3", startX + 2 * (buttonWidth + spacing) + buttonWidth / 2, textY, 1.0f, glm::vec3(1, 1, 1)));
         uiText.push_back(Text("Back", startX + 3 * (buttonWidth + spacing) + buttonWidth / 2, textY, 1.0f, glm::vec3(1, 1, 1)));
 
-
+        // Adjust button colors for selection
         level1Button.setColor(currentSelection == 0 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));  // Green for selected
         level2Button.setColor(currentSelection == 1 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
         level3Button.setColor(currentSelection == 2 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
@@ -130,7 +129,6 @@ private:
         level2Button.draw(shader, windowWidth, windowHeight);
         level3Button.draw(shader, windowWidth, windowHeight);
         backButton.draw(shader, windowWidth, windowHeight);
-
 
         // Render text
         renderText(uiText);

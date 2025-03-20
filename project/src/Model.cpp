@@ -1,6 +1,11 @@
 #include "Model.h"
 #include <stb_image.h>
 
+Model::~Model()
+{
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(3, VBO);
+}
 
 std::vector<TextureOBJ> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
@@ -9,14 +14,31 @@ std::vector<TextureOBJ> Model::loadMaterialTextures(aiMaterial* mat, aiTextureTy
     {
         aiString str;
         mat->GetTexture(type, i, &str);
-        TextureOBJ texture;
-        texture.id = TextureFromFile(str.C_Str(), directory);
-        texture.type = typeName;
-        texture.path = str;
-        textures.push_back(texture);
+        // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+        bool skip = false;
+        for (unsigned int j = 0; j < textures_loaded.size(); j++)
+        {
+            if(std::strcmp(textures_loaded[j].path.C_Str(), str.C_Str()) == 0)
+            {
+                textures.push_back(textures_loaded[j]);
+                skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+                break;
+            }
+        }
+        if (!skip)
+        {   // if texture hasn't been loaded already, load it
+            TextureOBJ texture;
+            texture.id = TextureFromFile(str.C_Str(), this->directory);
+            texture.type = typeName;
+            texture.path = str.C_Str();
+            textures.push_back(texture);
+            textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
+        }
     }
     return textures;
 }
+
+
 unsigned int TextureFromFile(const char* path, const std::string& directory)
 {
     std::string filename = std::string(path);
@@ -52,6 +74,7 @@ unsigned int TextureFromFile(const char* path, const std::string& directory)
     {
         std::cout << "Texture failed to load at path: " << path << std::endl;
         stbi_image_free(data);
+        textureID = 0;
     }
 
     return textureID;
@@ -289,6 +312,7 @@ Shader& Model::getShader()
 {
     return this->m_shader;
 }
+
 
 void Model::draw() {
     m_shader.use();
