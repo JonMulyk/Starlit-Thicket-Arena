@@ -28,6 +28,10 @@ public:
 
 	void playAISound(glm::vec3 position);
 
+	void startMenuMusic();
+
+	void stopMusic();
+
 	CAudioEngine audioEngine;
 	CAudioEngine* audioEnginePtr;
 	PhysicsSystem* c_physicsSystem;

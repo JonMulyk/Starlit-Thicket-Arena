@@ -70,7 +70,7 @@ int main() {
     UIManager uiManager(window.getWidth(), window.getHeight());
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
-    const double roundDuration = 20;// (5.0 * 60.0);
+    const double roundDuration = 20;
 
     bool isAudioInitialized = false;
     Input input(window, camera, timer, command);
@@ -108,7 +108,7 @@ int main() {
 
         PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
 
-        //audio.init(physicsSystem, &camera);
+        audio.init(physicsSystem, &camera);
 
         // Static scene data
         sceneModels.push_back(groundPlaneModel);
@@ -125,7 +125,7 @@ int main() {
             timer.tick();
             input.poll();
             controller1.Update();
-            //audio.update();
+            audio.update();
 
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {

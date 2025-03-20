@@ -23,8 +23,15 @@ public:
     }
 
     void displayMenu() {
+        if (!audioInitialized) {
+            audio.init();
+            audio.startMenuMusic();
+            audioInitialized = true;
+        }
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         bool inMenu = true;
+
+        audio.startMenuMusic();  
         while (inMenu && !window.shouldClose()) {
             window.clear();
             renderMenu();
@@ -41,6 +48,7 @@ public:
                 if (startButton.isClicked(xpos, ypos)) {
                     inMenu = false;
                     //glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                    audio.stopMusic();
                 }
                 if (exitButton.isClicked(xpos, ypos)) {
                     glfwSetWindowShouldClose(window.getGLFWwindow(), true);
@@ -59,6 +67,8 @@ private:
     int windowWidth, windowHeight;
     Button startButton, exitButton;
     int currentSelection;   
+    AudioSystem audio;
+    bool audioInitialized;
 
     void renderMenu() {
         glDisable(GL_DEPTH_TEST);
