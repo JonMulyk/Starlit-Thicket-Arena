@@ -14,7 +14,7 @@ void AudioSystem::init() {
 	audioEngine.LoadSound(battleMusic);
 
 	//audioEngine.PlaySounds(menuMusic, Vector3{ 0, 0, 0 }, musicVolume);
-	startBattleMusic();
+	startMenuMusic();
 }
 
 void AudioSystem::init(PhysicsSystem* physicsSystem, Camera* camera) {
@@ -120,6 +120,8 @@ void AudioSystem::shutdown() {
 	audioEngine.Shutdown();
 }
 
+
+
 void AudioSystem::explosion(glm::vec3 position) {
 	audioEngine.PlaySounds(explosionSound, Vector3{ position.x, position.y, position.z }, explosionVolume);
 }
@@ -149,4 +151,42 @@ void AudioSystem::playAISound(glm::vec3 position) {
 	//	// Set the channel to 3D mode so that it is positioned in the world.
 	//	
 	//}
+}
+
+
+void AudioSystem::startMenuMusic() {
+	if (musicChannel == nullptr) {
+		// If the music channel is null, create and initialize it
+		audioEngine.PlaySounds(menuMusic, Vector3{ 0, 0, 0 }, musicVolume, &musicChannel);
+		musicChannel->setMode(FMOD_LOOP_NORMAL | FMOD_2D);  // 2D for non-3D sound
+		musicChannel->setLoopCount(-1);  // Infinite looping
+	}
+}
+
+void AudioSystem::startLevelMusic() {
+	stopMusic();
+	if (musicChannel == nullptr) {
+		// If the music channel is null, create and initialize it
+		audioEngine.PlaySounds(battleMusic, Vector3{ 0, 0, 0 }, musicVolume, &musicChannel);
+		musicChannel->setMode(FMOD_LOOP_NORMAL | FMOD_2D);  // 2D for non-3D sound
+		musicChannel->setLoopCount(-1);  // Infinite looping
+	}
+}
+
+void AudioSystem::stopMusic() {
+	audioEngine.StopAllChannels();
+	if (musicChannel != nullptr) {
+		musicChannel->stop(); 
+		musicChannel = nullptr;  
+	}
+
+	if (carChannel != nullptr) {
+		carChannel->stop();  
+		carChannel = nullptr;  
+	}
+
+	for (auto& aiChannel : aiChannels) {
+		aiChannel = nullptr;
+	}
+	aiChannels.clear();
 }

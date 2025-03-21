@@ -28,6 +28,8 @@ public:
         std::vector<float> textCoords
     );
 
+
+
     // Constructor for loading an OBJ file with a texture
     Model(Shader& shader, Texture& texture, const std::string& model_path);
 
@@ -35,6 +37,8 @@ public:
     Model(Shader& shader, const std::string& model_path);
     
     Shader& getShader();
+
+    void DrawAssimp(Shader& shader);
 
     void draw();
     std::vector<Mesh> meshes;
@@ -45,6 +49,7 @@ private:
     Texture* m_texture; // Changed to a pointer to allow null values
     int m_count;
     bool hasTexture;
+    std::vector<TextureOBJ> textures_loaded;
 
 
     std::vector<float> m_vertices;
