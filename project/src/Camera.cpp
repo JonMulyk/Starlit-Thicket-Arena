@@ -112,8 +112,10 @@ void Camera::updateCameraVectors() {
 }
 
 void Camera::incrementTheta(float dt) {
-    if (Theta + (dt / 100.0f) < M_PI_2 && Theta + (dt / 100.0f) > -M_PI_2) {
-        Theta += dt / 100.0f;
+    if (Theta + static_cast<float>(dt / 100.0f) < static_cast<float>(M_PI_2) && 
+        Theta + static_cast<float>(dt / 100.0f) > static_cast<float>(-M_PI_2)) 
+    {
+        Theta += static_cast<float>(dt / 100.0f);
     }
 }
 
