@@ -1,5 +1,6 @@
 #include "PhysicsSystem.h"
 #include "AudioEngine.h"
+
 // Initialize PVD, create scene, vehicle compatibility, and scene components (gravity and friction)
 void PhysicsSystem::initPhysX() {
 	// namespaces
@@ -148,7 +149,7 @@ void PhysicsSystem::initBoarder() {
 		gScene->addActor(*body);
 
 		// Rendering
-		gState.staticEntities.push_back(Entity("boarder", trailModel, new Transform()));
+		gState.staticEntities.push_back(Entity("boarder", trailModels[0], new Transform()));
 		gState.staticEntities.back().transform->pos = glm::vec3(
 			wallTransform.p.x,
 			wallTransform.p.y,
@@ -333,8 +334,8 @@ void PhysicsSystem::cleanupPhysics() {
 	gContactReportCallback = nullptr;
 }
 
-PhysicsSystem::PhysicsSystem(GameState& gameState, Model& tModel, Model& cModel) :
-	gState(gameState), trailModel(tModel), carModel(cModel) {
+PhysicsSystem::PhysicsSystem(GameState& gameState, std::vector<Model>& tModels, Model& cModel) :
+	gState(gameState), trailModels(tModels), carModel(cModel) {
 	initPhysics();
 }
 
@@ -373,14 +374,23 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	physx::PxMaterial* pMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
 
 	// create shape
-	float height = .5f;
-	float width = 0.01f;
+	float height = 0.8f;
+	float width = 0.8f;
 	physx::PxBoxGeometry geom(trailStep / 2, height, width);
 	physx::PxShape* shape = gPhysics->createShape(geom, *pMaterial);
 
+	float randomAngle = (static_cast<float>(rand()) / RAND_MAX * 6.28f);
+
+	// Create a quaternion representing a rotation around the Y-axis
+	float sinHalfAngle = sin(randomAngle);
+	float cosHalfAngle = cos(randomAngle);
+
+	glm::quat randomRotation(cosHalfAngle, 0.0f, sinHalfAngle, 0.0f);
+
 	physx::PxTransform wallTransform(
 		physx::PxVec3(x, height, z),
-		physx::PxQuat(rot, physx::PxVec3(0, 1, 0))
+		//physx::PxQuat(rot, physx::PxVec3(0, 1, 0))
+		physx::PxQuat(randomRotation.x, randomRotation.y, randomRotation.z, randomRotation.w)
 	);
 	physx::PxRigidStatic* body = gPhysics->createRigidStatic(wallTransform);
 
@@ -394,11 +404,16 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	body->attachShape(*shape);
 	body->setName(name);
 
-	gState.staticEntities.push_back(Entity(name, trailModel, new Transform()));
+	int modelType = 0;
+	if (strcmp(name,"vehicle1") == 0) modelType = 1;
+	if (strcmp(name, "vehicle2") == 0) modelType = 2;
+	if (strcmp(name, "vehicle3") == 0) modelType = 3;
+
+	gState.staticEntities.push_back(Entity(name, trailModels[modelType], new Transform()));
 
 	gState.staticEntities.back().transform->pos = glm::vec3(
 		wallTransform.p.x,
-		wallTransform.p.y,
+		wallTransform.p.y - 0.8,
 		wallTransform.p.z
 	);
 
@@ -408,7 +423,6 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	gState.staticEntities.back().transform->rot.w = wallTransform.q.w;
 
 	gState.staticEntities.back().transform->scale = glm::vec3(trailStep / 2, height, width);
-
 	gScene->addActor(*body);
 
 	// Clean up
@@ -496,6 +510,23 @@ void PhysicsSystem::updateCollisions() {
 							gState.staticEntities.erase(gState.staticEntities.begin() + g);
 						}
 					}
+					/*
+					for (Entity& e : gState.staticEntities) {
+						if (e.name == "playerVehicle") {
+							ReplaceEntityModel(e, trailModels[0]);
+						}
+						else if (e.name == "vehicle1") {
+							ReplaceEntityModel(e, trailModels[1]);
+						}
+						else if (e.name == "vehicle2") {
+							ReplaceEntityModel(e, trailModels[2]);
+						}
+						else if (e.name == "vehicle3") {
+							ReplaceEntityModel(e, trailModels[3]);
+						}
+					}
+					*/
+					
 					if (otherName == "playerVehicle") {
 						gState.addToScore(1);
 					}
@@ -512,7 +543,6 @@ void PhysicsSystem::updateCollisions() {
 
 void PhysicsSystem::reintialize() {
 	for (int i = gState.dynamicEntities.size()-1; i >= 0; i--) {
-		//std::cout << gState.dynamicEntities[i].name << "\n";
 		auto& entity = gState.dynamicEntities[i];
 		entity.vehicle->vehicle.destroy();
 		// remove Dynamic Objects
@@ -535,7 +565,6 @@ void PhysicsSystem::reintialize() {
 	for (int g = gState.staticEntities.size()-1; g >= 4; g--) {
 			gState.staticEntities.erase(gState.staticEntities.begin() + g);
 	}
-	//std::cout << gState.dynamicEntities.size() << " " << gState.staticEntities.size() << " " << actors.size() << "\n";
 	gState.gMap.resetMap();
 	initVehicles(3);
 }

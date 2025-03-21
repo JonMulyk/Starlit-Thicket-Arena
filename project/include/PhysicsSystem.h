@@ -72,7 +72,7 @@ private:
 	// Helpers to track state
 	std::vector<physx::PxRigidDynamic*> rigidDynamicList;
 	std::vector<Transform*> transformList;
-	Model& trailModel;
+	std::vector<Model>& trailModels;
 	Model& carModel;
 	std::vector<Model> modelList;
 	GameState& gState;
@@ -120,7 +120,7 @@ private:
 
 public:
 	// Ctor/Dtor
-	PhysicsSystem(GameState& gameState, Model& tModel, Model& cModel);
+	PhysicsSystem(GameState& gameState, std::vector<Model>& tModels, Model& cModel);
 	~PhysicsSystem();
 
 	// add random obstacles

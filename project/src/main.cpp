@@ -53,11 +53,15 @@ int main() {
     InitManager::getCube(verts, coord);
     Model cube(lightingShader, container, verts, verts, coord);
     Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
-    Model trail(lightingShader, fire, "project/assets/models/Trail.obj");
     Model tireModel = Model(lightingShader, "project/assets/models/tire1/tire1.obj");
+    Model Gtrail(lightingShader, "project/assets/models/Gtree/GTree.obj");
+    Model Btrail(lightingShader, "project/assets/models/Btree/BTree.obj");
+    Model Rtrail(lightingShader, "project/assets/models/Rtree/RTree.obj");
+    Model Ytrail(lightingShader, "project/assets/models/Ytree/YTree.obj");
+    std::vector<Model> trails = { Gtrail, Btrail, Rtrail, Ytrail };
     //Model secondCar(lightingShader, gold, "project/assets/models/box.obj");
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
-    PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
+    PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trails, secondCar);
 
     AudioSystem audio;
 	AudioSystem* audioPtr = &audio;
@@ -109,6 +113,13 @@ int main() {
 
         glfwSwapBuffers(window);
     }
-
+    for (int i = 0; i < gState.staticEntities.size(); i++) {
+       std::cout << gState.staticEntities[i].name << " " << gState.staticEntities[i].model.directory << "\n";
+    }
+    // playerVehicle project/assets/models/Gtree
+    // vehicle1 project/assets/models/Btree
+    // vehicle2 project/assets/models/Rtree
+    // vehicle3 project/assets/models/Ytree
+    //gState.gMap.printGraph();
     return 0;
 }
