@@ -127,7 +127,7 @@ int main() {
             controller1.Update();
             audio.update();
 
-            if (input.isKeyReleased(GLFW_KEY_P) || controller1.isButtonJustReleased(XINPUT_GAMEPAD_X)) {
+            if (input.isKeyReleased(GLFW_KEY_P) || controller1.isButtonJustReleased(XINPUT_GAMEPAD_START)) {
                 gameState = GameStateEnum::PAUSE;
                 timer.stop();
                 audio.pauseMusic();
@@ -137,7 +137,7 @@ int main() {
                 input.poll();
                 controller1.Update(); 
 
-                if (input.isKeyReleased(GLFW_KEY_P) || controller1.isButtonJustReleased(XINPUT_GAMEPAD_X)) {
+                if (input.isKeyReleased(GLFW_KEY_P) || controller1.isButtonJustReleased(XINPUT_GAMEPAD_START)) {
                     gameState = GameStateEnum::PLAYING;
                     timer.resume();
                     audio.resumeSounds();
