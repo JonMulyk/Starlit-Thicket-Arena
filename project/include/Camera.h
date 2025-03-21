@@ -6,6 +6,8 @@
 
 #include "TimeSeconds.h"
 #include "GameState.h"
+#include "PxPhysicsAPI.h"
+#include "Transform.h"
 
 
 class Camera {
@@ -34,6 +36,8 @@ private:
     double factor = 10;
 
     GameState& gState;
+
+    Transform* followTarget = nullptr;
 public:
     // Default camera values
     static const float YAW;
@@ -75,6 +79,9 @@ public:
     void incrementTheta(float dt);
 
     void incrementPhi(float dp);
+
+    void setFollowTarget(Transform* target) { followTarget = target; }
+    Transform* getFollowTarget() const {return followTarget;}
 };
 
 

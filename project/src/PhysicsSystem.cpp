@@ -454,11 +454,10 @@ void PhysicsSystem::updateCollisions() {
 		std::string str = colliding1;
 		std::string otherName = colliding2;
 
-		// check if player died
+		// Check if the player died.
 		if (str.compare("playerVehicle") == 0) {
 			reintialize();
 		}
-		// check which vehicle it was
 		else {
 			for (int i = 0; i < gState.dynamicEntities.size(); i++) {
 				auto& entity = gState.dynamicEntities[i];
@@ -470,27 +469,32 @@ void PhysicsSystem::updateCollisions() {
 					continue;
 				}
 
+				// If this AI car is the one that collided...
 				if (entity.vehicle->name == colliding1) {
+					// If this AI car is currently being followed, clear the follow target.
+					if (gState.FollowTarget1 == entity.transform) {
+						gState.FollowTarget1 = nullptr;
+					}
+
+					// Destroy the vehicle.
 					entity.vehicle->vehicle.destroy();
 
-					// remove Dynamic Object
+					// Remove dynamic object.
 					rigidDynamicList.erase(rigidDynamicList.begin() + i);
 					transformList.erase(transformList.begin() + i);
 					gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
 
-					// Remove all static physics objects
+					// Remove all static physics objects associated with this AI.
 					PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC);
-					std::vector<PxActor*> actors(gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC));
+					std::vector<PxActor*> actors(actorCount);
 					gScene->getActors(PxActorTypeFlag::eRIGID_STATIC, actors.data(), actorCount);
 					for (PxActor* actor : actors) {
 						const char* actorName = actor->getName();
-						if (actorName) {
-							if (actorName == colliding1) {
-								gScene->removeActor(*actor);
-							}
+						if (actorName && std::string(actorName) == colliding1) {
+							gScene->removeActor(*actor);
 						}
 					}
-					// Remove all static entity objects
+					// Remove all static entity objects with the same name.
 					for (int g = gState.staticEntities.size() - 1; g >= 0; g--) {
 						if (gState.staticEntities[g].name == colliding1) {
 							gState.staticEntities.erase(gState.staticEntities.begin() + g);
@@ -509,6 +513,8 @@ void PhysicsSystem::updateCollisions() {
 		gContactReportCallback->readNewCollision();
 	}
 }
+
+
 
 void PhysicsSystem::reintialize() {
 	for (int i = gState.dynamicEntities.size()-1; i >= 0; i--) {

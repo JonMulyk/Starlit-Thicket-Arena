@@ -8,6 +8,24 @@ RenderingSystem::RenderingSystem(Shader& shader, Camera& camera, Windowing& wind
 void RenderingSystem::updateProjectionView(Shader &viewShader) {
     viewShader.use();
 
+    if (gState.splitScreenEnabled == true) {
+        GLint viewport[4];
+        glGetIntegerv(GL_VIEWPORT, viewport);  // viewport: [x, y, width, height]
+        int vpWidth = viewport[2];
+        int vpHeight = viewport[3];
+
+        glm::mat4 projection = glm::perspective(
+            glm::radians(camera.getZoom()),
+            static_cast<float>(vpWidth) / static_cast<float>(vpHeight),
+            0.1f, 1000.0f
+        );
+        viewShader.setMat4("projection", projection);
+
+        glm::mat4 view = camera.GetViewMatrix();
+        viewShader.setMat4("view", view);
+		return;
+    }
+
     glm::mat4 projection = glm::perspective(
         glm::radians(camera.getZoom()),
         float(window.getWidth()) / float(window.getHeight()),

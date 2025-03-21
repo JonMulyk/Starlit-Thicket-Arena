@@ -74,8 +74,22 @@ const glm::vec3 Camera::getPosition() const
 glm::vec3 vec3(physx::PxVec3 v) { return glm::vec3(v.x, v.y, v.z); }
 
 glm::mat4 Camera::GetViewMatrix() {
-    glm::vec3 pos = vec3(gState.playerVehicle.curPos);
-    glm::vec3 dir = vec3(gState.playerVehicle.curDir);
+    glm::vec3 pos, dir;
+
+    if (followTarget) {
+        // Follow target exists: use its transform.
+        pos = followTarget->pos;
+        // Compute forward direction from the target's rotation.
+        glm::mat4 rotMat = glm::mat4_cast(followTarget->rot);
+        // Assuming the model faces -Z.
+        dir = glm::normalize(glm::vec3(rotMat * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)));
+		dir = -dir;
+    }
+    else {
+        // Default: follow player vehicle.
+        pos = vec3(gState.playerVehicle.curPos);
+        dir = vec3(gState.playerVehicle.curDir);
+    }
 
     if (timer.getCurrentTime() - time > 1.f) {
         double threshold = 0.1f;

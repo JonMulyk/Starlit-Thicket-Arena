@@ -29,6 +29,10 @@ int main() {
 	Command controllerCommand;
     TimeSeconds timer;
     Camera camera(gState, timer);
+    Camera camera2(gState, timer);
+	Camera camera3(gState, timer);
+	Camera camera4(gState, timer);
+
     Windowing window(1200, 1000);
 
     Input input(window, camera, timer, command);
@@ -59,12 +63,19 @@ int main() {
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
     PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
 
+	camera2.setFollowTarget(physicsSystem->getTransformAt(1));
+	camera3.setFollowTarget(physicsSystem->getTransformAt(2));
+	camera4.setFollowTarget(physicsSystem->getTransformAt(3));
+
     AudioSystem audio;
 	AudioSystem* audioPtr = &audio;
     audio.init(physicsSystem, &camera);
 
     // Create Rendering System
     RenderingSystem renderer(shader, camera, window, arial, gState);
+	RenderingSystem renderer2(shader, camera2, window, arial, gState);
+	RenderingSystem renderer3(shader, camera3, window, arial, gState);
+	RenderingSystem renderer4(shader, camera4, window, arial, gState);
 
     // Static scene data
     std::vector<Model> sceneModels;
@@ -103,9 +114,52 @@ int main() {
         }
 
 		//renderer.renderScene(sceneModels);
-    
+	
         uiManager.updateUIText(timer, roundDuration, gState.getScore());
-        renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+        //renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+
+        if (gState.splitScreenEnabled) {
+            camera2.setFollowTarget(physicsSystem->getTransformAt(1));
+            // Left half
+            glViewport(0, window.getHeight() / 2, window.getWidth(), window.getHeight() / 2);
+            uiManager.updateUIText(timer, roundDuration, gState.getScore());
+			renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera1 (a Camera instance)
+
+            // Right half
+			//print camera2 position
+            glViewport(0, 0, window.getWidth(), window.getHeight() / 2);
+			uiManager.updateUIText(timer, roundDuration, gState.getScore());
+			renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera2 (a Camera instance)
+        }
+        else if (gState.splitScreenEnabled4) {
+			camera2.setFollowTarget(physicsSystem->getTransformAt(1));
+			camera3.setFollowTarget(physicsSystem->getTransformAt(2));
+			camera4.setFollowTarget(physicsSystem->getTransformAt(3));
+			// split the screen into 4 separate quadrants
+			// top left
+			glViewport(0, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
+			uiManager.updateUIText(timer, roundDuration, gState.getScore());
+			renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+
+			// top right
+			glViewport(window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
+			uiManager.updateUIText(timer, roundDuration, gState.getScore());
+			renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+
+			// bottom left
+			glViewport(0, 0, window.getWidth() / 2, window.getHeight() / 2);
+			uiManager.updateUIText(timer, roundDuration, gState.getScore());
+			renderer3.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+
+			// bottom right
+			glViewport(window.getWidth() / 2, 0, window.getWidth() / 2, window.getHeight() / 2);
+			uiManager.updateUIText(timer, roundDuration, gState.getScore());
+			renderer4.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+        }
+        else {
+            uiManager.updateUIText(timer, roundDuration, gState.getScore());
+            renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+        }
 
         glfwSwapBuffers(window);
     }

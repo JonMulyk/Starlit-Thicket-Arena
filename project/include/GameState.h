@@ -1,6 +1,9 @@
 #pragma once
 #include "GameMap.h"
 #include "PxPhysicsAPI.h"
+#include <vector>
+#include <iostream>
+#include "Transform.h"
 
 class Entity;
 
@@ -24,5 +27,12 @@ class GameState {
 		void incrementScore();
 		void addToScore(uint64_t amount);
 
+		// In GameState.h:
+		Transform* FollowTarget1 = nullptr;
+		Transform* FollowTarget2 = nullptr;
+		Transform* FollowTarget3 = nullptr;
+
+		bool splitScreenEnabled = true;
+		bool splitScreenEnabled4 = false;
 };
 
