@@ -9,6 +9,14 @@
 #include <Text.h>
 #include <Controller.h>
 
+
+/*
+TODO: organize to seperate from cpp and .h file, essentially optimize and clean up after testing
+
+currently frontloaded in .h for functionality sakes (none of this code is really reusable)
+
+bug: unless we reinitialize the audio, when the game resets, the music does not play
+*/
 class LevelSelectMenu {
 public:
     LevelSelectMenu(Windowing& window, TTF& textRenderer, Controller& controller)
@@ -18,14 +26,22 @@ public:
         level3Button(0, 0, 0, 0, glm::vec3(0, 0, 0)),
         backButton(0, 0, 0, 0, glm::vec3(0, 0, 0))
     {
+        initializeUIText();
         compileShaders();
         loadBackgroundTexture();
     }
 
+    /*
+    cleanup
+    */
     ~LevelSelectMenu() {
         glDeleteTextures(1, &backgroundTexture);
+        uiText.clear();
     }
 
+    /*
+    will return
+    */
     int displayMenuLevel() {
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         if (!audioInitialized) {
@@ -35,7 +51,7 @@ public:
         }
 
         audio.startLevelMusic();
-        int selectedLevel = 0; // 0 means no selection yet
+        int selectedLevel = 0; //0 means no selection yet
         while (selectedLevel == 0 && !window.shouldClose()) {
             window.clear();
             renderMenu();
@@ -50,24 +66,24 @@ public:
 
                 if (level1Button.isClicked(xpos, ypos)) {
                     selectedLevel = 1;
-                    audio.stopMusic(); // Stop the music when Level 1 is clicked
+                    audio.stopMusic(); 
                 }
                 else if (level2Button.isClicked(xpos, ypos)) {
                     selectedLevel = 2;
-                    audio.stopMusic(); // Stop the music when Level 2 is clicked
+                    audio.stopMusic(); 
                 }
                 else if (level3Button.isClicked(xpos, ypos)) {
                     selectedLevel = 3;
-                    audio.stopMusic(); // Stop the music when Level 3 is clicked
+                    audio.stopMusic();
                 }
                 else if (backButton.isClicked(xpos, ypos)) {
                     selectedLevel = -1;
-                    audio.stopMusic(); // Stop the music when 'Back' is clicked
+                    audio.stopMusic(); 
                 }
             }
 
         }
-        return selectedLevel;
+        return selectedLevel; // 1 = level 1, 2 = level 2, 3 = level 3
     }
 
 private:
@@ -89,16 +105,10 @@ private:
         drawBackground();
         glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
-        // Clear uiText
-        uiText.clear();
 
-        // Add title
-        float centerX = 0.5f * windowWidth;
-        float titleY = 0.2f * windowHeight;
-        uiText.push_back(Text("Select Level", centerX, titleY, 1.0f, glm::vec3(1, 1, 1)));
 
-        // Define button layout
-        float buttonY = 0.85f * windowHeight;  // Moved even lower
+        //horizontal button conversion, can be modifeid to be different
+        float buttonY = 0.85f * windowHeight;
         float buttonHeight = 0.0625f * windowHeight;
         float buttonWidth = 0.2f * windowWidth;
         float spacing = 0.05f * windowWidth;
@@ -111,27 +121,42 @@ private:
         level3Button = Button(startX + 2 * (buttonWidth + spacing), buttonY, buttonWidth, buttonHeight, glm::vec3(1, 0, 0));
         backButton = Button(startX + 3 * (buttonWidth + spacing), buttonY, buttonWidth, buttonHeight, glm::vec3(1, 0, 0));
 
-        // Add button texts
-        float textY = buttonY + buttonHeight / 2.0f;  // Center text vertically inside button
-        uiText.push_back(Text("Level 1", startX + buttonWidth / 2, textY, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Level 2", startX + buttonWidth + spacing + buttonWidth / 2, textY, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Level 3", startX + 2 * (buttonWidth + spacing) + buttonWidth / 2, textY, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Back", startX + 3 * (buttonWidth + spacing) + buttonWidth / 2, textY, 1.0f, glm::vec3(1, 1, 1)));
 
-        // Adjust button colors for selection
-        level1Button.setColor(currentSelection == 0 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));  // Green for selected
+
+        //green if currentSelected, otherwise red, somewhat different from mainMenu
+        level1Button.setColor(currentSelection == 0 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
         level2Button.setColor(currentSelection == 1 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
         level3Button.setColor(currentSelection == 2 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
         backButton.setColor(currentSelection == 3 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
 
-        // Draw buttons
         level1Button.draw(shader, windowWidth, windowHeight);
         level2Button.draw(shader, windowWidth, windowHeight);
         level3Button.draw(shader, windowWidth, windowHeight);
         backButton.draw(shader, windowWidth, windowHeight);
 
-        // Render text
+        //render text
         renderText(uiText);
+    }
+
+
+    void initializeUIText() {
+        glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
+
+        float buttonX = 0.5f * windowWidth;
+        float buttonY = 0.5f * windowHeight;
+
+        /*
+        hard cocded text, text and button is initilized different and trying to find the right conversion npm, is hard to calculate
+        probably more milsetone 5 stuff...
+
+        essentially, for the buttons the middle of the screen os the (0,0) -> (1,1) is like the top right coordinates, however for the text the top
+        left is like the (0,0) -> (windowWidth, windowHeight) is the bottom left?
+        */
+        uiText.push_back(Text("Level 1", buttonX - 500, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("Level 2", buttonX - 140, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("Level 3", buttonX + 220, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("Back", buttonX + 600, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
+
     }
 
     void compileShaders() {
@@ -274,5 +299,4 @@ private:
             aButtonReleased = true; 
         }
     }
-
 };

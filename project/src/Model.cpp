@@ -1,11 +1,6 @@
 #include "Model.h"
 #include <stb_image.h>
 
-Model::~Model()
-{
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(3, VBO);
-}
 
 std::vector<TextureOBJ> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
@@ -320,6 +315,10 @@ void Model::draw() {
     if (hasTexture && m_texture) {
         m_texture->bind();
     }
+    else {
+        m_shader.setVec3("colorAdjust", glm::vec3(0.2f, 0.2f, 1.0f)); // Slight blue tint
+    }
+
     for (unsigned int i = 0; i < meshes.size(); i++) {
         meshes[i].Draw(m_shader);
     }

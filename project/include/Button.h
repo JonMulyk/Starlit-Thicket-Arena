@@ -64,6 +64,15 @@ public:
         color = newColor;
     }
 
+    float getX() const {
+        return x;
+    }
+
+ 
+    float getY() const {
+        return y;
+    }
+
 
 private:
     float x, y, width, height;

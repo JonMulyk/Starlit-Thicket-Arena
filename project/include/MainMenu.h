@@ -5,6 +5,13 @@
 #include <Button.h>
 #include "Controller.h" 
 
+/*
+TODO: organize to seperate from cpp and .h file, essentially optimize and clean up after testing
+
+currently frontloaded in .h for functionality sakes (none of this code is really reusable)
+
+bug: unless we reinitialize the audio, when the game resets, the music does not play
+*/
 class MainMenu {
 public:
     MainMenu(Windowing& window, TTF& textRenderer, Controller& controller)
@@ -20,6 +27,7 @@ public:
 
     ~MainMenu() {
         glDeleteTextures(1, &backgroundTexture);
+        uiText.clear();
     }
 
     void displayMenu() {

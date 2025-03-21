@@ -149,10 +149,10 @@ int main() {
             gameState = GameStateEnum::MENU;
             gState.dynamicEntities.clear();
             gState.staticEntities.clear();
-            sceneModels.clear();
+            //sceneModels.clear();
 
             gState.reset();
-            audio.shutdown(); 
+            audio.stopMusic(); 
             timer.reset();
             delete physicsSystem;
             //delete audio;

@@ -28,7 +28,6 @@ public:
         std::vector<float> textCoords
     );
 
-    ~Model();
 
 
     // Constructor for loading an OBJ file with a texture

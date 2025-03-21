@@ -175,7 +175,12 @@ void AudioSystem::startLevelMusic() {
 
 void AudioSystem::stopMusic() {
 	if (musicChannel != nullptr) {
-		musicChannel->stop();  // Stop the music channel
-		musicChannel = nullptr;  // Set to nullptr after stopping
+		musicChannel->stop(); 
+		musicChannel = nullptr;  
+	}
+
+	if (carChannel != nullptr) {
+		carChannel->stop();  
+		carChannel = nullptr;  
 	}
 }
