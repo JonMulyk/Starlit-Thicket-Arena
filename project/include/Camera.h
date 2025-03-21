@@ -46,7 +46,7 @@ public:
     static const float THETA;
     static const float PHI;
 
-    enum Camera_Movement {
+    enum class Camera_Movement {
         FORWARD,
         BACKWARD,
         LEFT,
