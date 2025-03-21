@@ -32,7 +32,7 @@ class GameState {
 		Transform* FollowTarget2 = nullptr;
 		Transform* FollowTarget3 = nullptr;
 
-		bool splitScreenEnabled = true;
-		bool splitScreenEnabled4 = false;
+		bool splitScreenEnabled = false;
+		bool splitScreenEnabled4 = true;
 };
 
