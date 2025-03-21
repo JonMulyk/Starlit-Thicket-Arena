@@ -1516,4 +1516,9 @@
     <Library Include="lib\fmod\core\lib\arm64\fmod_vc.lib" />
     <Library Include="lib\fmod\core\lib\arm64\fmodL_vc.lib" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\Downloads\levelSelect.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

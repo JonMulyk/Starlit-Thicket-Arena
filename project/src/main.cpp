@@ -140,6 +140,8 @@ int main() {
             controller1.Update();
             audio.update();
 
+
+            //pause
             if (input.isKeyReleased(GLFW_KEY_P) || controller1.isButtonJustReleased(XINPUT_GAMEPAD_START)) {
                 gameState = GameStateEnum::PAUSE;
                 timer.stop();

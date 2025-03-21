@@ -666,6 +666,9 @@
     <Library Include="lib\fmod\core\lib\arm64\fmodL_vc.lib" />
     <Library Include="lib\fmod\core\lib\arm64\fmod_vc.lib" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\Downloads\levelSelect.jpg" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
