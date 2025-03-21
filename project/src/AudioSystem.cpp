@@ -174,6 +174,7 @@ void AudioSystem::startLevelMusic() {
 }
 
 void AudioSystem::stopMusic() {
+	audioEngine.StopAllChannels();
 	if (musicChannel != nullptr) {
 		musicChannel->stop(); 
 		musicChannel = nullptr;  
@@ -183,4 +184,9 @@ void AudioSystem::stopMusic() {
 		carChannel->stop();  
 		carChannel = nullptr;  
 	}
+
+	for (auto& aiChannel : aiChannels) {
+		aiChannel = nullptr;
+	}
+	aiChannels.clear();
 }
