@@ -148,3 +148,10 @@ bool Controller::isButtonReleased(UINT button) const
 UINT Controller::buttodID() {
     return state.Gamepad.wButtons;
 }
+
+bool Controller::isButtonJustReleased(UINT button) {
+    bool wasPressed = (prevButtonState & button) != 0;
+    bool isReleased = (state.Gamepad.wButtons & button) == 0;
+    prevButtonState = state.Gamepad.wButtons; // Update for next frame
+    return wasPressed && isReleased;
+}

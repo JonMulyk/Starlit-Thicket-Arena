@@ -34,6 +34,10 @@ public:
 
 	void stopMusic();
 
+	void pauseMusic();
+
+	void resumeSounds();
+
 	CAudioEngine audioEngine;
 	CAudioEngine* audioEnginePtr;
 	PhysicsSystem* c_physicsSystem;

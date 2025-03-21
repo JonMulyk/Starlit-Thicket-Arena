@@ -190,3 +190,33 @@ void AudioSystem::stopMusic() {
 	}
 	aiChannels.clear();
 }
+
+void AudioSystem::pauseMusic() {
+
+	// Pause car engine sound
+	if (carChannel != nullptr) {
+		carChannel->setPaused(true);
+	}
+
+	// Pause all AI sounds
+	for (auto& aiChannel : aiChannels) {
+		if (aiChannel != nullptr) {
+			aiChannel->setPaused(true);
+		}
+	}
+}
+
+void AudioSystem::resumeSounds() {
+
+	// Resume car engine sound
+	if (carChannel != nullptr) {
+		carChannel->setPaused(false);
+	}
+
+	// Resume all AI sounds
+	for (auto& aiChannel : aiChannels) {
+		if (aiChannel != nullptr) {
+			aiChannel->setPaused(false);
+		}
+	}
+}

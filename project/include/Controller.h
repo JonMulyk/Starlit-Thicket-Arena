@@ -30,7 +30,11 @@ public:
     void resetVibration();
     bool isButtonPressed(UINT button) const;
 	bool isButtonReleased(UINT button) const;
+    UINT prevButtonState = 0;
     UINT buttodID();
+
+
+    bool isButtonJustReleased(UINT button);
 
     float leftStickX, leftStickY, rightStickX, rightStickY;
     float leftTrigger, rightTrigger;

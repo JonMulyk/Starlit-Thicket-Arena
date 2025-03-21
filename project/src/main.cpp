@@ -127,11 +127,31 @@ int main() {
             controller1.Update();
             audio.update();
 
+            if (input.isKeyReleased(GLFW_KEY_P) || controller1.isButtonJustReleased(XINPUT_GAMEPAD_X)) {
+                gameState = GameStateEnum::PAUSE;
+                timer.stop();
+                audio.pauseMusic();
+            }
+
+            while (gameState == GameStateEnum::PAUSE) {
+                input.poll();
+                controller1.Update(); 
+
+                if (input.isKeyReleased(GLFW_KEY_P) || controller1.isButtonJustReleased(XINPUT_GAMEPAD_X)) {
+                    gameState = GameStateEnum::PLAYING;
+                    timer.resume();
+                    audio.resumeSounds();
+                }
+            }
+
+
             // Update physics
-            while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
-                physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
-                physicsSystem->updatePhysics(timer.dt);
-                timer.advance();
+            if (gameState == GameStateEnum::PLAYING) {
+                while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
+                    physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
+                    physicsSystem->updatePhysics(timer.dt);
+                    timer.advance();
+                }
             }
 
             uiManager.updateUIText(timer, roundDuration, gState.getScore());
