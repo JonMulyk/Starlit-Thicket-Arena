@@ -17,7 +17,8 @@
 #include "Model.h"
 #include "PhysicsSystem.h"
 #include "Entity.h"
-#include "Camera.h"
+#include "DynamicCamera.h"
+#include "StaticCamera.h"
 #include "RenderingSystem.h"
 #include "GameState.h"
 #include "UIManager.h"
@@ -34,7 +35,7 @@ int main() {
     Command command;
 	Command controllerCommand;
     TimeSeconds timer;
-    Camera camera(gState, timer);
+    DynamicCamera camera(gState, timer);
     //Camera camera(gState, timer, true, glm::vec3(0.0f, 250.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), -90.0f, -90.0f);
 
     Windowing window(1200, 1000);
@@ -93,7 +94,7 @@ int main() {
 
     // Minimap 
     Shader minimapShader("minimapShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
-    Camera minimapCamera(gState, timer, true, glm::vec3(0.0f, -250.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f));//, 90.0f, 90.0f, 90.0f, 90.0f);
+    StaticCamera minimapCamera(timer, glm::vec3(0.0f, -250.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
     
     // Main Loop
     //timer.advance();

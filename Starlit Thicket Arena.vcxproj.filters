@@ -135,6 +135,12 @@
     <ClCompile Include="project\src\LevelSelect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="project\src\StaticCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="project\src\DynamicCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="project\assets\shaders\FragShader.frag" />
@@ -1502,6 +1508,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\AudioSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\src\StaticCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\src\DynamicCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\Button.h">

@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -9,7 +8,7 @@
 
 
 class Camera {
-private:
+protected:
     bool isStaticCam = false;
     // camera Attributes
     glm::vec3 Position;
@@ -34,7 +33,9 @@ private:
     double time;
     double factor = 10;
 
-    GameState& gState;
+    Camera(TimeSeconds& timer, glm::vec3 position, glm::vec3 front, glm::vec3 up,
+        float yaw, float pitch, float theta = 0.0f, float phi = 0.0f);
+
 public:
     // Default camera values
     static const float YAW;
@@ -52,16 +53,13 @@ public:
         RIGHT
     };
 
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch, float theta, float phi, GameState& gameState);
 
-    Camera(GameState& gameState, TimeSeconds& t, glm::vec3 position = glm::vec3(0.0f, 10.0f, 10.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH, float theta = THETA, float phi = PHI);
-    // Static Camera
-    Camera(GameState& gameState, TimeSeconds& t, bool isStaticCam, glm::vec3 position = glm::vec3(0.0f, 10.0f, 10.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH, float theta = THETA, float phi = PHI);
+    virtual ~Camera() = default;
     
     float getZoom() const;
     const glm::vec3 getPosition() const;
-    glm::mat4 GetViewMatrix();
-    glm::mat4 GetStaticViewMatrix(glm::vec3 staticPos, glm::vec3 staticDir) const;
+    virtual glm::mat4 GetViewMatrix() = 0;
+
 
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
     void ProcessKeyboard(Camera_Movement direction, float deltaTime);
@@ -78,8 +76,6 @@ public:
     void incrementTheta(float dt);
 
     void incrementPhi(float dp);
-
-    bool isStatic();
 };
 
 
