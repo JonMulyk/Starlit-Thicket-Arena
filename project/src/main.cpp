@@ -66,6 +66,8 @@ int main() {
 
 
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
+    Model groundPlaneModel2(sceneShader, gold, "project/assets/models/reallySquareArena.obj");
+    Model groundPlaneModel3(sceneShader, fire, "project/assets/models/reallySquareArena.obj");
     Camera camera(gState, timer);
     UIManager uiManager(window.getWidth(), window.getHeight());
     int selectedLevel = -1;
@@ -110,8 +112,19 @@ int main() {
 
         audio.init(physicsSystem, &camera);
 
-        // Static scene data
-        sceneModels.push_back(groundPlaneModel);
+        //slected level states and stuff
+        if (selectedLevel == 1)
+        {
+            sceneModels.push_back(groundPlaneModel);
+        }
+        if (selectedLevel == 2)
+        {
+            sceneModels.push_back(groundPlaneModel2);
+        }
+        if (selectedLevel == 3)
+        {
+            sceneModels.push_back(groundPlaneModel3);
+        }
 
         physicsSystem->updateTransforms(gState.dynamicEntities);
 
@@ -169,7 +182,7 @@ int main() {
             gameState = GameStateEnum::MENU;
             gState.dynamicEntities.clear();
             gState.staticEntities.clear();
-            //sceneModels.clear();
+            sceneModels.clear();
 
             gState.reset();
             audio.stopMusic(); 
