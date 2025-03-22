@@ -72,8 +72,8 @@ private:
 	// Helpers to track state
 	std::vector<physx::PxRigidDynamic*> rigidDynamicList;
 	std::vector<Transform*> transformList;
-	Model& trailModel;
-	Model& carModel;
+	std::vector<Model> trailModels;
+	Model* carModel;
 	std::vector<Model> modelList;
 	GameState& gState;
 	ContactReportCallback* gContactReportCallback = nullptr;
@@ -121,7 +121,7 @@ private:
 public:
 	void cleanupPhysics();
 	// Ctor/Dtor
-	PhysicsSystem(GameState& gameState, Model& tModel, Model& cModel);
+	PhysicsSystem(GameState& gameState, std::vector<Model> tModel, Model* cModel);
 	~PhysicsSystem();
 
 	// add random obstacles
