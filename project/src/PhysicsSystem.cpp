@@ -148,14 +148,28 @@ void PhysicsSystem::initBoarder() {
 		gScene->addActor(*body);
 
 		// Rendering
-		gState.staticEntities.push_back(Entity("boarder", trailModel, new Transform()));
-		gState.staticEntities.back().transform->pos = glm::vec3(
-			wallTransform.p.x,
-			wallTransform.p.y,
-			wallTransform.p.z
-		);
-		gState.staticEntities.back().transform->scale = glm::vec3(length, height, thickness);
-		gState.staticEntities.back().transform->rot = glm::vec3(0, wall.rotationY, 0);
+		for (int i = -25; i < 25; i++) {
+			gState.staticEntities.push_back(Entity("boarder", &trailModels[0], new Transform()));
+			if (wall.position.x == 0) {
+				gState.staticEntities.back().transform->pos = glm::vec3(
+					wallTransform.p.x + i * 4,
+					wallTransform.p.y - 1,
+					wallTransform.p.z
+				);
+			} 
+			else {
+				gState.staticEntities.back().transform->pos = glm::vec3(
+					wallTransform.p.x,
+					wallTransform.p.y - 1,
+					wallTransform.p.z + i * 4
+				);
+			}
+
+			gState.staticEntities.back().transform->scale = glm::vec3(5, 5, 5);
+			gState.staticEntities.back().transform->rot = glm::vec3(0, static_cast<float>(rand()), 0);
+
+		}
+
 
 		// Clean up
 		shape->release();
@@ -333,8 +347,8 @@ void PhysicsSystem::cleanupPhysics() {
 	gContactReportCallback = nullptr;
 }
 
-PhysicsSystem::PhysicsSystem(GameState& gameState, Model& tModel, Model& cModel) :
-	gState(gameState), trailModel(tModel), carModel(cModel) {
+PhysicsSystem::PhysicsSystem(GameState& gameState, std::vector<Model> tModel, Model* cModel) :
+	gState(gameState), trailModels(tModel), carModel(cModel) {
 	initPhysics();
 }
 
@@ -394,20 +408,23 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	body->attachShape(*shape);
 	body->setName(name);
 
-	gState.staticEntities.push_back(Entity(name, trailModel, new Transform()));
+	int modelType = 0;
+	if (strcmp(name, "vehicle1") == 0) modelType = 1;
+	if (strcmp(name, "vehicle2") == 0) modelType = 2;
+	if (strcmp(name, "vehicle3") == 0) modelType = 3;
+
+	gState.staticEntities.push_back(Entity(name, &trailModels[modelType], new Transform()));
 
 	gState.staticEntities.back().transform->pos = glm::vec3(
 		wallTransform.p.x,
-		wallTransform.p.y,
+		wallTransform.p.y - 0.3,
 		wallTransform.p.z
 	);
 
-	gState.staticEntities.back().transform->rot.x = wallTransform.q.x;
-	gState.staticEntities.back().transform->rot.y = wallTransform.q.y;
-	gState.staticEntities.back().transform->rot.z = wallTransform.q.z;
-	gState.staticEntities.back().transform->rot.w = wallTransform.q.w;
+	gState.staticEntities.back().transform->scale = glm::vec3(trailStep / 2, height, 1.3);
 
-	gState.staticEntities.back().transform->scale = glm::vec3(trailStep / 2, height, width);
+	gState.staticEntities.back().transform->rot = glm::vec3(0, static_cast<float>(rand()), 0);
+
 
 	gScene->addActor(*body);
 
@@ -532,8 +549,10 @@ void PhysicsSystem::reintialize() {
 	}
 
 	// Remove all static entity objects
-	for (int g = gState.staticEntities.size()-1; g >= 4; g--) {
+	for (int g = gState.staticEntities.size()-1; g >= 0; g--) {
+		if (gState.staticEntities[g].name != "boarder") {
 			gState.staticEntities.erase(gState.staticEntities.begin() + g);
+		}
 	}
 	//std::cout << gState.dynamicEntities.size() << " " << gState.staticEntities.size() << " " << actors.size() << "\n";
 	gState.gMap.resetMap();

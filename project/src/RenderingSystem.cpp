@@ -43,7 +43,7 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities)
     // optimiazation by batching entities that have the same shader together
 	for (const auto& entity : entities)
 	{
-		shaderBatches[&entity.model.getShader()].push_back(&entity);
+        shaderBatches[&entity.model->getShader()].push_back(&entity);
 	}
 
 	for (auto it = shaderBatches.begin(); it != shaderBatches.end(); ++it)
@@ -70,7 +70,7 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities)
                 model = glm::scale(model, entity->transform->scale);
             }
 			shaderPtr->setMat4("model", model);
-			entity->model.draw();
+            entity->model->draw();
 		}
 	}
 }

@@ -52,7 +52,11 @@ int main() {
     Texture fire("project/assets/textures/fire.jpg", true);
     Model cube(lightingShader, container, verts, verts, coord);
     Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
-    Model trail(lightingShader, fire, "project/assets/models/Trail.obj");
+    Model Gtrail(lightingShader, "project/assets/models/Gtree/GTree.obj");
+    Model Btrail(lightingShader, "project/assets/models/Btree/BTree.obj");
+    Model Rtrail(lightingShader, "project/assets/models/Rtree/RTree.obj");
+    Model Ytrail(lightingShader, "project/assets/models/Ytree/YTree.obj");
+    std::vector<Model> trails = { Gtrail, Btrail, Rtrail, Ytrail };
     Model tireModel(lightingShader, "project/assets/models/tire1/tire1.obj");
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
     std::vector<Model> sceneModels;
@@ -80,6 +84,9 @@ int main() {
     MainMenu menu(window, arial, controller1);
     LevelSelectMenu levelSelectMenu(window, arial, controller1);
 
+    std::vector<Model>* trailptr = &trails;
+    Model* carptr = &secondCar;
+
     while (!window.shouldClose()) {
         if (gameState == GameStateEnum::MENU) {
             bool startGame = false;
@@ -106,7 +113,7 @@ int main() {
             controllerCommand.steer = 0.0f;
         }
 
-        PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
+        PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trails, carptr);
 
         audio.init(physicsSystem, &camera);
 
