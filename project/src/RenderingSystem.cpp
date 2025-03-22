@@ -71,7 +71,7 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities, Camera
                 model = glm::scale(model, entity->transform->scale);
             }
 			shaderPtr->setMat4("model", model);
-            entity->model->draw();
+            entity->model->draw(entity->name);
 		}
 	}
 }
