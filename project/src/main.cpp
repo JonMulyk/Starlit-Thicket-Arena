@@ -102,6 +102,7 @@ int main() {
         if (gameState == GameStateEnum::MENU) {
             bool startGame = false;
             while (!window.shouldClose() && !startGame) {
+				glViewport(0, 0, window.getWidth(), window.getHeight()); // reset viewport to ensure fullscreen
                 menu.displayMenu();
                 if (window.shouldClose()) break;
                 selectedLevel = levelSelectMenu.displayMenuLevel();
