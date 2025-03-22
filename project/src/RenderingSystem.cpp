@@ -156,4 +156,7 @@ void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam)
     
     this->renderEntities(gState.dynamicEntities, minimapCam);
     this->renderEntities(gState.staticEntities, minimapCam);
+    
+    // reset viewport
+    glViewport(0, 0, window.getWidth(), window.getHeight());
 }
