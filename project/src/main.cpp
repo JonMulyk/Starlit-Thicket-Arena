@@ -92,9 +92,9 @@ int main() {
     Model* carptr = &secondCar;
 
     // Minimap 
-    Shader minimapShader("basicShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
-    Camera minimapCamera(gState, timer, true, glm::vec3(0.0f, 250.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), -90.0f, -90.0f);
-
+    Shader minimapShader("minimapShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
+    Camera minimapCamera(gState, timer, true, glm::vec3(0.0f, -250.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f));//, 90.0f, 90.0f, 90.0f, 90.0f);
+    
     // Main Loop
     //timer.advance();
     while (!window.shouldClose()) {

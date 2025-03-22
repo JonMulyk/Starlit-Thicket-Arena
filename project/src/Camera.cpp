@@ -45,13 +45,15 @@ Camera::Camera(
 Camera::Camera(GameState& gameState, TimeSeconds& t, glm::vec3 position, glm::vec3 up, float yaw, float pitch, float theta, float phi) :
     gState(gameState),
     timer(t),
-    Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+    Front(glm::vec3(0.0f, 0.0f, 0.0f)),
+    Up(up),
     MovementSpeed(SPEED),
     MouseSensitivity(SENSITIVITY),
     Zoom(ZOOM)
 {
     time = timer.getCurrentTime();
     Position = position;
+    Up = up;
     WorldUp = up;
     Yaw = yaw;
     Pitch = pitch;
@@ -65,13 +67,15 @@ Camera::Camera(GameState& gameState, TimeSeconds& t, bool isStaticCam, glm::vec3
     gState(gameState),
     timer(t),
     isStaticCam(isStaticCam),
-    Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+    Front(glm::vec3(0.0f, -1.0f, 0.0f)),
+    Up(up),
     MovementSpeed(SPEED),
     MouseSensitivity(SENSITIVITY),
     Zoom(ZOOM)
 {
     time = timer.getCurrentTime();
     Position = position;
+    Up = up;
     WorldUp = up;
     Yaw = yaw;
     Pitch = pitch;
@@ -96,7 +100,6 @@ glm::mat4 Camera::GetViewMatrix() {
     {
         /*
         glm::vec3 minimapPos = glm::vec3(0.0f, 250.0f, 0.0f);
-        glm::vec3 lookAtTarget = glm::vec3(0.0f, -1.0f, 0.0f);
 		return glm::lookAt(minimapPos, lookAtTarget, glm::vec3(0.0f, 0.0f, -1.0f));
         */
 		return glm::lookAt(this->getPosition(), this->Up, this->Front);
