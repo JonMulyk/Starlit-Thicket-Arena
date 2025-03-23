@@ -5,6 +5,7 @@
 
 #include "TimeSeconds.h"
 #include "GameState.h"
+#include "Shader.h"
 
 
 class Camera {
@@ -59,6 +60,10 @@ public:
     float getZoom() const;
     const glm::vec3 getPosition() const;
     virtual glm::mat4 GetViewMatrix() = 0;
+
+
+    virtual void updateProjectionView(Shader& viewShader, int windowWidth, int windowHeight) = 0;
+    //void updateProjectionView(Shader& viewShader, int windowWidth, int windowHeight);
 
 
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)

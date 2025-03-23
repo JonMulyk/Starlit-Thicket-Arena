@@ -30,7 +30,6 @@ private:
     TTF& textRenderer;
     GameState& gState;
 
-    void updateProjectionView(Shader& viewShader, Camera& cam);
     void setShaderUniforms(Shader* shader);
 
     glm::mat4 createModelWithTransformations(const Entity* entity, const bool minimapRender);

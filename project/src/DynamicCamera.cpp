@@ -42,3 +42,19 @@ glm::mat4 DynamicCamera::GetViewMatrix()
 
     return glm::lookAt(pos - 10.f * dir, pos + 2.f * dir, glm::vec3(0.0f, 1.0f, 0.0f));
 }
+
+void DynamicCamera::updateProjectionView(Shader& viewShader, int windowWidth, int windowHeight)
+{
+    viewShader.use();
+
+    glm::mat4 projection = glm::perspective(
+        glm::radians(this->getZoom()),
+        static_cast<float>(windowWidth) / static_cast<float>(windowHeight),
+        0.1f, 1000.0f
+    );
+    viewShader.setMat4("projection", projection);
+
+    glm::mat4 view = this->GetViewMatrix();
+    viewShader.setMat4("view", view);
+}
+

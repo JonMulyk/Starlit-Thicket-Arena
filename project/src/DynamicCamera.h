@@ -15,4 +15,6 @@ class DynamicCamera : public Camera
 			float yaw = -90.0f, float pitch = 0.0f);
 
 		glm::mat4 GetViewMatrix() override;
+
+		void updateProjectionView(Shader& viewShader, int windowWidth, int windowHeight) override;
 };

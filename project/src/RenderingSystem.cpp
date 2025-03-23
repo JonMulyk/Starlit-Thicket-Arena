@@ -6,20 +6,6 @@
 RenderingSystem::RenderingSystem(Shader& shader, Camera& camera, Windowing& window, TTF& textRenderer, GameState& gameState)
     : shader(shader), camera(camera), window(window), textRenderer(textRenderer), gState(gameState) {}
 
-void RenderingSystem::updateProjectionView(Shader &viewShader, Camera &cam) {
-    viewShader.use();
-
-    glm::mat4 projection = glm::perspective(
-        glm::radians(cam.getZoom()),
-        float(window.getWidth()) / float(window.getHeight()),
-        0.1f, 1000.0f
-    );
-    viewShader.setMat4("projection", projection);
-
-    glm::mat4 view = cam.GetViewMatrix();
-    viewShader.setMat4("view", view);
-}
-
 void RenderingSystem::setShaderUniforms(Shader* shader)
 {
     if(shader->getName() == "basicShader")
@@ -100,7 +86,7 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities, Camera
 		std::vector<const Entity*>& entityBatch = it->second;
 
 		shaderPtr->use();
-		updateProjectionView(*shaderPtr, cam);
+        cam.updateProjectionView(*shaderPtr, window.getWidth(), window.getHeight());
 		setShaderUniforms(shaderPtr);
 
 		for (const Entity* entity : entityBatch)
@@ -129,7 +115,7 @@ void RenderingSystem::renderText(const std::vector<Text>& renderingText) {
 void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 {
     sceneModels[0].getShader().use();
-    updateProjectionView(sceneModels[0].getShader(), this->camera); // set the correct matrices
+    this->camera.updateProjectionView(sceneModels[0].getShader(), window.getWidth(), window.getHeight());
     shader.setFloat("repeats", 100.f);
 
 
@@ -149,7 +135,7 @@ void RenderingSystem::renderSkybox(Skybox& skybox)
 	glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
 	skybox.getSkyboxShader().setMat4("view", view);
 	//skyboxShader.setMat4("projection", projection);
-    updateProjectionView(skybox.getSkyboxShader(), this->camera);
+    this->camera.updateProjectionView(skybox.getSkyboxShader(), window.getWidth(), window.getHeight());
     
 
 	// skybox cube
