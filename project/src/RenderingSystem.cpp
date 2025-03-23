@@ -169,14 +169,18 @@ void RenderingSystem::updateRenderer(
 void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam)
 {
     minimapShader.use();
+
+    int minimapWidth = window.getWidth() / 4.5;
+    int minimapHeight = window.getHeight() / 4.5;
+    int xOffset = -10;
+    int yOffsetY = -10;
     
     glViewport(
-        window.getWidth() - (window.getWidth() / 4), 
-		window.getHeight() - (window.getHeight() / 4),
-        window.getWidth() / 4,
-        window.getHeight() / 4
+        (window.getWidth() - minimapWidth) + xOffset,         // x position
+		(window.getHeight() - minimapHeight) + yOffsetY,      // y position
+        minimapWidth,                                         // width
+        minimapHeight                                         // height
     );
-    
     
     this->renderEntities(gState.dynamicEntities, minimapCam, true);
     this->renderEntities(gState.staticEntities, minimapCam, true);
