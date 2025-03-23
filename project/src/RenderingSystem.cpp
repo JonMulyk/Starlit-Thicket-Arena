@@ -37,7 +37,52 @@ void RenderingSystem::setShaderUniforms(Shader* shader)
     }
 }
 
-void RenderingSystem::renderEntities(const std::vector<Entity>& entities, Camera& cam) 
+glm::mat4 RenderingSystem::createModelWithTransformations(const Entity* entity, const bool minimapRender)
+{
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, entity->transform->pos);
+	model *= glm::mat4_cast(entity->transform->rot);
+    
+    // minimap
+	if (minimapRender)
+	{
+        // cars
+		if (entity->name == "playerCar" || entity->name == "aiCar")
+		{
+			model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, entity->transform->scale * glm::vec3(1.9f, 1.0f, 1.9f));
+
+            return model;
+		}
+
+        // trails
+		if (entity->name == "playerVehicle" || entity->name == "vehicle1" || entity->name == "vehicle2" || entity->name == "vehicle3")
+		{
+			model = glm::scale(model, entity->transform->scale * glm::vec3(1.5f, 1.0f, 1.5f));
+            return model;
+		}
+        
+        // everything else
+		model = glm::scale(model, entity->transform->scale);
+		return model;
+	}
+    
+    // non-minimap 
+    // cars
+	if (entity->name == "playerCar" || entity->name == "aiCar") {
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, entity->transform->scale * glm::vec3(0.5f, 1.0f, 0.4f));
+
+        return model;
+	}
+
+    // everything else
+	model = glm::scale(model, entity->transform->scale);
+
+    return model;
+}
+
+void RenderingSystem::renderEntities(const std::vector<Entity>& entities, Camera& cam, bool minimapRender) 
 {
 	std::unordered_map<Shader*, std::vector<const Entity*>> shaderBatches;
     
@@ -60,16 +105,8 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities, Camera
 
 		for (const Entity* entity : entityBatch)
 		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, entity->transform->pos);
-			model *= glm::mat4_cast(entity->transform->rot);
-            if (entity->name == "playerCar" || entity->name == "aiCar") {
-				model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-                model = glm::scale(model, entity->transform->scale * glm::vec3(0.5f, 1.0f, 0.4f));
-            }
-            else {
-                model = glm::scale(model, entity->transform->scale);
-            }
+            glm::mat4 model = createModelWithTransformations(entity, minimapRender);
+
 			shaderPtr->setMat4("model", model);
             entity->model->draw(entity->name);
 		}
@@ -155,8 +192,8 @@ void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam)
     );
     
     
-    this->renderEntities(gState.dynamicEntities, minimapCam);
-    this->renderEntities(gState.staticEntities, minimapCam);
+    this->renderEntities(gState.dynamicEntities, minimapCam, true);
+    this->renderEntities(gState.staticEntities, minimapCam, true);
     
     // reset viewport
     glViewport(0, 0, window.getWidth(), window.getHeight());

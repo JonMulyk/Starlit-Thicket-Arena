@@ -32,7 +32,10 @@ private:
 
     void updateProjectionView(Shader& viewShader, Camera& cam);
     void setShaderUniforms(Shader* shader);
-    void renderEntities(const std::vector<Entity>& entities, Camera& cam);
+
+    glm::mat4 createModelWithTransformations(const Entity* entity, const bool minimapRender);
+
+    void renderEntities(const std::vector<Entity>& entities, Camera& cam, bool minimapRender = false);
     void renderText(const std::vector<Text>& renderingText);
     void renderSkybox(Skybox& skybox);
     void renderScene(std::vector<Model>& sceneModels);
