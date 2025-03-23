@@ -94,7 +94,8 @@ int main() {
 
     // Minimap 
     Shader minimapShader("minimapShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
-    StaticCamera minimapCamera(timer, glm::vec3(0.0f, -250.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
+    StaticCamera minimapCamera(timer, glm::vec3(0.0f, 250.0f, 0.0f), 
+        glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     
     // Main Loop
     //timer.advance();

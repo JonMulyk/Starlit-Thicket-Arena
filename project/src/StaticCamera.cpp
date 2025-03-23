@@ -9,5 +9,6 @@ StaticCamera::StaticCamera(TimeSeconds& t, glm::vec3 position, glm::vec3 front, 
 
 glm::mat4 StaticCamera::GetViewMatrix()
 {
-	return glm::lookAt(this->getPosition(), this->Up, this->Front);
+	//return glm::lookAt(this->getPosition(), this->Up, this->Front);
+	return glm::lookAt(this->getPosition(), this->getPosition() + this->Front, this->Up);
 }
