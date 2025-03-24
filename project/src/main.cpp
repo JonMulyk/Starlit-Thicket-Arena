@@ -138,7 +138,6 @@ int main() {
 
         physicsSystem->updateTransforms(gState.dynamicEntities);
         
-        std::cout << "---------- resetting scoreboard" << std::endl;
         // reset scoreboard
 		gState.initializeScores(numberOfPlayers, numberOfAiCars);
 		uiManager.addScoreText(gState);

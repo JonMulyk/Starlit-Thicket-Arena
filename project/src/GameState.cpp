@@ -68,9 +68,7 @@ std::string GameState::physicsToUiNameConversion(std::string physicsName)
 
 void GameState::addScoreToVehicle(std::string name, uint64_t amount)
 {
-	std::cout << "adding score to: " << name << std::endl;
 	std::string uiName = physicsToUiNameConversion(name);
-	std::cout << "uiName: " << uiName << std::endl;
 
 	// check if key does not exist in map 
 	if (uiName == "" || (scores.find(uiName) == scores.end()))
@@ -83,7 +81,6 @@ void GameState::addScoreToVehicle(std::string name, uint64_t amount)
 	{
 		scores[uiName] = UINT64_MAX;
 		return;
-		//throw std::runtime_error("Error: score will overflow, score: " + std::to_string(score));
 	}
 
 	scores[uiName] += amount;
