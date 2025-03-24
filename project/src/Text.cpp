@@ -10,6 +10,26 @@ Text::Text(const std::string& text, float x, float y, float scale, const glm::ve
 {
 }
 
+Text::Text(const Text& other)
+	: name(other.name), textToRender(other.textToRender), x(other.x), y(other.y), scale(other.scale), color(other.color)
+{
+}
+
+Text& Text::operator=(const Text& other)
+{
+	if (this != &other)
+	{
+		//name = other.name;
+		textToRender = other.textToRender;
+		x = other.x;
+		y = other.y;
+		scale = other.scale;
+		color = other.color;
+	}
+
+	return *this;
+}
+
 
 const std::string& Text::getName() const
 {

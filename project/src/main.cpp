@@ -95,7 +95,11 @@ int main() {
     Shader minimapShader("minimapShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
     StaticCamera minimapCamera(timer, glm::vec3(0.0f, 250.0f, 0.0f), 
         glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    
+
+    // Number of players playing for scoreboard 
+    uint16_t numberOfPlayers = 1;
+    uint16_t numberOfAiCars = 3;
+
     // Main Loop
     //timer.advance();
     while (!window.shouldClose()) {
@@ -133,6 +137,10 @@ int main() {
         sceneModels.push_back(groundPlaneModel);
 
         physicsSystem->updateTransforms(gState.dynamicEntities);
+        
+        // reset scoreboard
+		gState.initializeScores(numberOfPlayers, numberOfAiCars);
+		uiManager.addScoreText(gState);
 
 
         // Main Loop
@@ -151,10 +159,14 @@ int main() {
                 physicsSystem->updatePhysics(timer.dt);
                 timer.advance();
             }
+            
+            // update dynamic UI text
+            uiManager.updateUIText(timer, roundDuration, gState);
 
-            uiManager.updateUIText(timer, roundDuration, gState.getScore());
+            // render everything except minimap
             renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
-
+        
+            // render minimap
 			glDisable(GL_DEPTH_TEST);
 			renderer.renderMinimap(minimapShader, minimapCamera);
 			glEnable(GL_DEPTH_TEST);
