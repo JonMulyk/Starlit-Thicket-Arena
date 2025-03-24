@@ -65,14 +65,12 @@ struct MaterialProp {
 	physx::PxReal restitution;
 };
 
-
-
 class PhysicsSystem {
 private:
 	// Helpers to track state
 	std::vector<physx::PxRigidDynamic*> rigidDynamicList;
 	std::vector<Transform*> transformList;
-	std::vector<Model> trailModels;
+	std::vector<Model> pModels;
 	Model* carModel;
 	std::vector<Model> modelList;
 	GameState& gState;
@@ -121,7 +119,7 @@ private:
 public:
 	void cleanupPhysics();
 	// Ctor/Dtor
-	PhysicsSystem(GameState& gameState, std::vector<Model> tModel, Model* cModel);
+	PhysicsSystem(GameState& gameState, std::vector<Model> tModel);
 	~PhysicsSystem();
 
 	// add random obstacles
@@ -138,6 +136,9 @@ public:
 
 	// update the transforms based on physx
 	void updateTransforms(std::vector<Entity>& entityList);
+
+	// Shatters the car into cubes
+	void shatter(physx::PxVec3 location, physx::PxVec3 direction);
 
 	// updates collsions
 	void updateCollisions();
