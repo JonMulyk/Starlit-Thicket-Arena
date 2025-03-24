@@ -74,9 +74,10 @@ int main() {
     UIManager uiManager(window.getWidth(), window.getHeight());
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
-    const double roundDuration = 20;
+    const double roundDuration = 200;
 
     bool isAudioInitialized = false;
+
     Input input(window, camera, timer, command);
     Controller controller1(1, camera, controllerCommand);
     AudioSystem audio;
@@ -132,7 +133,17 @@ int main() {
             timer.tick();
             input.poll();
             controller1.Update();
-            audio.update();
+            //audio.update();
+
+            if (physicsSystem->playerDied) {
+                audio.stopCarSounds(); 
+            }
+            else {
+                audio.startCarSounds();  
+                audio.update();
+            }
+
+            physicsSystem->update(timer.getFrameTime());
 
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {

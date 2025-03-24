@@ -473,7 +473,23 @@ void PhysicsSystem::updateCollisions() {
 
 		// check if player died
 		if (str.compare("playerVehicle") == 0) {
-			reintialize();
+			
+
+			for (int i = 0; i < gState.dynamicEntities.size(); i++) {
+				auto& entity = gState.dynamicEntities[i];
+				if (entity.vehicle->name == "playerVehicle") {
+					//entity.transform->scale = glm::vec3(0.0f, 0.0f, 0.0f); //cursed af
+					entity.vehicle->vehicle.destroy();
+					// remove Dynamic Object
+					rigidDynamicList.erase(rigidDynamicList.begin() + i);
+					transformList.erase(transformList.begin() + i);
+					gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
+
+				}
+			}
+		pendingReinit = true;
+		reinitTime = 0.0;
+		playerDied = true;
 		}
 		// check which vehicle it was
 		else {
@@ -520,10 +536,12 @@ void PhysicsSystem::updateCollisions() {
 			}
 
 			if (aiCounter <= 1) {
-				reintialize();
+				pendingReinit = true;
+				reinitTime = 0.0;
 			}
 		}
-		gContactReportCallback->readNewCollision();
+
+	gContactReportCallback->readNewCollision();
 	}
 }
 
@@ -573,11 +591,23 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 	for (auto& entity : gState.dynamicEntities) {
 		if (entity.name == "playerCar") {
 			Command cmd;
-			cmd.brake = 0; command.brake + controllerCommand.brake;
-			cmd.throttle = physx::PxClamp(command.throttle + controllerCommand.throttle, .5f, .9f);
-			cmd.steer = command.steer + controllerCommand.steer;
 
-			entity.vehicle->setPhysxCommand(cmd);
+			if (playerDied) {
+				cmd.brake = 1.0f;        // Apply full brake to stop movement
+				cmd.throttle = 0.0f;     // Set throttle to 0
+				cmd.steer = 0.0f;        // Set steer to 0 to stop turning
+
+				entity.vehicle->setPhysxCommand(cmd);
+			}
+			else {
+				// Normal handling for player car movement
+				cmd.brake = 0;
+				cmd.throttle = physx::PxClamp(command.throttle + controllerCommand.throttle, .5f, .9f);
+				cmd.steer = command.steer + controllerCommand.steer;
+
+				entity.vehicle->setPhysxCommand(cmd);
+			}
+
 
 			// Step the vehicle
 			entity.vehicle->forward = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
@@ -713,5 +743,22 @@ std::vector<physx::PxVec3> PhysicsSystem::getAIPositions() {
 		}
 	}
 	return aiPositions;
+}
+
+void PhysicsSystem::update(double deltaTime) {
+	// Handle countdown before reinitialization
+	if (pendingReinit) {
+		reinitTime += deltaTime;
+
+		if (reinitTime >= reinitDelay) {
+			reintialize();
+			pendingReinit = false;
+			reinitTime = 0.0;
+			playerDied = false;
+		}
+		return;  // Skip further updates while waiting for reinit
+	}
+
+	updateCollisions();
 }
 

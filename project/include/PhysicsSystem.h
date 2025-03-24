@@ -116,7 +116,11 @@ private:
 	void initMaterialFrictionTable();
 	bool initVehicles(int numAI);
 	bool initPhysics();
-	
+
+	bool pendingReinit = false;
+	double reinitTime = 0.0;
+	double reinitDelay = 3.0;  
+
 
 public:
 	void cleanupPhysics();
@@ -158,5 +162,8 @@ public:
 
 	//return position of all AI vehicles
 	std::vector<physx::PxVec3> getAIPositions();
+	void update(double deltaTime);
+
 	void reset();
+	bool playerDied = false;
 };
