@@ -551,7 +551,19 @@ void PhysicsSystem::updateCollisions() {
 						}
 					}
 					if (colliding2 == "playerVehicle") {
-						gState.addToScore(1);
+						gState.addScoreToVehicle("player1", 1);
+					}
+					else if (colliding2 == "vehicle1")
+					{
+						gState.addScoreToVehicle("ai1", 1);
+					}
+					else if (colliding2 == "vehicle2")
+					{
+						gState.addScoreToVehicle("ai2", 1);
+					}
+					else if (colliding2 == "vehicle3")
+					{
+						gState.addScoreToVehicle("ai3", 1);
 					}
 				}
 			}
