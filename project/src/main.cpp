@@ -51,9 +51,9 @@ int main() {
     Texture neon("project/assets/textures/neon.jpg", true);
     Texture fire("project/assets/textures/fire.jpg", true);
     Model cube(lightingShader, container, verts, verts, coord);
-    Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
+    //Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
     Model trail(lightingShader, fire, "project/assets/models/Trail.obj");
-    Model tireModel(lightingShader, "project/assets/models/tire1/tire1.obj");
+    //Model tireModel(lightingShader, "project/assets/models/tire1/tire1.obj");
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
     std::vector<Model> sceneModels;
     GameStateEnum gameState = GameStateEnum::MENU;
@@ -139,6 +139,7 @@ int main() {
             input.poll();
             controller1.Update();
             audio.update();
+            physicsSystem->update(timer.getFrameTime());
 
 
             //pause

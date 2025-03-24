@@ -1,5 +1,6 @@
 #include "PhysicsSystem.h"
 #include "AudioEngine.h"
+#include <TimeSeconds.h>
 // Initialize PVD, create scene, vehicle compatibility, and scene components (gravity and friction)
 void PhysicsSystem::initPhysX() {
 	// namespaces
@@ -456,7 +457,16 @@ void PhysicsSystem::updateCollisions() {
 
 		// check if player died
 		if (str.compare("playerVehicle") == 0) {
-			reintialize();
+			for (int i = gState.dynamicEntities.size() - 1; i >= 0; i--) {
+				auto& entity = gState.dynamicEntities[i];
+				if (entity.name == "playerVehicle") {
+					entity.vehicle->vehicle.destroy();
+				}
+			}
+
+			collisionDetected = true;
+			collisionTimer = 0.0; // Reset the timer
+			timer.reset();
 		}
 		// check which vehicle it was
 		else {
@@ -503,7 +513,9 @@ void PhysicsSystem::updateCollisions() {
 			}
 
 			if (aiCounter <= 1) {
-				reintialize();
+				collisionDetected = true;
+				collisionTimer = 0.0; // Reset the timer
+				timer.reset();
 			}
 		}
 		gContactReportCallback->readNewCollision();
@@ -696,3 +708,14 @@ std::vector<physx::PxVec3> PhysicsSystem::getAIPositions() {
 	return aiPositions;
 }
 
+
+void PhysicsSystem::update(float deltaTime) {
+	if (collisionDetected) {
+		collisionTimer += deltaTime;
+
+		if (collisionTimer >= collisionResetDelay) {
+			reintialize();
+			collisionDetected = false;
+		}
+	}
+}

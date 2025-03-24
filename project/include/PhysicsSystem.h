@@ -17,6 +17,7 @@
 #include "GameState.h"
 #include "Command.h"
 #include "Vehicle.h"
+#include "TimeSeconds.h"
 
 
 
@@ -116,7 +117,11 @@ private:
 	void initMaterialFrictionTable();
 	bool initVehicles(int numAI);
 	bool initPhysics();
-	
+
+	double collisionTimer = 0.0;
+	bool collisionDetected = false;
+	TimeSeconds timer;
+	const double collisionResetDelay = 2.0;
 
 public:
 	void cleanupPhysics();
@@ -159,4 +164,6 @@ public:
 	//return position of all AI vehicles
 	std::vector<physx::PxVec3> getAIPositions();
 	void reset();
+
+	void update(float deltaTime);
 };
