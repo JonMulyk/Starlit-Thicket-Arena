@@ -135,6 +135,12 @@
     <ClCompile Include="project\src\LevelSelect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="project\src\StaticCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="project\src\DynamicCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="project\assets\shaders\FragShader.frag" />
@@ -150,6 +156,8 @@
     <None Include="project\assets\shaders\mainMenuShader.frag" />
     <None Include="project\assets\shaders\text.vert" />
     <None Include="project\assets\shaders\text.frag" />
+    <None Include="project\assets\shaders\minimapShader.vert" />
+    <None Include="project\assets\shaders\minimapShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="project\include\Windowing.h">
@@ -1500,6 +1508,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\AudioSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\src\StaticCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\src\DynamicCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\Button.h">

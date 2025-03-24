@@ -47,16 +47,16 @@ void Input::processKeyboard() {
 
     // Camera movement (arrows)
     if (glfwGetKey(r_window, GLFW_KEY_UP) == GLFW_PRESS) {
-        r_camera.ProcessKeyboard(r_camera.FORWARD, deltaTime);
+        r_camera.ProcessKeyboard(Camera::Camera_Movement::FORWARD, deltaTime);
     }
     if (glfwGetKey(r_window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        r_camera.ProcessKeyboard(r_camera.BACKWARD, deltaTime);
+        r_camera.ProcessKeyboard(Camera::Camera_Movement::BACKWARD, deltaTime);
     }
     if (glfwGetKey(r_window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        r_camera.ProcessKeyboard(r_camera.RIGHT, deltaTime);
+        r_camera.ProcessKeyboard(Camera::Camera_Movement::RIGHT, deltaTime);
     }
     if (glfwGetKey(r_window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        r_camera.ProcessKeyboard(r_camera.LEFT, deltaTime);
+        r_camera.ProcessKeyboard(Camera::Camera_Movement::LEFT, deltaTime);
     }
 }
 

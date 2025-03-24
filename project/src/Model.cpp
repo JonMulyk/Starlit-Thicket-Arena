@@ -309,7 +309,7 @@ Shader& Model::getShader()
 }
 
 
-void Model::draw() {
+void Model::draw(std::string entityName) {
     m_shader.use();
 
     if (hasTexture && m_texture) {
@@ -320,7 +320,7 @@ void Model::draw() {
     }
 
     for (unsigned int i = 0; i < meshes.size(); i++) {
-        meshes[i].Draw(m_shader);
+        meshes[i].Draw(m_shader, entityName);
     }
 
     glBindVertexArray(VAO);
