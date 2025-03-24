@@ -550,6 +550,8 @@ void PhysicsSystem::updateCollisions() {
 							gState.staticEntities.erase(gState.staticEntities.begin() + g);
 						}
 					}
+					gState.addScoreToVehicle(colliding2, 1);
+					/*
 					if (colliding2 == "playerVehicle") {
 						gState.addScoreToVehicle("player1", 1);
 					}
@@ -565,6 +567,7 @@ void PhysicsSystem::updateCollisions() {
 					{
 						gState.addScoreToVehicle("ai3", 1);
 					}
+					*/
 				}
 			}
 

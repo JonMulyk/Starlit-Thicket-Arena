@@ -43,6 +43,7 @@ class GameState {
 		std::vector<std::pair<std::string, uint64_t>> getSortedScores();
 		std::string getSortedScoresString();
 		void sortScores();
+		std::string physicsToUiNameConversion(std::string physicsName);
 		void addScoreToVehicle(std::string name, uint64_t value);
 		void initializeScores(uint16_t numberOfPlayers, uint16_t numberOfAiCars);
 

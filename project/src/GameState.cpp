@@ -42,16 +42,51 @@ void GameState::sortScores()
 	sortedScores = std::move(scoresVec);
 }
 
+std::string GameState::physicsToUiNameConversion(std::string physicsName)
+{
+	if (physicsName == "playerVehicle") {
+		return "player1";
+	}
+
+	if (physicsName == "vehicle1")
+	{
+		return "ai1";
+	}
+
+	if (physicsName == "vehicle2")
+	{
+		return "ai2";
+	}
+
+	if (physicsName == "vehicle3")
+	{
+		return "ai3";
+	}
+
+	return "";
+}
+
 void GameState::addScoreToVehicle(std::string name, uint64_t amount)
 {
-	if (scores[name] > UINT64_MAX - amount)
+	std::cout << "adding score to: " << name << std::endl;
+	std::string uiName = physicsToUiNameConversion(name);
+	std::cout << "uiName: " << uiName << std::endl;
+
+	// check if key does not exist in map 
+	if (uiName == "" || (scores.find(uiName) == scores.end()))
 	{
-		scores[name] = UINT64_MAX;
+		return;
+	}
+	
+	// bounds checking
+	if (scores[uiName] > UINT64_MAX - amount)
+	{
+		scores[uiName] = UINT64_MAX;
 		return;
 		//throw std::runtime_error("Error: score will overflow, score: " + std::to_string(score));
 	}
 
-	scores[name] += amount;
+	scores[uiName] += amount;
 	sortScores();
 }
 
