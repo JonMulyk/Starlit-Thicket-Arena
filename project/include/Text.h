@@ -19,6 +19,12 @@ class Text
 	public:
 		Text(const std::string& name, const std::string& text, float x, float y, float scale, const glm::vec3& color);
 		Text(const std::string& text, float x, float y, float scale, const glm::vec3& color);
+
+		//copy constructor
+		Text(const Text& other);
+		// copy assignment operator
+		Text& operator=(const Text& other);
+
 	
 		// getters and setters
 		const std::string& getName() const;
