@@ -129,3 +129,14 @@ void Camera::incrementPhi(float dp) {
         Phi += 2.0 * M_PI;
     }
 }
+
+void Camera::updateZoom(float speed) {
+    // Compute the target zoom based on the speed
+    float targetZoom = (speed * 3.5) + 40.f;
+
+    // interpolation factor (t) between 0 and 1.
+    float t = 0.1f;
+
+    // Smoothly interpolate from the current zoom to the target zoom
+    Zoom = lerp(Zoom, targetZoom, t);
+}
