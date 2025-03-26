@@ -9,6 +9,8 @@
 
 
 class Camera {
+private:
+	Transform* followTarget = nullptr;
 protected:
     bool isStaticCam = false;
     // camera Attributes
@@ -81,6 +83,9 @@ public:
     void incrementTheta(float dt);
 
     void incrementPhi(float dp);
+
+    void setFollowTarget(Transform* target) { followTarget = target; }
+    Transform* getFollowTarget() const { return followTarget; }
 };
 
 

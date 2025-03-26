@@ -154,7 +154,7 @@ void RenderingSystem::updateRenderer(
     Skybox& skybox
 )
 {
-    glViewport(0, 0, window.getWidth(), window.getHeight());
+    //glViewport(0, 0, window.getWidth(), window.getHeight());
 
 	// Render Entities & Text
     this->renderSkybox(skybox);
@@ -168,23 +168,56 @@ void RenderingSystem::updateRenderer(
 
 void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam)
 {
+    // Retrieve the current viewport for the player's screen region.
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport); // viewport: [x, y, width, height]
+    int vpX = viewport[0];
+    int vpY = viewport[1];
+    int vpWidth = viewport[2];
+    int vpHeight = viewport[3];
+
+    // Define minimap size as a fraction of the player's viewport (here 1/4)
+    int minimapWidth = vpWidth / 4;
+    int minimapHeight = vpHeight / 4;
+    int offset = 10; // offset from the edge in pixels
+
+    // Position minimap in the top-right corner of the current viewport.
+    int minimapX = vpX + vpWidth - minimapWidth - offset;
+    int minimapY = vpY + vpHeight - minimapHeight - offset;
+
+    // Use the minimap shader.
     minimapShader.use();
 
-    int minimapWidth = window.getWidth() / 4.5;
-    int minimapHeight = window.getHeight() / 4.5;
-    int xOffset = -10;
-    int yOffsetY = -10;
-    
-    glViewport(
-        (window.getWidth() - minimapWidth) + xOffset,         // x position
-		(window.getHeight() - minimapHeight) + yOffsetY,      // y position
-        minimapWidth,                                         // width
-        minimapHeight                                         // height
-    );
-    
+    // Set the viewport to the minimap area.
+    glViewport(minimapX, minimapY, minimapWidth, minimapHeight);
+
+    // Render the entities using the minimap camera and the 'minimapRender' flag set to true.
     this->renderEntities(gState.dynamicEntities, minimapCam, true);
     this->renderEntities(gState.staticEntities, minimapCam, true);
-    
-    // reset viewport
-    glViewport(0, 0, window.getWidth(), window.getHeight());
+
+    // Reset the viewport back to the player's main viewport.
+    glViewport(vpX, vpY, vpWidth, vpHeight);
 }
+
+//void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam)
+//{
+//    minimapShader.use();
+//
+//    int minimapWidth = window.getWidth() / 4.5;
+//    int minimapHeight = window.getHeight() / 4.5;
+//    int xOffset = -10;
+//    int yOffsetY = -10;
+//    
+//    glViewport(
+//        (window.getWidth() - minimapWidth) + xOffset,         // x position
+//		(window.getHeight() - minimapHeight) + yOffsetY,      // y position
+//        minimapWidth,                                         // width
+//        minimapHeight                                         // height
+//    );
+//    
+//    this->renderEntities(gState.dynamicEntities, minimapCam, true);
+//    this->renderEntities(gState.staticEntities, minimapCam, true);
+//    
+//    // reset viewport
+//    glViewport(0, 0, window.getWidth(), window.getHeight());
+//}

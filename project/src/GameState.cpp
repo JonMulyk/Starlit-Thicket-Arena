@@ -42,27 +42,28 @@ void GameState::sortScores()
 	sortedScores = std::move(scoresVec);
 }
 
+//bool splitScreenEnabled = false;
+//bool splitScreenEnabled4 = true;
 std::string GameState::physicsToUiNameConversion(std::string physicsName)
 {
-	if (physicsName == "playerVehicle") {
-		return "player1";
+	if (splitScreenEnabled == false && splitScreenEnabled4 == false) {
+		if (physicsName == "playerVehicle") { return "player1"; }
+		if (physicsName == "vehicle1") { return "ai1"; }
+		if (physicsName == "vehicle2") { return "ai2"; }
+		if (physicsName == "vehicle3") { return "ai3"; }
 	}
-
-	if (physicsName == "vehicle1")
-	{
-		return "ai1";
+	if (splitScreenEnabled == true && splitScreenEnabled4 == false) {
+		if (physicsName == "playerVehicle") { return "player1"; }
+		if (physicsName == "vehicle1") { return "player2"; }
+		if (physicsName == "vehicle2") { return "ai2"; }
+		if (physicsName == "vehicle3") { return "ai3"; }
 	}
-
-	if (physicsName == "vehicle2")
-	{
-		return "ai2";
+	if (splitScreenEnabled == false && splitScreenEnabled4 == true) {
+		if (physicsName == "playerVehicle") { return "player1"; }
+		if (physicsName == "vehicle1") { return "player2"; }
+		if (physicsName == "vehicle2") { return "player3"; }
+		if (physicsName == "vehicle3") { return "player4"; }
 	}
-
-	if (physicsName == "vehicle3")
-	{
-		return "ai3";
-	}
-
 	return "";
 }
 

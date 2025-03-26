@@ -26,6 +26,7 @@
 #include "AudioSystem.h"
 #include "MainMenu.h"
 #include "LevelSelect.h"
+#include "splitScreenSelect.h"
 
 
 
@@ -33,21 +34,39 @@ int main() {
     GameState gState;
     InitManager::initGLFW();
     Command command;
-	Command controllerCommand;
+	Command controllerCommand1;
+	Command controllerCommand2;
+	Command controllerCommand3;
+	Command controllerCommand4;
     TimeSeconds timer;
     DynamicCamera camera(gState, timer);
-    //Camera camera(gState, timer, true, glm::vec3(0.0f, 250.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), -90.0f, -90.0f);
+    DynamicCamera camera2(gState, timer);
+    DynamicCamera camera3(gState, timer);
+    DynamicCamera camera4(gState, timer);
 
     Windowing window(1200, 1000);
 
     Input input(window, camera, timer, command);
-    Controller controller1(1, camera, controllerCommand);
+    Controller controller1(1, camera, controllerCommand1);
+	Controller controller2(2, camera2, controllerCommand2);
+	Controller controller3(3, camera3, controllerCommand3);
+	Controller controller4(4, camera4, controllerCommand4);
     if (!controller1.isConnected()) {
-        std::cout << "Controller one not connected" << std::endl;
-        controllerCommand.brake = 0.0f;
-        controllerCommand.throttle = 0.0f;
-        controllerCommand.steer = 0.0f;
+        std::cout << "Controller one not connected" << std::endl; 
+        controllerCommand1.brake = 0.0f; controllerCommand1.throttle = 0.0f; controllerCommand1.steer = 0.0f;
     }
+	if (!controller2.isConnected()) {
+		std::cout << "Controller two not connected" << std::endl;
+		controllerCommand2.brake = 0.0f; controllerCommand2.throttle = 0.0f; controllerCommand2.steer = 0.0f;
+	}
+	if (!controller3.isConnected()) {
+		std::cout << "Controller three not connected" << std::endl;
+		controllerCommand3.brake = 0.0f; controllerCommand3.throttle = 0.0f; controllerCommand3.steer = 0.0f;
+	}
+	if (!controller4.isConnected()) {
+		std::cout << "Controller four not connected" << std::endl;
+		controllerCommand4.brake = 0.0f; controllerCommand4.throttle = 0.0f; controllerCommand4.steer = 0.0f;
+	}
 
     Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
@@ -80,6 +99,9 @@ int main() {
     UIManager uiManager(window.getWidth(), window.getHeight());
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
+    RenderingSystem renderer2(shader, camera2, window, arial, gState);
+    RenderingSystem renderer3(shader, camera3, window, arial, gState);
+    RenderingSystem renderer4(shader, camera4, window, arial, gState);
     const double roundDuration = 20;
 
     bool isAudioInitialized = false;
@@ -87,6 +109,7 @@ int main() {
 
     MainMenu menu(window, arial, controller1);
     LevelSelectMenu levelSelectMenu(window, arial, controller1);
+	splitScreenSelect splitScreenSelectMenu(window, arial, controller1);
 
 
     std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube};
@@ -105,17 +128,27 @@ int main() {
     while (!window.shouldClose()) {
         if (gameState == GameStateEnum::MENU) {
             bool startGame = false;
+            // Display main menu and level select until a valid level is chosen.
             while (!window.shouldClose() && !startGame) {
-				glViewport(0, 0, window.getWidth(), window.getHeight()); // reset viewport to ensure fullscreen
+                glViewport(0, 0, window.getWidth(), window.getHeight()); // ensure fullscreen for menus
                 menu.displayMenu();
                 if (window.shouldClose()) break;
                 selectedLevel = levelSelectMenu.displayMenuLevel();
-                if (selectedLevel != -1) startGame = true;
-
+                if (selectedLevel != -1)
+                    startGame = true;
             }
-            if (!startGame || window.shouldClose()) {
+            if (!startGame || window.shouldClose())
                 return 0;
-            }
+
+            // Now display the split screen selection menu.
+            splitScreenSelect splitMenu(window, arial, controller1);
+            int splitChoice = splitMenu.displayMenuLevel();
+            if (splitChoice == -1) { continue; }
+            else if (splitChoice == 1) { gState.splitScreenEnabled = false; gState.splitScreenEnabled4 = false; }
+            else if (splitChoice == 2) { gState.splitScreenEnabled = true; gState.splitScreenEnabled4 = false; }
+            else if (splitChoice == 3) { gState.splitScreenEnabled = false; gState.splitScreenEnabled4 = true; }
+
+            // Proceed to start the game.
             gameState = GameStateEnum::PLAYING;
         }
 
@@ -124,12 +157,25 @@ int main() {
 
         if (!controller1.isConnected()) {
             std::cout << "Controller one not connected" << std::endl;
-            controllerCommand.brake = 0.0f;
-            controllerCommand.throttle = 0.0f;
-            controllerCommand.steer = 0.0f;
+            controllerCommand1.brake = 0.0f; controllerCommand1.throttle = 0.0f; controllerCommand1.steer = 0.0f;
+        }
+        if (!controller2.isConnected()) {
+            std::cout << "Controller two not connected" << std::endl;
+            controllerCommand2.brake = 0.0f; controllerCommand2.throttle = 0.0f; controllerCommand2.steer = 0.0f;
+        }
+        if (!controller3.isConnected()) {
+            std::cout << "Controller three not connected" << std::endl;
+            controllerCommand3.brake = 0.0f; controllerCommand3.throttle = 0.0f; controllerCommand3.steer = 0.0f;
+        }
+        if (!controller4.isConnected()) {
+            std::cout << "Controller four not connected" << std::endl;
+            controllerCommand4.brake = 0.0f; controllerCommand4.throttle = 0.0f; controllerCommand4.steer = 0.0f;
         }
 
         PhysicsSystem* physicsSystem = new PhysicsSystem(gState, models);
+        camera2.setFollowTarget(physicsSystem->getTransformAt(1));
+        camera3.setFollowTarget(physicsSystem->getTransformAt(2));
+        camera4.setFollowTarget(physicsSystem->getTransformAt(3));
 
         audio.init(physicsSystem, &camera);
 
@@ -153,23 +199,98 @@ int main() {
             controller1.Update();
             audio.update();
 
+            //update projection matrices
+   //         if (gState.splitScreenEnabled) {
+			//	camera.updateProjectionView(shader, window.getWidth(), window.getHeight()/2);
+			//	camera2.updateProjectionView(shader, window.getWidth(), window.getHeight() / 2);
+   //         }
+   //         else if (gState.splitScreenEnabled4) {
+			//	camera.updateProjectionView(shader, window.getWidth() / 2, window.getHeight() / 2);
+			//	camera2.updateProjectionView(shader, window.getWidth() / 2, window.getHeight() / 2);
+			//	camera3.updateProjectionView(shader, window.getWidth() / 2, window.getHeight() / 2);
+			//	camera4.updateProjectionView(shader, window.getWidth() / 2, window.getHeight() / 2);
+			//}
+   //         else {
+   //             camera.updateProjectionView(shader, window.getWidth(), window.getHeight());
+   //         }
+
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
-                physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
+                physicsSystem->stepPhysics(timer.dt, command, controllerCommand1);
                 physicsSystem->updatePhysics(timer.dt);
                 timer.advance();
             }
-            
-            // update dynamic UI text
-            uiManager.updateUIText(timer, roundDuration, gState);
 
-            // render everything except minimap
-            renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+            if (gState.splitScreenEnabled) {
+                //std::cout << "here\n";
+                camera2.setFollowTarget(physicsSystem->getTransformAt(1));
+                // Left half
+                glViewport(0, window.getHeight() / 2, window.getWidth(), window.getHeight() / 2);
+                uiManager.updateUIText(timer, roundDuration, gState);
+                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera1 (a Camera instance)
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
+
+                // Right half
+                //print camera2 position
+                glViewport(0, 0, window.getWidth(), window.getHeight() / 2);
+                uiManager.updateUIText(timer, roundDuration, gState);
+                renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera2 (a Camera instance)
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
+            }
+            else if (gState.splitScreenEnabled4) {
+                camera2.setFollowTarget(physicsSystem->getTransformAt(1));
+                camera3.setFollowTarget(physicsSystem->getTransformAt(2));
+                camera4.setFollowTarget(physicsSystem->getTransformAt(3));
+                // split the screen into 4 separate quadrants
+                // top left
+                glViewport(0, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
+                uiManager.updateUIText(timer, roundDuration, gState);
+                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
+
+                // top right
+                glViewport(window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
+                uiManager.updateUIText(timer, roundDuration, gState);
+                renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
+
+                // bottom left
+                glViewport(0, 0, window.getWidth() / 2, window.getHeight() / 2);
+                uiManager.updateUIText(timer, roundDuration, gState);
+                renderer3.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
+
+                // bottom right
+                glViewport(window.getWidth() / 2, 0, window.getWidth() / 2, window.getHeight() / 2);
+                uiManager.updateUIText(timer, roundDuration, gState);
+                renderer4.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
+            }
+            else {
+                // update dynamic UI text
+                uiManager.updateUIText(timer, roundDuration, gState);
+
+                // render everything except minimap
+                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                // render minimap
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
+            }
         
-            // render minimap
-			glDisable(GL_DEPTH_TEST);
-			renderer.renderMinimap(minimapShader, minimapCamera);
-			glEnable(GL_DEPTH_TEST);
+            
 
             glfwSwapBuffers(window);
 
