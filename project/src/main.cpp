@@ -152,17 +152,14 @@ int main() {
             timer.tick();
             input.poll();
             controller1.Update();
-            //audio.update();
+            audio.update();
+            // Update camera zoom based on car speed:
+            //float carSpeed = physicsSystem->getCarSpeed(0);
+            camera.updateZoom(physicsSystem->getCarSpeed(0));
+            camera.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle.curDir.z, gState.playerVehicle.curDir.x)), timer.dt);
 
-            if (physicsSystem->playerDied) {
-                audio.stopCarSounds(); 
-            }
-            else {
-                audio.startCarSounds();  
-                audio.update();
-            }
 
-            physicsSystem->update(timer.getFrameTime());
+
 
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
