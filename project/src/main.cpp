@@ -195,5 +195,6 @@ int main() {
         }
 
     }
+    gState.gMap.printGraph();
     return 0;
 }

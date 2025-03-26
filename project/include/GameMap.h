@@ -6,7 +6,7 @@
 #include <algorithm>
 
 #define GRID_SIZE 200
-#define MAX_ACTUAL 95
+#define MAX_ACTUAL 90
 
 // Node containing information about traversal
 struct Node {
@@ -43,10 +43,9 @@ private:
 	float toGameSpace(int a);
 
     // --- Clearance based Graph
-    std::queue<physx::PxVec2T<int>> q;		// Queue of propogations
-    void addBlock(int x, int y);
-    void updateGrid(physx::PxVec2 start, physx::PxVec2 end);
-    void propogateWeights();
+    void addBlock(int x, int y, int blocking = 0);
+	// a supercover DDA algorithm grid update
+    void updateGrid(int x0, int y0, int x1, int y1, int blocking = 0);
 
     // --- A*
     // euclidean distance
@@ -59,22 +58,14 @@ private:
 public:
 	GameMap();
 
-	int REQUIRED_CLEARANCE; // car width
-
 	// grid of clearance values
 	std::vector<std::vector<int>> grid;
 
 	// reset graph
-	void resetMap() {
-		for (int i = 0; i < GRID_SIZE; i++) {
-			for (int j = 0; j < GRID_SIZE; j++) {
-				grid[i][j] = GRID_SIZE;
-			}
-		}
-	}
+	void resetMap();
 
 	// --- Graph generation
-	void updateMap(physx::PxVec2 start, physx::PxVec2 end);
+	void updateMap(physx::PxVec2 start, physx::PxVec2 end, int blocking = 0);
 	int isBlocked(double x0, double z0);
 	void printGraph();
 

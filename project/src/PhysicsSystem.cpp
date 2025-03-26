@@ -410,8 +410,10 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	physx::PxVec3 dir = wallTransform.q.getBasisVector0();
 	physx::PxVec3 start = wallTransform.p - .5f * trailStep * dir;
 	physx::PxVec3 end = wallTransform.p + .5f * trailStep * dir;
+	gState.staticEntities.back().start = { start.x, start.z };
+	gState.staticEntities.back().end = { end.x, end.z };
 
-	gState.gMap.updateMap({ start.x, start.z }, { end.x, end.z });
+	gState.gMap.updateMap(gState.staticEntities.back().start, gState.staticEntities.back().end);
 
 }
 
@@ -548,6 +550,12 @@ void PhysicsSystem::updateCollisions(Command& command) {
 					// Remove all static entity objects
 					for (int g = gState.staticEntities.size() - 1; g >= 0; g--) {
 						if (gState.staticEntities[g].name == colliding1) {
+							// remove the associated trails
+							gState.gMap.updateMap(
+								gState.staticEntities[g].start,
+								gState.staticEntities[g].end,
+								1
+							);
 							gState.staticEntities.erase(gState.staticEntities.begin() + g);
 						}
 					}
