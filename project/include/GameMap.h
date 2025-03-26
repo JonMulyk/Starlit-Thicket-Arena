@@ -77,7 +77,6 @@ public:
 	void updateMap(physx::PxVec2 start, physx::PxVec2 end);
 	int isBlocked(double x0, double z0);
 	void printGraph();
-	void removeTrailBlock(physx::PxVec2 start, physx::PxVec2 end);
 
 	// --- A*
 	std::vector<std::shared_ptr<Node>> aStar(float angle, float startX, float startY, float goalX, float goalY);

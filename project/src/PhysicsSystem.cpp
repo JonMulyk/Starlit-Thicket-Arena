@@ -836,8 +836,7 @@ void PhysicsSystem::removeAllTrailSegmentsByOwner(const std::string& owner)
 				float halfStep = trailStep / 2.0f;
 				physx::PxVec3 startVec = pose.p - halfStep * dir;
 				physx::PxVec3 endVec = pose.p + halfStep * dir;
-				// Call removeTrailBlock on the GameMap to unblock these cells.
-				gState.gMap.removeTrailBlock({ startVec.x, startVec.z }, { endVec.x, endVec.z });
+				gState.gMap.updateMap({ startVec.x, startVec.z }, { endVec.x, endVec.z });
 			}
 
 			// Remove the actor from the scene if it is still there.
