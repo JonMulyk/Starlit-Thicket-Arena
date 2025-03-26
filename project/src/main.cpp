@@ -33,7 +33,7 @@ int main() {
     GameState gState;
     InitManager::initGLFW();
     Command command;
-	Command controllerCommand;
+    Command controllerCommand;
     TimeSeconds timer;
     DynamicCamera camera(gState, timer);
     //Camera camera(gState, timer, true, glm::vec3(0.0f, 250.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), -90.0f, -90.0f);
@@ -70,7 +70,7 @@ int main() {
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
     std::vector<Model> sceneModels;
     GameStateEnum gameState = GameStateEnum::MENU;
-    
+
     // Skybox
     Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
     Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
@@ -89,11 +89,11 @@ int main() {
     LevelSelectMenu levelSelectMenu(window, arial, controller1);
 
 
-    std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube};
+    std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
 
     // Minimap 
     Shader minimapShader("minimapShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
-    StaticCamera minimapCamera(timer, glm::vec3(0.0f, 250.0f, 0.0f), 
+    StaticCamera minimapCamera(timer, glm::vec3(0.0f, 250.0f, 0.0f),
         glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
     // Number of players playing for scoreboard 
@@ -106,7 +106,7 @@ int main() {
         if (gameState == GameStateEnum::MENU) {
             bool startGame = false;
             while (!window.shouldClose() && !startGame) {
-				glViewport(0, 0, window.getWidth(), window.getHeight()); // reset viewport to ensure fullscreen
+                glViewport(0, 0, window.getWidth(), window.getHeight()); // reset viewport to ensure fullscreen
                 menu.displayMenu();
                 if (window.shouldClose()) break;
                 selectedLevel = levelSelectMenu.displayMenuLevel();
@@ -137,10 +137,10 @@ int main() {
         sceneModels.push_back(groundPlaneModel);
 
         physicsSystem->updateTransforms(gState.dynamicEntities);
-        
+
         // reset scoreboard
-		gState.initializeScores(numberOfPlayers, numberOfAiCars);
-		uiManager.addScoreText(gState);
+        gState.initializeScores(numberOfPlayers, numberOfAiCars);
+        uiManager.addScoreText(gState);
 
 
         // Main Loop
@@ -159,17 +159,17 @@ int main() {
                 physicsSystem->updatePhysics(timer.dt);
                 timer.advance();
             }
-            
+
             // update dynamic UI text
             uiManager.updateUIText(timer, roundDuration, gState);
 
             // render everything except minimap
             renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
-        
+
             // render minimap
-			glDisable(GL_DEPTH_TEST);
-			renderer.renderMinimap(minimapShader, minimapCamera);
-			glEnable(GL_DEPTH_TEST);
+            glDisable(GL_DEPTH_TEST);
+            renderer.renderMinimap(minimapShader, minimapCamera);
+            glEnable(GL_DEPTH_TEST);
 
             glfwSwapBuffers(window);
 
@@ -187,7 +187,7 @@ int main() {
             //sceneModels.clear();
 
             gState.reset();
-            audio.stopMusic(); 
+            audio.stopMusic();
             timer.reset();
             delete physicsSystem;
             //delete audio;
