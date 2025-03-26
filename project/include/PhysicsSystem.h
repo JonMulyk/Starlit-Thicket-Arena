@@ -126,10 +126,6 @@ private:
 	void initMaterialFrictionTable();
 	bool initVehicles(int numAI);
 	bool initPhysics();
-	
-
-	bool winTriggered = false;
-	float winTimer = 5.0f;  // countdown in seconds
 public:
 	void cleanupPhysics();
 	// Ctor/Dtor

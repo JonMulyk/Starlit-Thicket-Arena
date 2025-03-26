@@ -639,7 +639,6 @@ void PhysicsSystem::updatePhysics(double dt) {
 	updateTransforms(gState.dynamicEntities);
 
 	if (gState.tempTrails) updateTrailLifetime(dt);
-	updateWinCondition(dt);
 }
 
 void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
@@ -795,6 +794,7 @@ std::vector<physx::PxVec3> PhysicsSystem::getAIPositions() {
 	}
 	return aiPositions;
 }
+
 void PhysicsSystem::updateTrailLifetime(float dt) {
 	// Update the running simulation time.
 	simulationTime += dt;
@@ -855,31 +855,6 @@ void PhysicsSystem::removeAllTrailSegmentsByOwner(const std::string& owner)
 
 			// Erase this trail segment from the vector.
 			trailSegments.erase(trailSegments.begin() + i);
-		}
-	}
-}
-
-void PhysicsSystem::updateWinCondition(float dt) {
-	// If the win condition hasnt been triggered yet
-	if (!winTriggered) {
-		// Check if only the player's car remains.
-		if (gState.dynamicEntities.size() == 1 &&
-			gState.dynamicEntities[0].name == "playerCar") {
-			winTriggered = true;
-			winTimer = 10.0f;  // start 10 sec countdown
-		}
-	}
-	else {
-		// Countdown the timer.
-		winTimer -= dt;
-		if (winTimer > 0.0f) {
-			// Optionally update win text display if needed.
-		}
-		else {
-			// Times upreset the game.
-			reintialize();
-			winTriggered = false;
-			//gState.winText = "";  // clear win text
 		}
 	}
 }
