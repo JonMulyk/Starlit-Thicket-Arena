@@ -4,6 +4,7 @@
 #include "TTF.h"
 #include <Button.h>
 #include "Controller.h" 
+#include <ControlMenu.h>
 
 /*
 TODO: organize to seperate from cpp and .h file, essentially optimize and clean up after testing
@@ -17,6 +18,7 @@ public:
     MainMenu(Windowing& window, TTF& textRenderer, Controller& controller)
         : window(window), textRenderer(textRenderer), controller(controller),
         startButton(0, 0, 0, 0, glm::vec3(0, 0, 0)),
+        controlsButton(0, 0, 0, 0, glm::vec3(0, 0, 0)),
         exitButton(0, 0, 0, 0, glm::vec3(0, 0, 0))
     {
         compileShaders();
@@ -55,11 +57,15 @@ public:
 
                 if (startButton.isClicked(xpos, ypos)) {
                     inMenu = false;
-                    //glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                     audio.stopMusic();
+                }
+                if (controlsButton.isClicked(xpos, ypos)) {
+                    ControlsMenu controlsMenu(window, textRenderer, controller, shader);
+                    controlsMenu.display();
                 }
                 if (exitButton.isClicked(xpos, ypos)) {
                     glfwSetWindowShouldClose(window.getGLFWwindow(), true);
+                    audio.stopMusic();
                 }
             }
         }
@@ -73,7 +79,7 @@ private:
     unsigned int backgroundTexture;
     TTF& textRenderer;
     int windowWidth, windowHeight;
-    Button startButton, exitButton;
+    Button startButton, controlsButton, exitButton;
     int currentSelection;   
     AudioSystem audio;
     bool audioInitialized;
@@ -85,19 +91,28 @@ private:
         glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
 
-        startButton = Button(0.4f * windowWidth, 0.5f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
-        exitButton = Button(0.4f * windowWidth, 0.65f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
+        startButton = Button(0.4f * windowWidth, 0.4f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
+        controlsButton = Button(0.4f * windowWidth, 0.5f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
+        exitButton = Button(0.4f * windowWidth, 0.6f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
 
         if (currentSelection == 0) {
-            startButton.setColor(glm::vec3(0, 1, 0));  // Green for selected
-            exitButton.setColor(glm::vec3(1, 0, 0));   // Red for unselected
+            startButton.setColor(glm::vec3(0, 1, 0));     // Green for selected
+            controlsButton.setColor(glm::vec3(1, 0, 0));  // Red for unselected
+            exitButton.setColor(glm::vec3(1, 0, 0));
         }
-        else {
-            startButton.setColor(glm::vec3(1, 0, 0));  // Red for unselected
-            exitButton.setColor(glm::vec3(0, 1, 0));   // Green for selected
+        else if (currentSelection == 1) {
+            startButton.setColor(glm::vec3(1, 0, 0));
+            controlsButton.setColor(glm::vec3(0, 1, 0));  // Green for selected
+            exitButton.setColor(glm::vec3(1, 0, 0));
+        }
+        else { // currentSelection == 2
+            startButton.setColor(glm::vec3(1, 0, 0));
+            controlsButton.setColor(glm::vec3(1, 0, 0));
+            exitButton.setColor(glm::vec3(0, 1, 0));      // Green for selected
         }
 
         startButton.draw(shader, windowWidth, windowHeight);
+        controlsButton.draw(shader, windowWidth, windowHeight);
         exitButton.draw(shader, windowWidth, windowHeight);
 
         renderText(uiText);
@@ -110,17 +125,20 @@ private:
         float buttonX = 0.5f * windowWidth;
         float buttonY = 0.5f * windowHeight;
 
-        Text Start = Text("Start", buttonX + 60, buttonY + 160.0f, 1.0f, glm::vec3(1, 1, 1));
-        Text Exit = Text("Exit", buttonX + 60.0f, buttonY - 60, 1.0f, glm::vec3(1, 1, 1));
+        Text Start = Text("Start", buttonX + 60, buttonY + 300.0f, 1.0f, glm::vec3(1, 1, 1));
+        Text Controls = Text("Controls", buttonX + 30.0f, buttonY + 160, 1.0f, glm::vec3(1, 1, 1));
+        Text Exit = Text("Exit", buttonX + 70.0f, buttonY + 10.0f, 1.0f, glm::vec3(1, 1, 1));
 
         uiText.push_back(Start);
+        uiText.push_back(Controls);
         uiText.push_back(Exit);
     }
 
     void initializeButtons() {
         glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
-        startButton = Button(0.4f * windowWidth, 0.5f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
-        exitButton = Button(0.4f * windowWidth, 0.65f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
+        startButton = Button(0.4f * windowWidth, 0.4f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
+        controlsButton = Button(0.4f * windowWidth, 0.5f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
+        exitButton = Button(0.4f * windowWidth, 0.6f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
     }
 
     void renderText(const std::vector<Text>& renderingText) {
@@ -196,43 +214,46 @@ private:
     }
 
     void handleKeyboardInput(bool& inMenu) {
-        static bool keyUpPressed = false; 
+        static bool keyUpPressed = false;
         static bool keyDownPressed = false;
         static bool enterPressed = false;
 
-
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_UP) == GLFW_RELEASE && keyUpPressed) {
-            currentSelection = (currentSelection == 0) ? 1 : 0;
-            keyUpPressed = false; 
+            currentSelection = (currentSelection - 1 + 3) % 3; // Cycle: 2 -> 1 -> 0
+            keyUpPressed = false;
         }
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_UP) == GLFW_PRESS) {
-            keyUpPressed = true; 
+            keyUpPressed = true;
         }
-
 
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_DOWN) == GLFW_RELEASE && keyDownPressed) {
-            currentSelection = (currentSelection == 1) ? 0 : 1;
-            keyDownPressed = false; 
+            currentSelection = (currentSelection + 1) % 3; // Cycle: 0 -> 1 -> 2
+            keyDownPressed = false;
         }
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_DOWN) == GLFW_PRESS) {
-            keyDownPressed = true; 
+            keyDownPressed = true;
         }
 
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_RELEASE && enterPressed) {
-            if (currentSelection == 0) {
-                inMenu = false; 
+            if (currentSelection == 0) { // Start
+                inMenu = false;
                 audio.stopMusic();
             }
-            if (currentSelection == 1) {
-                glfwSetWindowShouldClose(window.getGLFWwindow(), true);  
+            else if (currentSelection == 1) { // Controls
+                ControlsMenu controlsMenu(window, textRenderer, controller, shader);
+                controlsMenu.display();
+            }
+            else if (currentSelection == 2) { // Exit
+                glfwSetWindowShouldClose(window.getGLFWwindow(), true);
                 audio.stopMusic();
             }
             enterPressed = false;
         }
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
-            enterPressed = true; 
+            enterPressed = true;
         }
     }
+
     void handleControllerInput(bool& inMenu) {
         static bool dpadUpPressed = false; 
         static bool dpadDownPressed = false;
