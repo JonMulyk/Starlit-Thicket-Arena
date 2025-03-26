@@ -465,7 +465,7 @@ void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, phys
 void PhysicsSystem::shatter(physx::PxVec3 location, physx::PxVec3 direction) {
 
 	physx::PxMaterial* pMaterial = gPhysics->createMaterial(0.5, 0.5, 0.5);
-	physx::PxBoxGeometry boxGeom = physx::PxBoxGeometry(0.2, 0.2, 0.2);
+	physx::PxBoxGeometry boxGeom = physx::PxBoxGeometry(0.25, 0.25, 0.25);
 
 	// Define a item
 	physx::PxShape* shape = gPhysics->createShape(boxGeom, *pMaterial);
@@ -496,6 +496,7 @@ void PhysicsSystem::shatter(physx::PxVec3 location, physx::PxVec3 direction) {
 		pMaterial = nullptr;
 
 		gState.dynamicEntities.emplace_back(Entity("scrap", &pModels[5], transformList.back()));
+		gState.dynamicEntities.back().transform->scale = glm::vec3(0.5, 0.5, 0.5);
 	}
 }
 
@@ -508,17 +509,19 @@ void PhysicsSystem::updateCollisions() {
 		std::string colliding2 = collisionPair.second->getName();
 
 		// check if player died
-		if (colliding1 == "playerVehicle") {
+		if (colliding1 == "null") {
 			
 			for (int i = 0; i < gState.dynamicEntities.size(); i++) {
 				auto& entity = gState.dynamicEntities[i];
-				if (entity.vehicle->name == "playerVehicle") {
+				if (entity.name == "playerCar") {
 					//entity.transform->scale = glm::vec3(0.0f, 0.0f, 0.0f); //cursed af
+					shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 					entity.vehicle->vehicle.destroy();
 					// remove Dynamic Object
 					rigidDynamicList.erase(rigidDynamicList.begin() + i);
 					transformList.erase(transformList.begin() + i);
 					gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
+
 
 				}
 			}
@@ -531,14 +534,11 @@ void PhysicsSystem::updateCollisions() {
 		else {
 			for (int i = 0; i < gState.dynamicEntities.size(); i++) {
 				auto& entity = gState.dynamicEntities[i];
-
+				if (entity.name != "aiCar" && entity.name != "playerCar") continue;
 				if (entity.name == "aiCar") {
 					aiCounter++;
 				}
-				else {
-					continue;
-				}
-
+				
 				if (entity.vehicle->name == colliding1) {
 					shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 					entity.vehicle->vehicle.destroy();
@@ -585,6 +585,13 @@ void PhysicsSystem::updateCollisions() {
 					}
 					*/
 				}
+			}
+
+			if (colliding1 == "playerVehicle") {
+				pendingReinit = true;
+				reinitTime = 0.0;
+				playerDied = true;
+				printf("Reset because of Player");
 			}
 
 			if (aiCounter <= 1) {

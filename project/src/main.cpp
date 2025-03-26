@@ -84,8 +84,6 @@ int main() {
 
     bool isAudioInitialized = false;
 
-    Input input(window, camera, timer, command);
-    Controller controller1(1, camera, controllerCommand);
     AudioSystem audio;
 
     MainMenu menu(window, arial, controller1);
