@@ -196,33 +196,38 @@ int main() {
             window.clear();
             timer.tick();
             input.poll();
-            controller1.Update();
             audio.update();
 
-            //update projection matrices
-   //         if (gState.splitScreenEnabled) {
-			//	camera.updateProjectionView(shader, window.getWidth(), window.getHeight()/2);
-			//	camera2.updateProjectionView(shader, window.getWidth(), window.getHeight() / 2);
-   //         }
-   //         else if (gState.splitScreenEnabled4) {
-			//	camera.updateProjectionView(shader, window.getWidth() / 2, window.getHeight() / 2);
-			//	camera2.updateProjectionView(shader, window.getWidth() / 2, window.getHeight() / 2);
-			//	camera3.updateProjectionView(shader, window.getWidth() / 2, window.getHeight() / 2);
-			//	camera4.updateProjectionView(shader, window.getWidth() / 2, window.getHeight() / 2);
-			//}
-   //         else {
-   //             camera.updateProjectionView(shader, window.getWidth(), window.getHeight());
-   //         }
+            controller1.Update();
+            if (gState.splitScreenEnabled || gState.splitScreenEnabled4) {
+                controller2.Update();
+            }
+            if (gState.splitScreenEnabled4) {
+                controller3.Update();
+                controller4.Update();
+            }
+
+            // Vector of controller Commands
+            std::vector<Command*> controllerCommands;
+            controllerCommands.push_back(&controllerCommand1);
+            if (gState.splitScreenEnabled || gState.splitScreenEnabled4) {
+                controllerCommands.push_back(&controllerCommand2);
+            }
+            if (gState.splitScreenEnabled4) {
+                controllerCommands.push_back(&controllerCommand3);
+                controllerCommands.push_back(&controllerCommand4);
+            }
 
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
-                physicsSystem->stepPhysics(timer.dt, command, controllerCommand1);
+                physicsSystem->stepPhysics(timer.dt, command, controllerCommands);
                 physicsSystem->updatePhysics(timer.dt);
                 timer.advance();
             }
 
             if (gState.splitScreenEnabled) {
                 //std::cout << "here\n";
+				camera.setFollowTarget(physicsSystem->getTransformAt(0));
                 camera2.setFollowTarget(physicsSystem->getTransformAt(1));
                 // Left half
                 glViewport(0, window.getHeight() / 2, window.getWidth(), window.getHeight() / 2);
@@ -242,6 +247,7 @@ int main() {
                 glEnable(GL_DEPTH_TEST);
             }
             else if (gState.splitScreenEnabled4) {
+                camera.setFollowTarget(physicsSystem->getTransformAt(0));
                 camera2.setFollowTarget(physicsSystem->getTransformAt(1));
                 camera3.setFollowTarget(physicsSystem->getTransformAt(2));
                 camera4.setFollowTarget(physicsSystem->getTransformAt(3));

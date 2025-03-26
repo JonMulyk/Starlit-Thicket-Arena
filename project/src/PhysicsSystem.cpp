@@ -632,90 +632,211 @@ void PhysicsSystem::updatePhysics(double dt) {
 	updateTransforms(gState.dynamicEntities);
 }
 
-void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
-	// namespaces
-	using namespace physx; using namespace snippetvehicle2;
+void PhysicsSystem::stepPhysics(float timestep, Command& command, const std::vector<Command*>& controllerCommands)
+{
+	int playerIndex = 0;
 
-	for (auto& entity : gState.dynamicEntities) {
-		if (entity.name == "playerCar") {
+	// Loop through all dynamic entities (vehicles)
+	for (size_t i = 0; i < gState.dynamicEntities.size(); i++) {
+		auto& entity = gState.dynamicEntities[i];
+		bool playerControlled = false;
+
+		// Determine if this vehicle should be controlled by a player.
+		if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
+			// Single-player: only the first vehicle is player controlled.
+			if (i == 0)
+				playerControlled = true;
+		}
+		else if (gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
+			// Two-player: first two vehicles are player controlled.
+			if (i == 0 || i == 1)
+				playerControlled = true;
+		}
+		else if (!gState.splitScreenEnabled && gState.splitScreenEnabled4) {
+			// Four-player: all vehicles are player controlled.
+			playerControlled = true;
+		}
+
+		if (playerControlled) {
+			if (!entity.vehicle) continue;
+			// Use the corresponding controller command.
 			Command cmd;
-			cmd.brake = 0; command.brake + controllerCommand.brake;
-			cmd.throttle = physx::PxClamp(command.throttle + controllerCommand.throttle, .5f, .9f);
-			cmd.steer = command.steer + controllerCommand.steer;
+			if (playerIndex == 0) {
+				cmd.brake = controllerCommands[playerIndex]->brake + command.brake;
+				cmd.throttle = physx::PxClamp(controllerCommands[playerIndex]->throttle + command.throttle, .5f, .9f);
+				cmd.steer = controllerCommands[playerIndex]->steer + command.steer;
+			}
+			else {
+				cmd = *controllerCommands[playerIndex];
+			}
+			playerIndex++;
 
 			entity.vehicle->setPhysxCommand(cmd);
 
-			// Step the vehicle
-			entity.vehicle->forward = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
-			entity.vehicle->velocity = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
+			// Update vehicle physics using player input.
+			entity.vehicle->forward =
+				entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
+			entity.vehicle->velocity =
+				entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
 			PxReal forwardSpeed = entity.vehicle->velocity.dot(entity.vehicle->forward);
 			const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
+			entity.vehicle->vehicle.mComponentSequence.setSubsteps(
+				entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
 
-			entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
+			// Step the vehicle with the applied controller command.
 			entity.vehicle->vehicle.step(timestep, gVehicleSimulationContext);
 
 			// Update trails
 			const PxVec3 currPos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
 			PxVec3 travel = currPos - entity.vehicle->prevPos;
 			int steps = travel.magnitude() / trailStep;
-
+			
 			for (int i = 0; i < steps; i++) {
 				float ratio = float(i + 1) / float(steps);
-
+			
 				physx::PxVec3 travNorm = ratio * entity.vehicle->prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
 				physx::PxVec3 placementLoc = entity.vehicle->prevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
 				addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x), entity.vehicle->name.c_str());
-
+			
 				entity.vehicle->prevPos += trailStep * travel.getNormalized();
-
+			
 				if (i + 1 == steps) {
 					entity.vehicle->prevDir = travel;
 				}
 			}
-
-
+			
 			// Update player vehicle state
 			gState.playerVehicle.curPos = currPos;
 			gState.playerVehicle.curDir = entity.vehicle->forward.getNormalized();
 		}
-		else if (entity.name == "aiCar") {
+		else {
+			// For AI-controlled vehicles, run their update routine.
 			entity.vehicle->update(gState);
 
-			// Step the vehicle
-			entity.vehicle->forward = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
-			entity.vehicle->velocity = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
-			const PxReal forwardSpeed = entity.vehicle->velocity.dot(entity.vehicle->forward);
+			entity.vehicle->forward =
+				entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
+			entity.vehicle->velocity =
+				entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
+			PxReal forwardSpeed = entity.vehicle->velocity.dot(entity.vehicle->forward);
 			const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
+			entity.vehicle->vehicle.mComponentSequence.setSubsteps(
+				entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
 
-			entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
+			// Step the vehicle using AI update.
 			entity.vehicle->vehicle.step(timestep, gVehicleSimulationContext);
 
 			// Update trails
 			const PxVec3 currPos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
 			PxVec3 travel = currPos - entity.vehicle->prevPos;
 			int steps = travel.magnitude() / trailStep;
-
+			
 			for (int i = 0; i < steps; i++) {
 				float ratio = float(i + 1) / float(steps);
-
+			
 				physx::PxVec3 travNorm = ratio * entity.vehicle->prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
 				physx::PxVec3 placementLoc = entity.vehicle->prevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
 				addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x), entity.vehicle->name.c_str());
-
+			
 				entity.vehicle->prevPos += trailStep * travel.getNormalized();
-
+			
 				if (i + 1 == steps) {
 					entity.vehicle->prevDir = travel;
 				}
 			}
 		}
 	}
-	updateCollisions();
 
-	// Simulate the entire PhysX scene
+	// Process collisions and simulate the physics scene.
+	updateCollisions();
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
 }
+
+
+//void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
+//	// namespaces
+//	using namespace physx; using namespace snippetvehicle2;
+//
+//	for (auto& entity : gState.dynamicEntities) {
+//		if (entity.name == "playerCar") {
+//			Command cmd;
+//			cmd.brake = 0; command.brake + controllerCommand.brake;
+//			cmd.throttle = physx::PxClamp(command.throttle + controllerCommand.throttle, .5f, .9f);
+//			cmd.steer = command.steer + controllerCommand.steer;
+//
+//			entity.vehicle->setPhysxCommand(cmd);
+//
+//			// Step the vehicle
+//			entity.vehicle->forward = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
+//			entity.vehicle->velocity = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
+//			PxReal forwardSpeed = entity.vehicle->velocity.dot(entity.vehicle->forward);
+//			const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
+//
+//			entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
+//			entity.vehicle->vehicle.step(timestep, gVehicleSimulationContext);
+//
+//			// Update trails
+//			const PxVec3 currPos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+//			PxVec3 travel = currPos - entity.vehicle->prevPos;
+//			int steps = travel.magnitude() / trailStep;
+//
+//			for (int i = 0; i < steps; i++) {
+//				float ratio = float(i + 1) / float(steps);
+//
+//				physx::PxVec3 travNorm = ratio * entity.vehicle->prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
+//				physx::PxVec3 placementLoc = entity.vehicle->prevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
+//				addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x), entity.vehicle->name.c_str());
+//
+//				entity.vehicle->prevPos += trailStep * travel.getNormalized();
+//
+//				if (i + 1 == steps) {
+//					entity.vehicle->prevDir = travel;
+//				}
+//			}
+//
+//
+//			// Update player vehicle state
+//			gState.playerVehicle.curPos = currPos;
+//			gState.playerVehicle.curDir = entity.vehicle->forward.getNormalized();
+//		}
+//		else if (entity.name == "aiCar") {
+//			entity.vehicle->update(gState);
+//
+//			// Step the vehicle
+//			entity.vehicle->forward = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
+//			entity.vehicle->velocity = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
+//			const PxReal forwardSpeed = entity.vehicle->velocity.dot(entity.vehicle->forward);
+//			const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
+//
+//			entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
+//			entity.vehicle->vehicle.step(timestep, gVehicleSimulationContext);
+//
+//			// Update trails
+//			const PxVec3 currPos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+//			PxVec3 travel = currPos - entity.vehicle->prevPos;
+//			int steps = travel.magnitude() / trailStep;
+//
+//			for (int i = 0; i < steps; i++) {
+//				float ratio = float(i + 1) / float(steps);
+//
+//				physx::PxVec3 travNorm = ratio * entity.vehicle->prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
+//				physx::PxVec3 placementLoc = entity.vehicle->prevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
+//				addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x), entity.vehicle->name.c_str());
+//
+//				entity.vehicle->prevPos += trailStep * travel.getNormalized();
+//
+//				if (i + 1 == steps) {
+//					entity.vehicle->prevDir = travel;
+//				}
+//			}
+//		}
+//	}
+//	updateCollisions();
+//
+//	// Simulate the entire PhysX scene
+//	gScene->simulate(timestep);
+//	gScene->fetchResults(true);
+//}
 
 bool PhysicsSystem::getExplosion() {
 	return gContactReportCallback->checkCollision();

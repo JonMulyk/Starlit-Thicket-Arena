@@ -17,6 +17,7 @@ std::string GameState::getSortedScoresString()
 	for (const auto& score : sortedScores)
 	{
 		scoresString += (score.first + ": " + std::to_string(score.second) + "\n");
+		//std::cout << score.first << std::endl;
 	}
 
 	if(scoresString[scoresString.size() - 1] == '\n')
