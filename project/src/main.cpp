@@ -174,7 +174,6 @@ int main() {
             timer.reset();
             delete physicsSystem;
             //delete audio;
-
         }
     }
     return 0;

@@ -490,6 +490,7 @@ void PhysicsSystem::updateCollisions() {
 		pendingReinit = true;
 		reinitTime = 0.0;
 		playerDied = true;
+		printf("Reset because of Player");
 		}
 		// check which vehicle it was
 		else {
@@ -536,7 +537,9 @@ void PhysicsSystem::updateCollisions() {
 			}
 
 			if (aiCounter <= 1) {
-				pendingReinit = true;
+				printf("Reset because of AI\n");
+				//printf("%f\n", aiCounter);
+;				pendingReinit = true;
 				reinitTime = 0.0;
 			}
 		}
@@ -759,6 +762,6 @@ void PhysicsSystem::update(double deltaTime) {
 		return;  // Skip further updates while waiting for reinit
 	}
 
-	updateCollisions();
+	//updateCollisions();
 }
 
