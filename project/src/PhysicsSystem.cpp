@@ -637,7 +637,7 @@ void PhysicsSystem::updatePhysics(double dt) {
 
 	updateTransforms(gState.dynamicEntities);
 
-	updateTrailLifetime(dt);
+	if (gState.tempTrails) updateTrailLifetime(dt);
 	updateWinCondition(dt);
 }
 
@@ -724,7 +724,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 	// Simulate the entire PhysX scene
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
-	updateTrailLifetime(timestep);
+	if(gState.tempTrails) updateTrailLifetime(timestep);
 }
 
 bool PhysicsSystem::getExplosion() {
