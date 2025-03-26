@@ -86,7 +86,7 @@ int main() {
     AudioSystem audio;
 
     MainMenu menu(window, arial, controller1);
-    LevelSelectMenu levelSelectMenu(window, arial, controller1);
+    LevelSelectMenu levelSelectMenu(window, arial, controller1, gState);
 
 
     std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };

@@ -529,6 +529,7 @@ void PhysicsSystem::updateCollisions() {
 				}
 
 				if (entity.vehicle->name == colliding1) {
+					if (!entity.vehicle) continue;
 					removeAllTrailSegmentsByOwner(colliding1);
 					shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 					entity.vehicle->vehicle.destroy();

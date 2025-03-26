@@ -99,6 +99,7 @@ void AudioSystem::update() {
 	std::vector<physx::PxVec3> aiPositions = c_physicsSystem->getAIPositions();
 	size_t numChannels = std::min(aiChannels.size(), aiPositions.size());
 	for (size_t i = 0; i < numChannels; i++) {
+		if (!aiChannels[i]) continue;
 		FMOD_VECTOR pos;
 		pos.x = aiPositions[i].x;
 		pos.y = aiPositions[i].y;
