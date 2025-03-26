@@ -360,19 +360,20 @@ PhysicsSystem::~PhysicsSystem() {
 void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	physx::PxMaterial* pMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
 
-	// create shape
-	float height = .5f;
+	// Create shape
+	float height = 0.5f;
 	float width = 0.01f;
 	physx::PxBoxGeometry geom(trailStep / 2, height, width);
 	physx::PxShape* shape = gPhysics->createShape(geom, *pMaterial);
 
+	// Setup transform for the trail segment
 	physx::PxTransform wallTransform(
 		physx::PxVec3(x, height, z),
 		physx::PxQuat(rot, physx::PxVec3(0, 1, 0))
 	);
 	physx::PxRigidStatic* body = gPhysics->createRigidStatic(wallTransform);
 
-	// update shape and attach
+	// Set up collision filtering
 	physx::PxFilterData itemFilter(
 		COLLISION_FLAG_OBSTACLE,
 		COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0
@@ -384,40 +385,39 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	std::string uniqueName = "trail_" + std::to_string(trailCounter++);
 	body->setName(uniqueName.c_str());
 
+	// Determine model type based on the owner's name
 	int modelType = 0;
 	if (strcmp(name, "vehicle1") == 0) modelType = 1;
 	if (strcmp(name, "vehicle2") == 0) modelType = 2;
 	if (strcmp(name, "vehicle3") == 0) modelType = 3;
 
-	gState.staticEntities.push_back(Entity(name, &pModels[modelType], new Transform()));
+	// Create the static entity using uniqueName so it matches later in trail removal
+	gState.staticEntities.push_back(Entity(uniqueName, &pModels[modelType], new Transform()));
 	gState.staticEntities.back().transform->pos = glm::vec3(
 		wallTransform.p.x,
-		wallTransform.p.y - 0.3,
+		wallTransform.p.y - 0.3f,
 		wallTransform.p.z
 	);
-	gState.staticEntities.back().transform->scale = glm::vec3(trailStep / 2, height, 1.3);
+	gState.staticEntities.back().transform->scale = glm::vec3(trailStep / 2, height, 1.3f);
 	gState.staticEntities.back().transform->rot = glm::vec3(0, static_cast<float>(rand()), 0);
 
 	gScene->addActor(*body);
-
-	// Add the new trail segment to the tracking vector for lifetime management.
 	TrailSegment segment;
 	segment.actor = body;
-	segment.creationTime = simulationTime;  // using current simulation time
+	segment.creationTime = simulationTime;
 	segment.uniqueName = uniqueName;
 	segment.ownerName = name;
 	trailSegments.push_back(segment);
-
-	// Clean up shape and material
 	shape->release();
 	pMaterial = nullptr;
 
-	// Update game map (if needed)
+	// may need this ???
 	physx::PxVec3 dir = wallTransform.q.getBasisVector0();
 	physx::PxVec3 start = wallTransform.p - 0.5f * trailStep * dir;
 	physx::PxVec3 end = wallTransform.p + 0.5f * trailStep * dir;
 	gState.gMap.updateMap({ start.x, start.z }, { end.x, end.z });
 }
+
 
 
 physx::PxVec3 PhysicsSystem::getPos(int i) {
