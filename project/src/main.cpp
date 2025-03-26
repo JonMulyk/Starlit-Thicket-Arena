@@ -1,3 +1,5 @@
+#pragma once
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -15,12 +17,17 @@
 #include "Model.h"
 #include "PhysicsSystem.h"
 #include "Entity.h"
-#include "Camera.h"
+#include "DynamicCamera.h"
+#include "StaticCamera.h"
 #include "RenderingSystem.h"
 #include "GameState.h"
 #include "UIManager.h"
 #include "Skybox.h"
 #include "AudioSystem.h"
+#include "MainMenu.h"
+#include "LevelSelect.h"
+
+
 
 int main() {
     GameState gState;
@@ -28,7 +35,9 @@ int main() {
     Command command;
 	Command controllerCommand;
     TimeSeconds timer;
-    Camera camera(gState, timer);
+    DynamicCamera camera(gState, timer);
+    //Camera camera(gState, timer, true, glm::vec3(0.0f, 250.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), -90.0f, -90.0f);
+
     Windowing window(1200, 1000);
 
     Input input(window, camera, timer, command);
@@ -53,62 +62,138 @@ int main() {
     InitManager::getCube(verts, coord);
     Model cube(lightingShader, container, verts, verts, coord);
     Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
-    Model trail(lightingShader, fire, "project/assets/models/Trail.obj");
-    Model tireModel = Model(lightingShader, "project/assets/models/tire1/tire1.obj");
-    //Model secondCar(lightingShader, gold, "project/assets/models/box.obj");
+    Model Gtrail(lightingShader, "project/assets/models/Gtree/GTree.obj");
+    Model Btrail(lightingShader, "project/assets/models/Btree/BTree.obj");
+    Model Rtrail(lightingShader, "project/assets/models/Rtree/RTree.obj");
+    Model Ytrail(lightingShader, "project/assets/models/Ytree/YTree.obj");
+    Model tireModel(lightingShader, "project/assets/models/tire1/tire1.obj");
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
-    PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trail, secondCar);
-
-    AudioSystem audio;
-	AudioSystem* audioPtr = &audio;
-    audio.init(physicsSystem, &camera, gState);
-
-    // Create Rendering System
-    RenderingSystem renderer(shader, camera, window, arial, gState);
-
-    // Static scene data
     std::vector<Model> sceneModels;
-
-    Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
-    Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
-    sceneModels.push_back(groundPlaneModel);
-
-
-    physicsSystem->updateTransforms(gState.dynamicEntities);
-
-    // Text Rendering Setup
-    UIManager uiManager(window.getWidth(), window.getHeight());
+    GameStateEnum gameState = GameStateEnum::MENU;
     
-    const double roundDuration = (5.0 * 60.0);
-
-    //SKYBOX
+    // Skybox
     Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
+    Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Skybox skybox("project/assets/textures/skybox/", skyboxShader);
 
+    Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
+    UIManager uiManager(window.getWidth(), window.getHeight());
+    int selectedLevel = -1;
+    RenderingSystem renderer(shader, camera, window, arial, gState);
+    const double roundDuration = 20;
+
+    bool isAudioInitialized = false;
+    AudioSystem audio;
+
+    MainMenu menu(window, arial, controller1);
+    LevelSelectMenu levelSelectMenu(window, arial, controller1);
+
+
+    std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube};
+
+    // Minimap 
+    Shader minimapShader("minimapShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
+    StaticCamera minimapCamera(timer, glm::vec3(0.0f, 250.0f, 0.0f), 
+        glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    // Number of players playing for scoreboard 
+    uint16_t numberOfPlayers = 1;
+    uint16_t numberOfAiCars = 3;
+
     // Main Loop
-    timer.advance();
+    //timer.advance();
     while (!window.shouldClose()) {
-        window.clear();
-        timer.tick();
-        input.poll();
-        controller1.Update();
-		audio.update();
+        if (gameState == GameStateEnum::MENU) {
+            bool startGame = false;
+            while (!window.shouldClose() && !startGame) {
+				glViewport(0, 0, window.getWidth(), window.getHeight()); // reset viewport to ensure fullscreen
+                menu.displayMenu();
+                if (window.shouldClose()) break;
+                selectedLevel = levelSelectMenu.displayMenuLevel();
+                if (selectedLevel != -1) startGame = true;
 
-        // Update physics
-        while (timer.getAccumultor() > 5  && timer.getAccumultor() >= timer.dt) {
-            physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
-
-            physicsSystem->updatePhysics(timer.dt);
-            timer.advance();
+            }
+            if (!startGame || window.shouldClose()) {
+                return 0;
+            }
+            gameState = GameStateEnum::PLAYING;
         }
 
-		//renderer.renderScene(sceneModels);
-    
-        uiManager.updateUIText(timer, roundDuration, gState.getScore());
-        renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+        // Game setup
+        glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        glfwSwapBuffers(window);
+        if (!controller1.isConnected()) {
+            std::cout << "Controller one not connected" << std::endl;
+            controllerCommand.brake = 0.0f;
+            controllerCommand.throttle = 0.0f;
+            controllerCommand.steer = 0.0f;
+        }
+
+        PhysicsSystem* physicsSystem = new PhysicsSystem(gState, models);
+
+        audio.init(physicsSystem, &camera);
+
+        // Static scene data
+        sceneModels.push_back(groundPlaneModel);
+
+        physicsSystem->updateTransforms(gState.dynamicEntities);
+        
+        // reset scoreboard
+		gState.initializeScores(numberOfPlayers, numberOfAiCars);
+		uiManager.addScoreText(gState);
+
+
+        // Main Loop
+        timer.reset();
+        timer.advance();
+        while (!window.shouldClose() && gameState == GameStateEnum::PLAYING) {
+            window.clear();
+            timer.tick();
+            input.poll();
+            controller1.Update();
+            audio.update();
+
+            // Update physics
+            while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
+                physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
+                physicsSystem->updatePhysics(timer.dt);
+                timer.advance();
+            }
+            
+            // update dynamic UI text
+            uiManager.updateUIText(timer, roundDuration, gState);
+
+            // render everything except minimap
+            renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+        
+            // render minimap
+			glDisable(GL_DEPTH_TEST);
+			renderer.renderMinimap(minimapShader, minimapCamera);
+			glEnable(GL_DEPTH_TEST);
+
+            glfwSwapBuffers(window);
+
+            // Check for round end
+            if (timer.getElapsedTime() >= roundDuration) {
+                gameState = GameStateEnum::RESET;
+            }
+        }
+
+        //reset
+        if (gameState == GameStateEnum::RESET) {
+            gameState = GameStateEnum::MENU;
+            gState.dynamicEntities.clear();
+            gState.staticEntities.clear();
+            //sceneModels.clear();
+
+            gState.reset();
+            audio.stopMusic(); 
+            timer.reset();
+            delete physicsSystem;
+            //delete audio;
+
+        }
+
     }
-
     return 0;
 }

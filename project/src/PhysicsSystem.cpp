@@ -1,8 +1,5 @@
 #include "PhysicsSystem.h"
 #include "AudioEngine.h"
-#include <string>
-#include <cmath>
-
 // Initialize PVD, create scene, vehicle compatibility, and scene components (gravity and friction)
 void PhysicsSystem::initPhysX() {
 	// namespaces
@@ -124,13 +121,14 @@ void PhysicsSystem::initBoarder() {
 	struct WallData {
 		physx::PxVec3 position;
 		float rotationY; // Rotation around Y axis in radians
+		int side;
 	};
 
 	std::vector<WallData> walls = {
-		{{0, height, length}, 0.0f},                          // Front wall
-		{{0, height, -length}, 0.0f},                         // Back wall
-		{{length, height, 0}, physx::PxPi / 2},               // Right wall
-		{{-length, height, 0}, physx::PxPi / 2}               // Left wall
+		{{0, height, length}, 0.0f, 0},                          // Front wall
+		{{0, height, -length}, 0.0f, 1},                         // Back wall
+		{{length, height, 0}, physx::PxPi / 2, 2},               // Right wall
+		{{-length, height, 0}, physx::PxPi / 2, 3}               // Left wall
 	};
 
 	for (const auto& wall : walls) {
@@ -151,14 +149,28 @@ void PhysicsSystem::initBoarder() {
 		gScene->addActor(*body);
 
 		// Rendering
-		gState.staticEntities.push_back(Entity("boarder", trailModel, new Transform()));
-		gState.staticEntities.back().transform->pos = glm::vec3(
-			wallTransform.p.x,
-			wallTransform.p.y,
-			wallTransform.p.z
-		);
-		gState.staticEntities.back().transform->scale = glm::vec3(length, height, thickness);
-		gState.staticEntities.back().transform->rot = glm::vec3(0, wall.rotationY, 0);
+		for (int i = -25; i < 25; i++) {
+			gState.staticEntities.push_back(Entity("boarder", &pModels[wall.side], new Transform()));
+			if (wall.position.x == 0) {
+				gState.staticEntities.back().transform->pos = glm::vec3(
+					wallTransform.p.x + i * 4,
+					wallTransform.p.y - 1,
+					wallTransform.p.z
+				);
+			} 
+			else {
+				gState.staticEntities.back().transform->pos = glm::vec3(
+					wallTransform.p.x,
+					wallTransform.p.y - 1,
+					wallTransform.p.z + i * 4
+				);
+			}
+
+			gState.staticEntities.back().transform->scale = glm::vec3(5, 5, 5);
+			gState.staticEntities.back().transform->rot = glm::vec3(0, static_cast<float>(rand()), 0);
+
+		}
+
 
 		// Clean up
 		shape->release();
@@ -166,14 +178,16 @@ void PhysicsSystem::initBoarder() {
 	pMaterial = nullptr;
 }
 
+
+// Set the default game friction and material properties
 void PhysicsSystem::initMaterialFrictionTable() {
-	/*
-	DESCRIPTION:
-		Each physx material can be mapped to a tire friction value on a per tire basis.
-		If a material is encountered that is not mapped to a friction value, the friction value used is the specified default value.
-		In this snippet there is only a single material so there can only be a single mapping between material and friction.
-		In this snippet the same mapping is used by all tires.
-	*/
+/*
+DESCRIPTION:
+	Each physx material can be mapped to a tire friction value on a per tire basis.
+	If a material is encountered that is not mapped to a friction value, the friction value used is the specified default value.
+	In this snippet there is only a single material so there can only be a single mapping between material and friction.
+	In this snippet the same mapping is used by all tires.	
+*/
 
 	// set material parameters
 	gPhysXMaterialFrictions[0].friction = 1.0f;
@@ -224,7 +238,7 @@ bool PhysicsSystem::initVehicles(int numAI) {
 
 		// Set the vehicle position, rotation and model
 		PxTransform pose;
-
+		
 		if (i == 0) {
 			pose = PxTransform(PxVec3(80.f, 0.f, -80.f), PxQuat(0, PxVec3(0, 1, 0))); // bottom right
 		}
@@ -233,7 +247,7 @@ bool PhysicsSystem::initVehicles(int numAI) {
 		}
 		else if (i == 2) {
 			pose = PxTransform(PxVec3(-80.f, 0.f, 80.f), PxQuat(3.1415, PxVec3(0, 1, 0))); // top left
-		}
+		} 
 		else {
 			pose = PxTransform(PxVec3(-80.f, 0.f, -80.f), PxQuat(0, PxVec3(0, 1, 0))); // bottom left
 		}
@@ -289,11 +303,11 @@ bool PhysicsSystem::initVehicles(int numAI) {
 
 		// update the dynamicEntity list
 		if (i == 0) {
-			gState.dynamicEntities.emplace_back("playerCar", carModel, transformList.back());
+			gState.dynamicEntities.emplace_back("playerCar", &pModels[4], transformList.back());
 			gState.dynamicEntities.back().vehicle = vehicle;
 		}
 		else {
-			gState.dynamicEntities.emplace_back("aiCar", carModel, transformList.back());
+			gState.dynamicEntities.emplace_back("aiCar", &pModels[4], transformList.back());
 			gState.dynamicEntities.back().vehicle = vehicle;
 		}
 	}
@@ -334,13 +348,91 @@ void PhysicsSystem::cleanupPhysics() {
 	gContactReportCallback = nullptr;
 }
 
-PhysicsSystem::PhysicsSystem(GameState& gameState, Model& tModel, Model& cModel) :
-	gState(gameState), trailModel(tModel), carModel(cModel) {
+PhysicsSystem::PhysicsSystem(GameState& gameState, std::vector<Model> tModel) :
+	gState(gameState), pModels(tModel) {
 	initPhysics();
 }
 
 PhysicsSystem::~PhysicsSystem() {
 	cleanupPhysics();
+}
+
+void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
+	physx::PxMaterial* pMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
+
+	// create shape
+	float height = .5f;
+	float width = 0.01f;
+	physx::PxBoxGeometry geom(trailStep / 2, height, width);
+	physx::PxShape* shape = gPhysics->createShape(geom, *pMaterial);
+
+	physx::PxTransform wallTransform(
+		physx::PxVec3(x, height, z),
+		physx::PxQuat(rot, physx::PxVec3(0, 1, 0))
+	);
+	physx::PxRigidStatic* body = gPhysics->createRigidStatic(wallTransform);
+
+	// update shape and attach
+	physx::PxFilterData itemFilter(
+		COLLISION_FLAG_OBSTACLE,
+		COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0
+	);
+	shape->setSimulationFilterData(itemFilter);
+
+	body->attachShape(*shape);
+	body->setName(name);
+
+	int modelType = 0;
+	if (strcmp(name, "vehicle1") == 0) modelType = 1;
+	if (strcmp(name, "vehicle2") == 0) modelType = 2;
+	if (strcmp(name, "vehicle3") == 0) modelType = 3;
+
+	gState.staticEntities.push_back(Entity(name, &pModels[modelType], new Transform()));
+
+	gState.staticEntities.back().transform->pos = glm::vec3(
+		wallTransform.p.x,
+		wallTransform.p.y - 0.3,
+		wallTransform.p.z
+	);
+
+	gState.staticEntities.back().transform->scale = glm::vec3(trailStep / 2, height, 1.3);
+
+	gState.staticEntities.back().transform->rot = glm::vec3(0, static_cast<float>(rand()), 0);
+
+
+	gScene->addActor(*body);
+
+	// Clean up
+	shape->release();
+	pMaterial = nullptr;
+
+	// add the add the block to the graph
+	physx::PxVec3 dir = wallTransform.q.getBasisVector0();
+	physx::PxVec3 start = wallTransform.p - .5f * trailStep * dir;
+	physx::PxVec3 end = wallTransform.p + .5f * trailStep * dir;
+
+	gState.gMap.updateMap({ start.x, start.z }, { end.x, end.z });
+
+}
+
+physx::PxVec3 PhysicsSystem::getPos(int i) {
+	physx::PxVec3 position = rigidDynamicList[i]->getGlobalPose().p;
+	return position;
+}
+
+Transform* PhysicsSystem::getTransformAt(int i) { return transformList[i]; }
+
+void PhysicsSystem::updateTransforms(std::vector<Entity>& entityList) {
+	for (int i = 0; i < entityList.size(); i++) {
+		entityList.at(i).transform->pos.x = rigidDynamicList[i]->getGlobalPose().p.x;
+		entityList.at(i).transform->pos.y = rigidDynamicList[i]->getGlobalPose().p.y;
+		entityList.at(i).transform->pos.z = rigidDynamicList[i]->getGlobalPose().p.z;
+
+		entityList.at(i).transform->rot.x = rigidDynamicList[i]->getGlobalPose().q.x;
+		entityList.at(i).transform->rot.y = rigidDynamicList[i]->getGlobalPose().q.y;
+		entityList.at(i).transform->rot.z = rigidDynamicList[i]->getGlobalPose().q.z;
+		entityList.at(i).transform->rot.w = rigidDynamicList[i]->getGlobalPose().q.w;
+	}
 }
 
 void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density) {
@@ -370,85 +462,40 @@ void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, phys
 	pMaterial = nullptr;
 }
 
-void PhysicsSystem::addTrail(float x, float z, float rot, const char* vehicleName) {
-	physx::PxMaterial* pMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
+void PhysicsSystem::shatter(physx::PxVec3 location, physx::PxVec3 direction) {
 
-	// create shape
-	float height = 0.5f;
-	float width = 0.01f;
-	physx::PxBoxGeometry geom(trailStep / 2, height, width);
-	physx::PxShape* shape = gPhysics->createShape(geom, *pMaterial);
+	physx::PxMaterial* pMaterial = gPhysics->createMaterial(0.5, 0.5, 0.5);
+	physx::PxBoxGeometry boxGeom = physx::PxBoxGeometry(0.2, 0.2, 0.2);
 
-	physx::PxTransform wallTransform(
-		physx::PxVec3(x, height, z),
-		physx::PxQuat(rot, physx::PxVec3(0, 1, 0))
-	);
-	physx::PxRigidStatic* body = gPhysics->createRigidStatic(wallTransform);
+	// Define a item
+	physx::PxShape* shape = gPhysics->createShape(boxGeom, *pMaterial);
+	physx::PxTransform tran(physx::PxVec3(0));
 
-	// update shape and attach
-	physx::PxFilterData itemFilter(
-		COLLISION_FLAG_OBSTACLE,
-		COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0
-	);
-	shape->setSimulationFilterData(itemFilter);
+	for (int i = 0; i < 20; i++) {
+		physx::PxTransform localTran(location.x, location.y + i * 0.001, location.z);
+		physx::PxRigidDynamic* body = gPhysics->createRigidDynamic(tran.transform(localTran));
 
-	body->attachShape(*shape);
+		// Add to lists
+		rigidDynamicList.push_back(body);
+		transformList.push_back(new Transform());
 
-	// Generate a unique trail name
-	std::string uniqueName = "trail_" + std::to_string(trailCounter++);
-	body->setName(uniqueName.c_str());
+		// update shape and attach
+		physx::PxFilterData itemFilter(
+			0,
+			COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+		shape->setSimulationFilterData(itemFilter);
+		body->attachShape(*shape);
+		body->setName("scrap");
 
-	// Add to static entities for rendering
-	gState.staticEntities.push_back(Entity(uniqueName, trailModel, new Transform()));
-	gState.staticEntities.back().transform->pos = glm::vec3(
-		wallTransform.p.x,
-		wallTransform.p.y,
-		wallTransform.p.z
-	);
-	gState.staticEntities.back().transform->rot.x = wallTransform.q.x;
-	gState.staticEntities.back().transform->rot.y = wallTransform.q.y;
-	gState.staticEntities.back().transform->rot.z = wallTransform.q.z;
-	gState.staticEntities.back().transform->rot.w = wallTransform.q.w;
-	gState.staticEntities.back().transform->scale = glm::vec3(trailStep / 2, height, width);
+		physx::PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+		gScene->addActor(*body);
 
-	gScene->addActor(*body);
+		//body->addForce(physx::PxVec3(0, 0, 0));
+		// Clean up
+		shape->release();
+		pMaterial = nullptr;
 
-	// Clean up
-	shape->release();
-	pMaterial = nullptr;
-
-	// add the block to the graph
-	physx::PxVec3 dir = wallTransform.q.getBasisVector0();
-	physx::PxVec3 start = wallTransform.p - 0.5f * trailStep * dir;
-	physx::PxVec3 end = wallTransform.p + 0.5f * trailStep * dir;
-	gState.gMap.updateMap({ start.x, start.z }, { end.x, end.z });
-
-	// Record this trail segment for lifetime management
-	TrailSegment segment;
-	segment.actor = body;
-	segment.creationTime = simulationTime; // current simulation time
-	segment.uniqueName = uniqueName;
-	segment.ownerName = vehicleName;
-	trailSegments.push_back(segment);
-}
-
-physx::PxVec3 PhysicsSystem::getPos(int i) {
-	physx::PxVec3 position = rigidDynamicList[i]->getGlobalPose().p;
-	return position;
-}
-
-Transform* PhysicsSystem::getTransformAt(int i) { return transformList[i]; }
-
-void PhysicsSystem::updateTransforms(std::vector<Entity>& entityList) {
-	for (int i = 0; i < entityList.size(); i++) {
-		entityList.at(i).transform->pos.x = rigidDynamicList[i]->getGlobalPose().p.x;
-		entityList.at(i).transform->pos.y = rigidDynamicList[i]->getGlobalPose().p.y;
-		entityList.at(i).transform->pos.z = rigidDynamicList[i]->getGlobalPose().p.z;
-
-		entityList.at(i).transform->rot.x = rigidDynamicList[i]->getGlobalPose().q.x;
-		entityList.at(i).transform->rot.y = rigidDynamicList[i]->getGlobalPose().q.y;
-		entityList.at(i).transform->rot.z = rigidDynamicList[i]->getGlobalPose().q.z;
-		entityList.at(i).transform->rot.w = rigidDynamicList[i]->getGlobalPose().q.w;
+		gState.dynamicEntities.emplace_back(Entity("scrap", &pModels[5], transformList.back()));
 	}
 }
 
@@ -457,13 +504,11 @@ void PhysicsSystem::updateCollisions() {
 	auto collisionPair = gContactReportCallback->getCollisionPair();
 	if (gContactReportCallback->checkCollision()) {
 		int aiCounter = 0;
-		const char* colliding1 = collisionPair.first->getName();
-		const char* colliding2 = collisionPair.second->getName();
-		std::string str = colliding1;
-		std::string otherName = colliding2;
+		std::string colliding1 = collisionPair.first->getName();
+		std::string colliding2 = collisionPair.second->getName();
 
 		// check if player died
-		if (str.compare("playerVehicle") == 0) {
+		if (colliding1 == "playerVehicle") {
 			reintialize();
 		}
 		// check which vehicle it was
@@ -479,7 +524,7 @@ void PhysicsSystem::updateCollisions() {
 				}
 
 				if (entity.vehicle->name == colliding1) {
-					removeAllTrailSegmentsByOwner(colliding1);
+					shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 					entity.vehicle->vehicle.destroy();
 
 					// remove Dynamic Object
@@ -504,31 +549,59 @@ void PhysicsSystem::updateCollisions() {
 						if (gState.staticEntities[g].name == colliding1) {
 							gState.staticEntities.erase(gState.staticEntities.begin() + g);
 						}
-					}				
-					if (otherName == "playerVehicle") {
-						gState.addToScore(1);
 					}
+					gState.addScoreToVehicle(colliding2, 1);
+					/*
+					if (colliding2 == "playerVehicle") {
+						gState.addScoreToVehicle("player1", 1);
+					}
+					else if (colliding2 == "vehicle1")
+					{
+						gState.addScoreToVehicle("ai1", 1);
+					}
+					else if (colliding2 == "vehicle2")
+					{
+						gState.addScoreToVehicle("ai2", 1);
+					}
+					else if (colliding2 == "vehicle3")
+					{
+						gState.addScoreToVehicle("ai3", 1);
+					}
+					*/
 				}
 			}
 
-			//if (aiCounter <= 1) {
-			//	reintialize();
-			//}
+			if (aiCounter <= 1) {
+				reintialize();
+			}
 		}
 		gContactReportCallback->readNewCollision();
 	}
 }
 
 void PhysicsSystem::reintialize() {
-	gState.resetAudio = true;
 	for (int i = gState.dynamicEntities.size()-1; i >= 0; i--) {
-		//std::cout << gState.dynamicEntities[i].name << "\n";
 		auto& entity = gState.dynamicEntities[i];
-		entity.vehicle->vehicle.destroy();
+		if (entity.name == "playerCar" || entity.name == "aiCar") {
+			entity.vehicle->vehicle.destroy();
+		}
+
 		// remove Dynamic Objects
 		rigidDynamicList.erase(rigidDynamicList.begin() + i);
 		transformList.erase(transformList.begin() + i);
 		gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
+
+		PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC);
+		std::vector<PxActor*> actors(gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC));
+		gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, actors.data(), actorCount);
+		for (PxActor* actor : actors) {
+			const char* actorName = actor->getName();
+			if (actorName) {
+				if (actorName == "scrap") {
+					gScene->removeActor(*actor);
+				}
+			}
+		}
 	}
 
 	PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC);
@@ -542,8 +615,10 @@ void PhysicsSystem::reintialize() {
 	}
 
 	// Remove all static entity objects
-	for (int g = gState.staticEntities.size()-1; g >= 4; g--) {
-		gState.staticEntities.erase(gState.staticEntities.begin() + g);
+	for (int g = gState.staticEntities.size()-1; g >= 0; g--) {
+		if (gState.staticEntities[g].name != "boarder") {
+			gState.staticEntities.erase(gState.staticEntities.begin() + g);
+		}
 	}
 	//std::cout << gState.dynamicEntities.size() << " " << gState.staticEntities.size() << " " << actors.size() << "\n";
 	gState.gMap.resetMap();
@@ -555,10 +630,6 @@ void PhysicsSystem::updatePhysics(double dt) {
 	gScene->fetchResults(true);
 
 	updateTransforms(gState.dynamicEntities);
-	// Update simulation time and remove expired trail segments.
-	updateTrailLifetime(dt);
-
-	updateWinCondition(dt);
 }
 
 void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
@@ -602,6 +673,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 				}
 			}
 
+
 			// Update player vehicle state
 			gState.playerVehicle.curPos = currPos;
 			gState.playerVehicle.curDir = entity.vehicle->forward.getNormalized();
@@ -643,8 +715,6 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 	// Simulate the entire PhysX scene
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
-	// Update simulation time and remove expired trail segments.
-	updateTrailLifetime(timestep);
 }
 
 bool PhysicsSystem::getExplosion() {
@@ -653,11 +723,15 @@ bool PhysicsSystem::getExplosion() {
 
 glm::vec3 PhysicsSystem::getExplosionLocation() {
 	for (const auto& entity : gState.dynamicEntities) {
-		if (entity.vehicle->name == gContactReportCallback->getCollisionPair().first->getName()) {
-			physx::PxVec3 pos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
-			return glm::vec3(pos.x, pos.y, pos.z);
+		if (entity.name == "playerCar" || entity.name == "aiCar") {
+			if (entity.vehicle->name == gContactReportCallback->getCollisionPair().first->getName()) {
+				physx::PxVec3 pos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+				return glm::vec3(pos.x, pos.y, pos.z);
+			}
 		}
+
 	}
+	return glm::vec3(0, 0, 0);
 }
 
 float PhysicsSystem::getCarSpeed(int i) {
@@ -711,96 +785,3 @@ std::vector<physx::PxVec3> PhysicsSystem::getAIPositions() {
 	return aiPositions;
 }
 
-// ----------------- Trail Lifetime Management -----------------
-void PhysicsSystem::updateTrailLifetime(float dt) {
-	// Update the running simulation time.
-	simulationTime += dt;
-	// Iterate backward through the trail segments.
-	for (int i = trailSegments.size() - 1; i >= 0; i--) {
-		if (simulationTime - trailSegments[i].creationTime >= trailLifetime) {
-			if (trailSegments[i].actor) {
-				// --- Check if the actor is actually in the scene before removing ---
-				if (trailSegments[i].actor->getScene() == gScene) {
-					gScene->removeActor(*trailSegments[i].actor);
-				}
-				trailSegments[i].actor->release();
-			}
-			// Remove the corresponding static entity from gState.staticEntities by matching the unique name.
-			for (auto it = gState.staticEntities.begin(); it != gState.staticEntities.end(); ) {
-				if (it->name == trailSegments[i].uniqueName) {
-					it = gState.staticEntities.erase(it);
-				}
-				else {
-					++it;
-				}
-			}
-			// Erase the trail segment from the vector.
-			trailSegments.erase(trailSegments.begin() + i);
-		}
-	}
-}
-
-void PhysicsSystem::removeAllTrailSegmentsByOwner(const std::string& owner)
-{
-	// Iterate backward through the trail segments.
-	for (int i = trailSegments.size() - 1; i >= 0; i--) {
-		if (trailSegments[i].ownerName == owner) {
-			// Recompute the start and end positions from the actor's transform.
-			if (trailSegments[i].actor) {
-				physx::PxTransform pose = trailSegments[i].actor->getGlobalPose();
-				// Use the same logic as in addTrail:
-				physx::PxVec3 dir = pose.q.getBasisVector0();
-				float halfStep = trailStep / 2.0f;
-				physx::PxVec3 startVec = pose.p - halfStep * dir;
-				physx::PxVec3 endVec = pose.p + halfStep * dir;
-				// Call removeTrailBlock on the GameMap to unblock these cells.
-				gState.gMap.removeTrailBlock({ startVec.x, startVec.z }, { endVec.x, endVec.z });
-			}
-
-			// Remove the actor from the scene if it is still there.
-			if (trailSegments[i].actor && trailSegments[i].actor->getScene() == gScene) {
-				gScene->removeActor(*trailSegments[i].actor);
-				trailSegments[i].actor->release();
-			}
-
-			// Remove the corresponding static entity from the render list.
-			for (auto it = gState.staticEntities.begin(); it != gState.staticEntities.end(); ) {
-				if (it->name == trailSegments[i].uniqueName)
-					it = gState.staticEntities.erase(it);
-				else
-					++it;
-			}
-
-			// Erase this trail segment from the vector.
-			trailSegments.erase(trailSegments.begin() + i);
-		}
-	}
-}
-
-void PhysicsSystem::updateWinCondition(float dt) {
-	// If the win condition hasn’t been triggered yet…
-	if (!winTriggered) {
-		// Check if only the player's car remains.
-		if (gState.dynamicEntities.size() == 1 &&
-			gState.dynamicEntities[0].name == "playerCar") {
-			winTriggered = true;
-			winTimer = 10.0f;  // start 10 sec countdown
-
-			// Example: set a win text in your game state so that your rendering system shows it.
-			//gState.winText = "You win!";
-		}
-	}
-	else {
-		// Countdown the timer.
-		winTimer -= dt;
-		if (winTimer > 0.0f) {
-			// Optionally update win text display if needed.
-		}
-		else {
-			// Time’s up—reset the game.
-			reintialize();
-			winTriggered = false;
-			//gState.winText = "";  // clear win text
-		}
-	}
-}

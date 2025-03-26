@@ -1,32 +1,26 @@
 #include "AudioSystem.h"
 #include <iostream>
 
-//AudioSystem::AudioSystem() {
-//	//audioEngine.Init();
-//	std::cout << "Audio System Initialized" << std::endl;
-//}
+void AudioSystem::init() {
+	audioEngine.Init();
+	std::cout << "Audio System Initialized" << std::endl;
 
-//void AudioSystem::init() {
-//	//audioEngine.Init();
-//	std::cout << "Audio System Initialized" << std::endl;
-//
-//	audioEngine.LoadBank("project/assets/audio/Master.bank", FMOD_STUDIO_LOAD_BANK_NORMAL);
-//	audioEngine.LoadBank("project/assets/audio/Master.strings.bank", FMOD_STUDIO_LOAD_BANK_NORMAL);
-//
-//	audioEngine.LoadSound(explosionSound);
-//	audioEngine.LoadSound(carSound);
-//	audioEngine.LoadSound(menuMusic);
-//	audioEngine.LoadSound(battleMusic);
-//
-//	//audioEngine.PlaySounds(menuMusic, Vector3{ 0, 0, 0 }, musicVolume);
-//	startBattleMusic();
-//}
+	audioEngine.LoadBank("project/assets/audio/Master.bank", FMOD_STUDIO_LOAD_BANK_NORMAL);
+	audioEngine.LoadBank("project/assets/audio/Master.strings.bank", FMOD_STUDIO_LOAD_BANK_NORMAL);
 
-void AudioSystem::init(PhysicsSystem* physicsSystem, Camera* camera, GameState& gameState) {
+	audioEngine.LoadSound(explosionSound);
+	audioEngine.LoadSound(carSound);
+	audioEngine.LoadSound(menuMusic);
+	audioEngine.LoadSound(battleMusic);
+
+	//audioEngine.PlaySounds(menuMusic, Vector3{ 0, 0, 0 }, musicVolume);
+	startMenuMusic();
+}
+
+void AudioSystem::init(PhysicsSystem* physicsSystem, Camera* camera) {
 	c_physicsSystem = physicsSystem;
 	c_camera = camera;
-	gState = gameState;
-	//audioEngine.Init();
+	audioEngine.Init();
 	std::cout << "Audio System Initialized" << std::endl;
 
 	audioEngine.LoadBank("project/assets/audio/Master.bank", FMOD_STUDIO_LOAD_BANK_NORMAL);
@@ -50,6 +44,7 @@ void AudioSystem::startBattleMusic() {
 	musicChannel->setMode(FMOD_LOOP_NORMAL | FMOD_2D);
 	musicChannel->setLoopCount(-1);
 
+
 	//start AI sounds
 	std::vector<physx::PxVec3> aiPositions = c_physicsSystem->getAIPositions();
 	for (size_t i = 0; i < aiPositions.size(); i++) {
@@ -62,12 +57,6 @@ void AudioSystem::startEvents() {
 }
 
 void AudioSystem::update() {
-	if (gState.resetAudio) {
-		//restart audio
-		audioEngine.StopAllChannels();
-		startBattleMusic();
-		gState.resetAudio = false;
-	}
 	// Update listener attributes
 	// Replace these dummy values with your actual listener (e.g., camera) data.
 	Vector3 listenerPosition = { 0.0f, 0.0f, 0.0f };
@@ -105,9 +94,6 @@ void AudioSystem::update() {
 		listenerLook = { 0.0f, 0.0f, 1.0f };
 		listenerUp = { 0.0f, 1.0f, 0.0f };
 		audioEngine.Set3dListenerAndOrientation(listenerPosition, listenerLook, listenerUp);
-
-		//std::cout << carSpeed << std::endl;
-		c_camera->updateZoom(carSpeed);
 		
 	}
 	std::vector<physx::PxVec3> aiPositions = c_physicsSystem->getAIPositions();
@@ -134,24 +120,10 @@ void AudioSystem::shutdown() {
 	audioEngine.Shutdown();
 }
 
+
+
 void AudioSystem::explosion(glm::vec3 position) {
 	audioEngine.PlaySounds(explosionSound, Vector3{ position.x, position.y, position.z }, explosionVolume);
-	std::vector<physx::PxVec3> aiPositions = c_physicsSystem->getAIPositions();
-	//remove AI that is closest to explosion
-	float minDist = FLT_MAX;
-	int minIndex = -1;
-	for (size_t i = 0; i < aiPositions.size(); i++) {
-		float dist = glm::distance(position, glm::vec3(aiPositions[i].x, aiPositions[i].y, aiPositions[i].z));
-		if (dist < minDist) {
-			minDist = dist;
-			minIndex = i;
-		}
-	}
-	if (minIndex != -1) {
-		aiChannels[minIndex]->stop();
-		//aiChannels.erase(aiChannels.begin() + minIndex);
-		std::cout << "Stopped AI at index " << minIndex << std::endl;
-	}
 }
 
 void AudioSystem::startCar() {
@@ -179,4 +151,42 @@ void AudioSystem::playAISound(glm::vec3 position) {
 	//	// Set the channel to 3D mode so that it is positioned in the world.
 	//	
 	//}
+}
+
+
+void AudioSystem::startMenuMusic() {
+	if (musicChannel == nullptr) {
+		// If the music channel is null, create and initialize it
+		audioEngine.PlaySounds(menuMusic, Vector3{ 0, 0, 0 }, musicVolume, &musicChannel);
+		musicChannel->setMode(FMOD_LOOP_NORMAL | FMOD_2D);  // 2D for non-3D sound
+		musicChannel->setLoopCount(-1);  // Infinite looping
+	}
+}
+
+void AudioSystem::startLevelMusic() {
+	stopMusic();
+	if (musicChannel == nullptr) {
+		// If the music channel is null, create and initialize it
+		audioEngine.PlaySounds(battleMusic, Vector3{ 0, 0, 0 }, musicVolume, &musicChannel);
+		musicChannel->setMode(FMOD_LOOP_NORMAL | FMOD_2D);  // 2D for non-3D sound
+		musicChannel->setLoopCount(-1);  // Infinite looping
+	}
+}
+
+void AudioSystem::stopMusic() {
+	audioEngine.StopAllChannels();
+	if (musicChannel != nullptr) {
+		musicChannel->stop(); 
+		musicChannel = nullptr;  
+	}
+
+	if (carChannel != nullptr) {
+		carChannel->stop();  
+		carChannel = nullptr;  
+	}
+
+	for (auto& aiChannel : aiChannels) {
+		aiChannel = nullptr;
+	}
+	aiChannels.clear();
 }

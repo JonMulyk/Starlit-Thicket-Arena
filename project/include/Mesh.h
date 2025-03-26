@@ -27,7 +27,7 @@ public:
     std::vector<TextureOBJ>      textures;
 
     Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<TextureOBJ> textures);
-    void Draw(Shader& shader);
+    void Draw(Shader& shader, std::string entityName = "");
 private:
     //  render data
     unsigned int VAO, VBO, EBO;

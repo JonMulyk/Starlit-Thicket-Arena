@@ -9,7 +9,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-
 const float Camera::YAW = -90.0f;
 const float Camera::PITCH = 0.0f;
 const float Camera::SPEED = 10.f;
@@ -18,47 +17,23 @@ const float Camera::ZOOM = 45.0f;
 const float Camera::THETA = 0.0f;
 const float Camera::PHI = 0.0f;
 
-// code does not seem necessary
-/*
-Camera::Camera(
-    float posX, float posY, float posZ,
-    float upX, float upY, float upZ,
-    float yaw, float pitch, float theta, float phi,
-    GameState& gameState
-) :
-    gState(gameState),
-    Front(glm::vec3(0.0f, 0.0f, -1.0f)),
-    MovementSpeed(SPEED),
-    MouseSensitivity(SENSITIVITY),
-    Zoom(ZOOM)
-{
-    Position = glm::vec3(posX, posY, posZ); // Position as seen in above diagram
-    WorldUp = glm::vec3(upX, upY, upZ); // Up vector as seen in above diagram
-    Yaw = yaw;
-    Pitch = pitch;
-    Theta = theta;
-
-    updateCameraVectors();
-}
-*/
-
-Camera::Camera(GameState& gameState, TimeSeconds& t, glm::vec3 position, glm::vec3 up, float yaw, float pitch, float theta, float phi) :
-    gState(gameState),
-    timer(t),
-    Front(glm::vec3(0.0f, 0.0f, -1.0f)),
-    MovementSpeed(SPEED),
-    MouseSensitivity(SENSITIVITY),
-    Zoom(ZOOM)
+Camera::Camera(TimeSeconds& timer, glm::vec3 position, glm::vec3 front, glm::vec3 up, 
+    float yaw, float pitch, float theta, float phi) 
+	: timer(timer),
+	Position(position),
+    Front(front),
+	Up(up),
+	Right(glm::vec3(0.0f, 0.0f, 0.0f)),
+    WorldUp(up),
+    Yaw(yaw),
+    Pitch(pitch),
+    Theta(theta),
+    Phi(phi),
+	MovementSpeed(SPEED),
+	MouseSensitivity(SENSITIVITY),
+	Zoom(ZOOM)
 {
     time = timer.getCurrentTime();
-    Position = position;
-    WorldUp = up;
-    Yaw = yaw;
-    Pitch = pitch;
-    Theta = theta;
-    Phi = phi;
-
-    //updateCameraVectors();
 }
 
 
@@ -71,44 +46,15 @@ const glm::vec3 Camera::getPosition() const
     return this->Position;
 }
 
-glm::vec3 vec3(physx::PxVec3 v) { return glm::vec3(v.x, v.y, v.z); }
-
-glm::mat4 Camera::GetViewMatrix() {
-    glm::vec3 pos = vec3(gState.playerVehicle.curPos);
-    glm::vec3 dir = vec3(gState.playerVehicle.curDir);
-
-    if (timer.getCurrentTime() - time > 1.f) {
-        double threshold = 0.1f;
-        //double factor2 = 100.f * timer.getFrameTime();
-        double factor2 = factor * timer.getFrameTime();
-        if (Phi > 2 * M_PI - threshold || Phi < threshold) {
-            Phi = 0;
-        }
-        else if (Phi < M_PI) {
-            incrementPhi(factor2);
-        }
-        else {
-            incrementPhi(-factor2);
-        }
-        factor += timer.getFrameTime() * 50;
-    }
-    glm::vec4 rot = glm::rotate(glm::mat4(1.f), Phi, glm::vec3(0.f, 1.f, 0.f)) * glm::vec4(dir, 0.f);
-    dir = glm::normalize(glm::vec3(rot));
-
-    pos.y += 4.f;
-
-    return glm::lookAt(pos - 10.f * dir, pos + 2.f * dir, glm::vec3(0.0f, 1.0f, 0.0f));
-}
-
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime) {
     float velocity = MovementSpeed * deltaTime;
-    if (direction == FORWARD)
+    if (direction == Camera::Camera_Movement::FORWARD)
         Position += Front * velocity;
-    if (direction == BACKWARD)
+    if (direction == Camera::Camera_Movement::BACKWARD)
         Position -= Front * velocity;
-    if (direction == LEFT)
+    if (direction == Camera::Camera_Movement::LEFT)
         Position -= Right * velocity;
-    if (direction == RIGHT)
+    if (direction == Camera::Camera_Movement::RIGHT)
         Position += Right * velocity;
 }
 
@@ -166,8 +112,10 @@ void Camera::updateCameraVectors() {
 }
 
 void Camera::incrementTheta(float dt) {
-    if (Theta + (dt / 100.0f) < M_PI_2 && Theta + (dt / 100.0f) > -M_PI_2) {
-        Theta += dt / 100.0f;
+    if (Theta + static_cast<float>(dt / 100.0f) < static_cast<float>(M_PI_2) && 
+        Theta + static_cast<float>(dt / 100.0f) > static_cast<float>(-M_PI_2)) 
+    {
+        Theta += static_cast<float>(dt / 100.0f);
     }
 }
 
