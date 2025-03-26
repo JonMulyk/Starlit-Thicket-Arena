@@ -121,13 +121,14 @@ void PhysicsSystem::initBoarder() {
 	struct WallData {
 		physx::PxVec3 position;
 		float rotationY; // Rotation around Y axis in radians
+		int side;
 	};
 
 	std::vector<WallData> walls = {
-		{{0, height, length}, 0.0f},                          // Front wall
-		{{0, height, -length}, 0.0f},                         // Back wall
-		{{length, height, 0}, physx::PxPi / 2},               // Right wall
-		{{-length, height, 0}, physx::PxPi / 2}               // Left wall
+		{{0, height, length}, 0.0f, 0},                          // Front wall
+		{{0, height, -length}, 0.0f, 1},                         // Back wall
+		{{length, height, 0}, physx::PxPi / 2, 2},               // Right wall
+		{{-length, height, 0}, physx::PxPi / 2, 3}               // Left wall
 	};
 
 	for (const auto& wall : walls) {
@@ -149,7 +150,7 @@ void PhysicsSystem::initBoarder() {
 
 		// Rendering
 		for (int i = -25; i < 25; i++) {
-			gState.staticEntities.push_back(Entity("boarder", &trailModels[0], new Transform()));
+			gState.staticEntities.push_back(Entity("boarder", &pModels[wall.side], new Transform()));
 			if (wall.position.x == 0) {
 				gState.staticEntities.back().transform->pos = glm::vec3(
 					wallTransform.p.x + i * 4,
@@ -302,11 +303,11 @@ bool PhysicsSystem::initVehicles(int numAI) {
 
 		// update the dynamicEntity list
 		if (i == 0) {
-			gState.dynamicEntities.emplace_back("playerCar", carModel, transformList.back());
+			gState.dynamicEntities.emplace_back("playerCar", &pModels[4], transformList.back());
 			gState.dynamicEntities.back().vehicle = vehicle;
 		}
 		else {
-			gState.dynamicEntities.emplace_back("aiCar", carModel, transformList.back());
+			gState.dynamicEntities.emplace_back("aiCar", &pModels[4], transformList.back());
 			gState.dynamicEntities.back().vehicle = vehicle;
 		}
 	}
@@ -347,40 +348,13 @@ void PhysicsSystem::cleanupPhysics() {
 	gContactReportCallback = nullptr;
 }
 
-PhysicsSystem::PhysicsSystem(GameState& gameState, std::vector<Model> tModel, Model* cModel) :
-	gState(gameState), trailModels(tModel), carModel(cModel) {
+PhysicsSystem::PhysicsSystem(GameState& gameState, std::vector<Model> tModel) :
+	gState(gameState), pModels(tModel) {
 	initPhysics();
 }
 
 PhysicsSystem::~PhysicsSystem() {
 	cleanupPhysics();
-}
-
-void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density) {
-	physx::PxMaterial* pMaterial = gPhysics->createMaterial(material.staticFriction, material.dynamicFriction, material.restitution);
-
-	// Define a item
-	physx::PxShape* shape = gPhysics->createShape(*geom, *pMaterial);
-	physx::PxTransform tran(physx::PxVec3(0));
-	physx::PxRigidDynamic* body = gPhysics->createRigidDynamic(tran.transform(transform));
-
-	// Add to lists
-	rigidDynamicList.push_back(body);
-	transformList.push_back(new Transform());
-
-	// update shape and attach
-	physx::PxFilterData itemFilter(
-		COLLISION_FLAG_OBSTACLE,
-		COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
-	shape->setSimulationFilterData(itemFilter);
-	body->attachShape(*shape);
-
-	physx::PxRigidBodyExt::updateMassAndInertia(*body, density);
-	gScene->addActor(*body);
-
-	// Clean up
-	shape->release();
-	pMaterial = nullptr;
 }
 
 void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
@@ -413,7 +387,7 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	if (strcmp(name, "vehicle2") == 0) modelType = 2;
 	if (strcmp(name, "vehicle3") == 0) modelType = 3;
 
-	gState.staticEntities.push_back(Entity(name, &trailModels[modelType], new Transform()));
+	gState.staticEntities.push_back(Entity(name, &pModels[modelType], new Transform()));
 
 	gState.staticEntities.back().transform->pos = glm::vec3(
 		wallTransform.p.x,
@@ -461,20 +435,81 @@ void PhysicsSystem::updateTransforms(std::vector<Entity>& entityList) {
 	}
 }
 
+void PhysicsSystem::addItem(MaterialProp material, physx::PxGeometry* geom, physx::PxTransform transform, float density) {
+	physx::PxMaterial* pMaterial = gPhysics->createMaterial(material.staticFriction, material.dynamicFriction, material.restitution);
+
+	// Define a item
+	physx::PxShape* shape = gPhysics->createShape(*geom, *pMaterial);
+	physx::PxTransform tran(physx::PxVec3(0));
+	physx::PxRigidDynamic* body = gPhysics->createRigidDynamic(tran.transform(transform));
+
+	// Add to lists
+	rigidDynamicList.push_back(body);
+	transformList.push_back(new Transform());
+
+	// update shape and attach
+	physx::PxFilterData itemFilter(
+		COLLISION_FLAG_OBSTACLE,
+		COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+	shape->setSimulationFilterData(itemFilter);
+	body->attachShape(*shape);
+
+	physx::PxRigidBodyExt::updateMassAndInertia(*body, density);
+	gScene->addActor(*body);
+
+	// Clean up
+	shape->release();
+	pMaterial = nullptr;
+}
+
+void PhysicsSystem::shatter(physx::PxVec3 location, physx::PxVec3 direction) {
+
+	physx::PxMaterial* pMaterial = gPhysics->createMaterial(0.5, 0.5, 0.5);
+	physx::PxBoxGeometry boxGeom = physx::PxBoxGeometry(0.2, 0.2, 0.2);
+
+	// Define a item
+	physx::PxShape* shape = gPhysics->createShape(boxGeom, *pMaterial);
+	physx::PxTransform tran(physx::PxVec3(0));
+
+	for (int i = 0; i < 20; i++) {
+		physx::PxTransform localTran(location.x, location.y + i * 0.001, location.z);
+		physx::PxRigidDynamic* body = gPhysics->createRigidDynamic(tran.transform(localTran));
+
+		// Add to lists
+		rigidDynamicList.push_back(body);
+		transformList.push_back(new Transform());
+
+		// update shape and attach
+		physx::PxFilterData itemFilter(
+			0,
+			COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+		shape->setSimulationFilterData(itemFilter);
+		body->attachShape(*shape);
+		body->setName("scrap");
+
+		physx::PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+		gScene->addActor(*body);
+
+		//body->addForce(physx::PxVec3(0, 0, 0));
+		// Clean up
+		shape->release();
+		pMaterial = nullptr;
+
+		gState.dynamicEntities.emplace_back(Entity("scrap", &pModels[5], transformList.back()));
+	}
+}
+
 void PhysicsSystem::updateCollisions() {
 	// Detect collisions
 	auto collisionPair = gContactReportCallback->getCollisionPair();
 	if (gContactReportCallback->checkCollision()) {
 		int aiCounter = 0;
-		const char* colliding1 = collisionPair.first->getName();
-		const char* colliding2 = collisionPair.second->getName();
-		std::string str = colliding1;
-		std::string otherName = colliding2;
+		std::string colliding1 = collisionPair.first->getName();
+		std::string colliding2 = collisionPair.second->getName();
 
 		// check if player died
-		if (str.compare("playerVehicle") == 0) {
+		if (colliding1 == "playerVehicle") {
 			
-
 			for (int i = 0; i < gState.dynamicEntities.size(); i++) {
 				auto& entity = gState.dynamicEntities[i];
 				if (entity.vehicle->name == "playerVehicle") {
@@ -505,6 +540,7 @@ void PhysicsSystem::updateCollisions() {
 				}
 
 				if (entity.vehicle->name == colliding1) {
+					shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 					entity.vehicle->vehicle.destroy();
 
 					// remove Dynamic Object
@@ -530,9 +566,24 @@ void PhysicsSystem::updateCollisions() {
 							gState.staticEntities.erase(gState.staticEntities.begin() + g);
 						}
 					}
-					if (otherName == "playerVehicle") {
-						gState.addToScore(1);
+					gState.addScoreToVehicle(colliding2, 1);
+					/*
+					if (colliding2 == "playerVehicle") {
+						gState.addScoreToVehicle("player1", 1);
 					}
+					else if (colliding2 == "vehicle1")
+					{
+						gState.addScoreToVehicle("ai1", 1);
+					}
+					else if (colliding2 == "vehicle2")
+					{
+						gState.addScoreToVehicle("ai2", 1);
+					}
+					else if (colliding2 == "vehicle3")
+					{
+						gState.addScoreToVehicle("ai3", 1);
+					}
+					*/
 				}
 			}
 
@@ -550,13 +601,27 @@ void PhysicsSystem::updateCollisions() {
 
 void PhysicsSystem::reintialize() {
 	for (int i = gState.dynamicEntities.size()-1; i >= 0; i--) {
-		//std::cout << gState.dynamicEntities[i].name << "\n";
 		auto& entity = gState.dynamicEntities[i];
-		entity.vehicle->vehicle.destroy();
+		if (entity.name == "playerCar" || entity.name == "aiCar") {
+			entity.vehicle->vehicle.destroy();
+		}
+
 		// remove Dynamic Objects
 		rigidDynamicList.erase(rigidDynamicList.begin() + i);
 		transformList.erase(transformList.begin() + i);
 		gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
+
+		PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC);
+		std::vector<PxActor*> actors(gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC));
+		gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, actors.data(), actorCount);
+		for (PxActor* actor : actors) {
+			const char* actorName = actor->getName();
+			if (actorName) {
+				if (actorName == "scrap") {
+					gScene->removeActor(*actor);
+				}
+			}
+		}
 	}
 
 	PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC);
@@ -690,11 +755,15 @@ bool PhysicsSystem::getExplosion() {
 
 glm::vec3 PhysicsSystem::getExplosionLocation() {
 	for (const auto& entity : gState.dynamicEntities) {
-		if (entity.vehicle->name == gContactReportCallback->getCollisionPair().first->getName()) {
-			physx::PxVec3 pos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
-			return glm::vec3(pos.x, pos.y, pos.z);
+		if (entity.name == "playerCar" || entity.name == "aiCar") {
+			if (entity.vehicle->name == gContactReportCallback->getCollisionPair().first->getName()) {
+				physx::PxVec3 pos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+				return glm::vec3(pos.x, pos.y, pos.z);
+			}
 		}
+
 	}
+	return glm::vec3(0, 0, 0);
 }
 
 float PhysicsSystem::getCarSpeed(int i) {

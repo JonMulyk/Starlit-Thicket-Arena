@@ -4,6 +4,7 @@
 
 #include "Text.h"
 #include "TimeSeconds.h"
+#include "GameState.h"
 
 class UIManager
 {
@@ -17,8 +18,9 @@ class UIManager
 	public:
 		UIManager(int windowWidth, int windowHeight);
 		
+		void addScoreText(GameState& gameState);
 		const std::vector<Text>& getUIText() const;
-		void updateUIText(TimeSeconds& timer, double roundDuration, uint64_t score);
+		void updateUIText(TimeSeconds& timer, double roundDuration, GameState& gameState);
 
 
 };

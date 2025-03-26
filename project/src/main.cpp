@@ -1,3 +1,5 @@
+#pragma once
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -15,62 +17,66 @@
 #include "Model.h"
 #include "PhysicsSystem.h"
 #include "Entity.h"
-#include "Camera.h"
+#include "DynamicCamera.h"
+#include "StaticCamera.h"
 #include "RenderingSystem.h"
 #include "GameState.h"
 #include "UIManager.h"
 #include "Skybox.h"
 #include "AudioSystem.h"
-
-#pragma once
-#include <iostream>
-#include <GLFW/glfw3.h>
-#include "Shader.h"
-#include "Texture.h"
-#include "Windowing.h"
-#include <MainMenu.h>
-#include <LevelSelect.h>
+#include "MainMenu.h"
+#include "LevelSelect.h"
 
 
 
 int main() {
     GameState gState;
     InitManager::initGLFW();
+    Command command;
+	Command controllerCommand;
+    TimeSeconds timer;
+    DynamicCamera camera(gState, timer);
+    //Camera camera(gState, timer, true, glm::vec3(0.0f, 250.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), -90.0f, -90.0f);
 
-    // Model Setup
-    std::vector<float> verts, coord;
-    InitManager::getCube(verts, coord);
     Windowing window(1200, 1000);
-    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
-    
+
+    Input input(window, camera, timer, command);
+    Controller controller1(1, camera, controllerCommand);
+    if (!controller1.isConnected()) {
+        std::cout << "Controller one not connected" << std::endl;
+        controllerCommand.brake = 0.0f;
+        controllerCommand.throttle = 0.0f;
+        controllerCommand.steer = 0.0f;
+    }
 
     Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
+    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
     Texture container("project/assets/textures/container.jpg", true);
     Texture gold("project/assets/textures/gold.jpg", true);
     Texture neon("project/assets/textures/neon.jpg", true);
     Texture fire("project/assets/textures/fire.jpg", true);
+
+    // Model Setup
+    std::vector<float> verts, coord;
+    InitManager::getCube(verts, coord);
     Model cube(lightingShader, container, verts, verts, coord);
     Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
     Model Gtrail(lightingShader, "project/assets/models/Gtree/GTree.obj");
     Model Btrail(lightingShader, "project/assets/models/Btree/BTree.obj");
     Model Rtrail(lightingShader, "project/assets/models/Rtree/RTree.obj");
     Model Ytrail(lightingShader, "project/assets/models/Ytree/YTree.obj");
-    std::vector<Model> trails = { Gtrail, Btrail, Rtrail, Ytrail };
     Model tireModel(lightingShader, "project/assets/models/tire1/tire1.obj");
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
     std::vector<Model> sceneModels;
     GameStateEnum gameState = GameStateEnum::MENU;
-    Command command;
-    Command controllerCommand;
-    TimeSeconds timer;
+    
+    // Skybox
     Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
     Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Skybox skybox("project/assets/textures/skybox/", skyboxShader);
 
-
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
-    Camera camera(gState, timer);
     UIManager uiManager(window.getWidth(), window.getHeight());
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
@@ -85,13 +91,25 @@ int main() {
     MainMenu menu(window, arial, controller1);
     LevelSelectMenu levelSelectMenu(window, arial, controller1);
 
-    std::vector<Model>* trailptr = &trails;
-    Model* carptr = &secondCar;
 
+    std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube};
+
+    // Minimap 
+    Shader minimapShader("minimapShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
+    StaticCamera minimapCamera(timer, glm::vec3(0.0f, 250.0f, 0.0f), 
+        glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    // Number of players playing for scoreboard 
+    uint16_t numberOfPlayers = 1;
+    uint16_t numberOfAiCars = 3;
+
+    // Main Loop
+    //timer.advance();
     while (!window.shouldClose()) {
         if (gameState == GameStateEnum::MENU) {
             bool startGame = false;
             while (!window.shouldClose() && !startGame) {
+				glViewport(0, 0, window.getWidth(), window.getHeight()); // reset viewport to ensure fullscreen
                 menu.displayMenu();
                 if (window.shouldClose()) break;
                 selectedLevel = levelSelectMenu.displayMenuLevel();
@@ -114,7 +132,7 @@ int main() {
             controllerCommand.steer = 0.0f;
         }
 
-        PhysicsSystem* physicsSystem = new PhysicsSystem(gState, trails, carptr);
+        PhysicsSystem* physicsSystem = new PhysicsSystem(gState, models);
 
         audio.init(physicsSystem, &camera);
 
@@ -122,7 +140,10 @@ int main() {
         sceneModels.push_back(groundPlaneModel);
 
         physicsSystem->updateTransforms(gState.dynamicEntities);
-
+        
+        // reset scoreboard
+		gState.initializeScores(numberOfPlayers, numberOfAiCars);
+		uiManager.addScoreText(gState);
 
 
         // Main Loop
@@ -151,9 +172,18 @@ int main() {
                 physicsSystem->updatePhysics(timer.dt);
                 timer.advance();
             }
+            
+            // update dynamic UI text
+            uiManager.updateUIText(timer, roundDuration, gState);
 
-            uiManager.updateUIText(timer, roundDuration, gState.getScore());
+            // render everything except minimap
             renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+        
+            // render minimap
+			glDisable(GL_DEPTH_TEST);
+			renderer.renderMinimap(minimapShader, minimapCamera);
+			glEnable(GL_DEPTH_TEST);
+
             glfwSwapBuffers(window);
 
             // Check for round end
@@ -175,6 +205,7 @@ int main() {
             delete physicsSystem;
             //delete audio;
         }
+
     }
     return 0;
 }

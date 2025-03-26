@@ -40,7 +40,7 @@ public:
 
     void DrawAssimp(Shader& shader);
 
-    void draw();
+    void draw(std::string entityName = "");
     std::vector<Mesh> meshes;
     std::string directory;
 
