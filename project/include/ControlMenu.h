@@ -15,9 +15,18 @@ TODO:
 class ControlsMenu {
 public:
     ControlsMenu(Windowing& window, TTF& textRenderer, Controller& controller, Shader* shader)
-        : window(window), textRenderer(textRenderer), controller(controller), shader(shader) {
+        : window(window), textRenderer(textRenderer), controller(controller), shader(shader), backButton(0, 0, 0, 0, glm::vec3(0, 0, 0)) 
+    {
         loadControlsBackground();
         initializeControlsText();
+        boxShader = new Shader("project/assets/shaders/transparentBoxShader.vert", "project/assets/shaders/transparentBoxShader.frag");
+    }
+
+    ~ControlsMenu() {
+        glDeleteTextures(1, &backgroundTexture);
+        controlsText.clear();
+        delete boxShader; 
+        //delete shader;
     }
 
     //controls menu stuff
@@ -26,15 +35,18 @@ public:
         while (inControls && !window.shouldClose()) {
 
             window.clear();
+            //glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
             glDisable(GL_DEPTH_TEST);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             drawBackground();
+            drawTransparentBox(-0.6f, -0.6f, 1.2f, 1.2f, 0.5f);
             renderText(controlsText);
-            drawTransparentBox(0.3f, 0.3f, 0.8f, 0.8f, 0.5f); 
             window.swapBuffer();
             glfwPollEvents();
             handleKeyboardInput(inControls);
             handleControllerInput(inControls);
+
+
         }
     }
 
@@ -46,17 +58,33 @@ private:
     unsigned int backgroundTexture;
     std::vector<Text> controlsText;
     int windowWidth, windowHeight;
+    Shader* boxShader;
+    Button backButton;
 
 
     //intialize stuff here
     void initializeControlsText() {
-        glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
-        float buttonX = 0.5f * windowWidth;
-        float buttonY = 0.5f * windowHeight;
-        Text Start = Text("Start", buttonX + 60, buttonY + 160.0f, 1.0f, glm::vec3(1, 1, 1));
-        Text Exit = Text("Exit", buttonX + 60.0f, buttonY - 60, 1.0f, glm::vec3(1, 1, 1));
-        controlsText.push_back(Start);
-        controlsText.push_back(Exit);
+
+        float screenWidth = static_cast<float>(windowWidth);
+        float screenHeight = static_cast<float>(windowHeight);
+
+
+        float buttonX = 0.5f * screenWidth;
+        float buttonY = 0.5f * screenHeight;
+        controlsText.push_back(Text("Keyboard", buttonX + 300, buttonY + 1100.0f, 1.0f, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("Controller", buttonX + 800.0f, buttonY + 1100, 1.0f, glm::vec3(1, 1, 1)));
+        
+        //keyboard
+        controlsText.push_back(Text("W - Accelerate", buttonX + 300, buttonY + 1050.0f, 0.6, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("A - Left", buttonX + 300, buttonY + 1000.0f, 0.6, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("R - Right", buttonX + 300, buttonY + 950.0f, 0.6, glm::vec3(1, 1, 1)));
+
+        //controller
+        controlsText.push_back(Text("Left Joystick - Turn", buttonX + 800.0f, buttonY + 1050, 0.6f, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("Right Trigger - Accelerate", buttonX + 800.0f, buttonY + 1000, 0.6f, glm::vec3(1, 1, 1)));
+
+
+        controlsText.push_back(Text("Press B or Backspace to return", buttonX + 550.0f, buttonY + 400, 0.6f, glm::vec3(1, 1, 1)));
     }
 
     // Render the text from the vector
@@ -93,7 +121,9 @@ private:
     }
 
     void drawTransparentBox(float x, float y, float width, float height, float alpha) {
-        Shader boxShader("project/assets/shaders/transparentBoxShader.vert", "project/assets/shaders/transparentBoxShader.frag"); 
+
+        boxShader->use();
+        boxShader->setVec4("boxColor", glm::vec4(0.0f, 0.0f, 0.0f, alpha));
 
         float vertices[] = {
             x,         y + height, 0.0f, 1.0f,
@@ -116,9 +146,6 @@ private:
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
         glEnableVertexAttribArray(1);
-
-        boxShader.use();
-        boxShader.setVec4("boxColor", glm::vec4(0.0f, 0.0f, 0.0f, alpha));
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -172,11 +199,11 @@ private:
 
     void handleKeyboardInput(bool& inControls) {
         static bool enterPressed = false;
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_RELEASE && enterPressed) {
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_BACKSPACE) == GLFW_RELEASE && enterPressed) {
             inControls = false;
             enterPressed = false;
         }
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_BACKSPACE) == GLFW_PRESS) {
             enterPressed = true;
         }
     }
@@ -184,11 +211,11 @@ private:
 
     void handleControllerInput(bool& inControls) {
         static bool aButtonPressed = false;
-        if (!controller.isButtonPressed(XINPUT_GAMEPAD_A) && aButtonPressed) {
+        if (!controller.isButtonPressed(XINPUT_GAMEPAD_B) && aButtonPressed) {
             inControls = false;
             aButtonPressed = false;
         }
-        if (controller.isButtonPressed(XINPUT_GAMEPAD_A)) {
+        if (controller.isButtonPressed(XINPUT_GAMEPAD_B)) {
             aButtonPressed = true;
         }
     }

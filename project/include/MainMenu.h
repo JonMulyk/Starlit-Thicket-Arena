@@ -24,13 +24,15 @@ public:
         compileShaders();
         loadBackgroundTexture();
         initializeUIText();
-        initializeButtons(); 
+        //initializeButtons(); 
     }
 
     ~MainMenu() {
         glDeleteTextures(1, &backgroundTexture);
         uiText.clear();
+        delete shader;
     }
+
 
     void displayMenu() {
         if (!audioInitialized) {
@@ -134,12 +136,12 @@ private:
         uiText.push_back(Exit);
     }
 
-    void initializeButtons() {
-        glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
-        startButton = Button(0.4f * windowWidth, 0.4f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
-        controlsButton = Button(0.4f * windowWidth, 0.5f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
-        exitButton = Button(0.4f * windowWidth, 0.6f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
-    }
+    //void initializeButtons() {
+    //    glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
+     //   startButton = Button(0.4f * windowWidth, 0.4f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
+    //    controlsButton = Button(0.4f * windowWidth, 0.5f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
+    //    exitButton = Button(0.4f * windowWidth, 0.6f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
+    //}
 
     void renderText(const std::vector<Text>& renderingText) {
         for (const auto& text : renderingText) {
@@ -242,6 +244,9 @@ private:
             else if (currentSelection == 1) { // Controls
                 ControlsMenu controlsMenu(window, textRenderer, controller, shader);
                 controlsMenu.display();
+
+
+
             }
             else if (currentSelection == 2) { // Exit
                 glfwSetWindowShouldClose(window.getGLFWwindow(), true);
