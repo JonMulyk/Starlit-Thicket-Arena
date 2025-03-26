@@ -80,7 +80,7 @@ int main() {
     UIManager uiManager(window.getWidth(), window.getHeight());
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
-    const double roundDuration = 20;
+    const double roundDuration = 10000;
 
     bool isAudioInitialized = false;
     AudioSystem audio;
@@ -187,11 +187,11 @@ int main() {
             //sceneModels.clear();
 
             gState.reset();
+            command.reset();
             audio.stopMusic(); 
             timer.reset();
             delete physicsSystem;
             //delete audio;
-
         }
 
     }

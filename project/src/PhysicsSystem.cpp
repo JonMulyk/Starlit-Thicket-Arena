@@ -499,7 +499,7 @@ void PhysicsSystem::shatter(physx::PxVec3 location, physx::PxVec3 direction) {
 	}
 }
 
-void PhysicsSystem::updateCollisions() {
+void PhysicsSystem::updateCollisions(Command& command) {
 	// Detect collisions
 	auto collisionPair = gContactReportCallback->getCollisionPair();
 	if (gContactReportCallback->checkCollision()) {
@@ -510,6 +510,7 @@ void PhysicsSystem::updateCollisions() {
 		// check if player died
 		if (colliding1 == "playerVehicle") {
 			reintialize();
+			command.reset();
 		}
 		// check which vehicle it was
 		else {
@@ -573,6 +574,7 @@ void PhysicsSystem::updateCollisions() {
 
 			if (aiCounter <= 1) {
 				reintialize();
+				command.reset();
 			}
 		}
 		gContactReportCallback->readNewCollision();
@@ -651,6 +653,20 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			PxReal forwardSpeed = entity.vehicle->velocity.dot(entity.vehicle->forward);
 			const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
 
+			// boost
+			physx::PxRigidBody* rigidBody = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody;
+			if (command.boost && command.fuel > 0) {
+				rigidBody->setMaxLinearVelocity(100);
+				rigidBody->addForce(entity.vehicle->forward * 20, PxForceMode::eACCELERATION);
+			}
+			else {
+				physx::PxReal curr_max = rigidBody->getMaxLinearVelocity() - 250 * timestep;
+				curr_max = (curr_max < 10) ? 10 : curr_max;
+				rigidBody->setMaxLinearVelocity(curr_max);
+			}
+			command.updateBoost(timestep);
+
+			// run physx simulation
 			entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
 			entity.vehicle->vehicle.step(timestep, gVehicleSimulationContext);
 
@@ -673,7 +689,6 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 				}
 			}
 
-
 			// Update player vehicle state
 			gState.playerVehicle.curPos = currPos;
 			gState.playerVehicle.curDir = entity.vehicle->forward.getNormalized();
@@ -687,6 +702,20 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			const PxReal forwardSpeed = entity.vehicle->velocity.dot(entity.vehicle->forward);
 			const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
 
+			// boost
+			physx::PxRigidBody* rigidBody = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody;
+			if (entity.vehicle->command.boost && entity.vehicle->command.fuel > 0) {
+				rigidBody->setMaxLinearVelocity(100);
+				rigidBody->addForce(entity.vehicle->forward * 20, PxForceMode::eACCELERATION);
+			}
+			else {
+				physx::PxReal curr_max = rigidBody->getMaxLinearVelocity() - 250 * timestep;
+				curr_max = (curr_max < 10) ? 10 : curr_max;
+				rigidBody->setMaxLinearVelocity(curr_max);
+			}
+			entity.vehicle->command.updateBoost(timestep);
+
+			// run physx simulation
 			entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
 			entity.vehicle->vehicle.step(timestep, gVehicleSimulationContext);
 
@@ -710,7 +739,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			}
 		}
 	}
-	updateCollisions();
+	updateCollisions(command);
 
 	// Simulate the entire PhysX scene
 	gScene->simulate(timestep);
