@@ -137,6 +137,27 @@ void Camera::updateZoom(float speed) {
     // interpolation factor (t) between 0 and 1.
     float t = 0.1f;
 
+    // lock zoom above 45
+	if (targetZoom < 55.0f) {
+		targetZoom = 55.0f;
+	}
+    if (targetZoom > 70.0f) {
+		targetZoom = 70.0f;
+        
+    }
+	std::cout << targetZoom << std::endl;
     // Smoothly interpolate from the current zoom to the target zoom
     Zoom = lerp(Zoom, targetZoom, t);
+}
+
+void Camera::updateYawWithDelay(float targetYaw, float deltaTime) {
+    // Smoothing factor: higher values mean a faster response; adjust as needed.
+    const float smoothingFactor = 5.0f;
+
+    // Interpolate current yaw toward the target yaw.
+    // This formula implements a simple exponential smoothing.
+    Yaw += (targetYaw - Yaw) * smoothingFactor * deltaTime;
+
+    // Update the camera vectors based on the new yaw value.
+    updateCameraVectors();
 }
