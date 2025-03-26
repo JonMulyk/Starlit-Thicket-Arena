@@ -8,6 +8,7 @@
 #include <iostream>
 
 
+
 class AudioSystem {
 public:
 	void init();
@@ -16,12 +17,22 @@ public:
 	void update();
 	void shutdown();
 
+
+
+
+
 	void startBattleMusic();
 
 	void explosion(glm::vec3 position);
 	void startCar();
 
 	void playAISound(glm::vec3 position);
+
+	void startMenuMusic();
+
+	void startLevelMusic();
+
+	void stopMusic();
 
 	CAudioEngine audioEngine;
 	CAudioEngine* audioEnginePtr;

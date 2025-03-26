@@ -157,8 +157,14 @@
     <None Include="lib\fmod\core\lib\arm64\fmodL.dll" />
     <None Include="project\assets\shaders\CameraShader.vert" />
     <None Include="project\assets\shaders\FragShader.frag" />
+    <None Include="project\assets\shaders\mainMenuShader.frag" />
+    <None Include="project\assets\shaders\mainMenuShader.vert" />
+    <None Include="project\assets\shaders\minimapShader.frag" />
+    <None Include="project\assets\shaders\minimapShader.vert" />
     <None Include="project\assets\shaders\skyboxShader.frag" />
     <None Include="project\assets\shaders\skyboxShader.vert" />
+    <None Include="project\assets\shaders\text.frag" />
+    <None Include="project\assets\shaders\text.vert" />
     <None Include="project\assets\shaders\textShader.frag" />
     <None Include="project\assets\shaders\textShader.vert" />
     <None Include="project\assets\shaders\VertShader.vert" />
@@ -178,18 +184,21 @@
     <ClCompile Include="project\src\AudioSystem.cpp" />
     <ClCompile Include="project\src\Camera.cpp" />
     <ClCompile Include="project\src\Controller.cpp" />
+    <ClCompile Include="project\src\DynamicCamera.cpp" />
     <ClCompile Include="project\src\Entity.cpp" />
     <ClCompile Include="project\src\GameMap.cpp" />
     <ClCompile Include="project\src\GameState.cpp" />
     <ClCompile Include="project\src\glad.c" />
     <ClCompile Include="project\src\InitManager.cpp" />
     <ClCompile Include="project\src\Input.cpp" />
+    <ClCompile Include="project\src\LevelSelect.cpp" />
     <ClCompile Include="project\src\main.cpp" />
     <ClCompile Include="project\src\Mesh.cpp" />
     <ClCompile Include="project\src\Model.cpp" />
     <ClCompile Include="project\src\PhysicsSystem.cpp" />
     <ClCompile Include="project\src\Shader.cpp" />
     <ClCompile Include="project\src\Skybox.cpp" />
+    <ClCompile Include="project\src\StaticCamera.cpp" />
     <ClCompile Include="project\src\Text.cpp" />
     <ClCompile Include="project\src\Texture.cpp" />
     <ClCompile Include="project\src\TimeSeconds.cpp" />
@@ -628,9 +637,12 @@
     <ClInclude Include="lib\physx\include\vehicle\PxVehicleWheels.h" />
     <ClInclude Include="project\include\AudioEngine.h" />
     <ClInclude Include="project\include\AudioSystem.h" />
+    <ClInclude Include="project\include\Button.h" />
     <ClInclude Include="project\include\Camera.h" />
     <ClInclude Include="project\include\Command.h" />
     <ClInclude Include="project\include\GameMap.h" />
+    <ClInclude Include="project\include\LevelSelect.h" />
+    <ClInclude Include="project\include\MainMenu.h" />
     <ClInclude Include="project\include\Vehicle.h" />
     <ClInclude Include="project\include\Controller.h" />
     <ClInclude Include="project\include\Entity.h" />
@@ -653,6 +665,8 @@
     <ClInclude Include="project\include\TTF.h" />
     <ClInclude Include="project\include\stb_image.h" />
     <ClInclude Include="project\include\RenderingSystem.h" />
+    <ClInclude Include="project\src\DynamicCamera.h" />
+    <ClInclude Include="project\src\StaticCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\fmod\core\lib\arm64\fmodL_vc.lib" />

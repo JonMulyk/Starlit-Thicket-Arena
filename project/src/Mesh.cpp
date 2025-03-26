@@ -37,7 +37,7 @@ void Mesh::setupMesh()
 }
 
 
-void Mesh::Draw(Shader& shader) {
+void Mesh::Draw(Shader& shader, std::string entityName) {
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
     for (unsigned int i = 0; i < textures.size(); i++)
@@ -60,4 +60,11 @@ void Mesh::Draw(Shader& shader) {
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+
+    // reset textures so it doesn't bleed into other draw calls
+    if (entityName != "playerCar" && entityName != "aiCar")
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
 }
