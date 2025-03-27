@@ -278,7 +278,8 @@ private:
     void handleControllerInput(int& selectedLevel) {
         static bool dpadUpReleased = false; 
         static bool dpadDownReleased = false; 
-        static bool aButtonReleased = false;       
+        static bool aButtonReleased = false;  
+        static bool trailsButtonClicked = false;
 
         if (!controller.isConnected()) return;
 
@@ -312,5 +313,18 @@ private:
         if (controller.isButtonPressed(XINPUT_GAMEPAD_A)) {
             aButtonReleased = true; 
         }
+
+
+        if (controller.isButtonPressed(XINPUT_GAMEPAD_Y)) {
+            if (!trailsButtonClicked) {  // only toggle on first press
+                gameState.tempTrails = !gameState.tempTrails;
+                trailsButtonClicked = true;
+            }
+        }
+        else {
+            trailsButtonClicked = false;
+        }
+
+
     }
 };

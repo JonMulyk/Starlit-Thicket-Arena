@@ -109,6 +109,12 @@ bool Controller::Update()
 		r_camera.ProcessMouseMovement(rightStickX*60, rightStickY*60);
 	}
 
+    // Boost
+    r_command.boost = false;
+    if (state.Gamepad.wButtons & XINPUT_GAMEPAD_B) {
+        r_command.boost = true;
+    }
+
 
     return true;
 }
