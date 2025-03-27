@@ -1,12 +1,30 @@
 #include "Windowing.h"
 #include <exception>
 
-Windowing::Windowing(int width, int height, std::string name) {
-    m_window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
+Windowing::Windowing(int width, int height, std::string name, bool fullscreen) {
+    //m_window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
+    if (!glfwInit())
+    {
+        throw std::exception("Failed to initialize GLFW\n");
+    }
 
-    if (m_window == nullptr) {
+    m_fullscren = fullscreen;
+
+    m_monitor = glfwGetPrimaryMonitor();
+    m_mode = glfwGetVideoMode(m_monitor);
+
+    if (m_fullscren)
+    {
+        m_window = glfwCreateWindow(width, height, name.c_str(), m_monitor, nullptr);
+    }
+    else
+    {
+		m_window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
+    }
+
+    if (m_window == nullptr)
+    {
         glfwTerminate();
-        // TODO: Create custom exception
         throw std::exception("Failed to create GLFW window\n");
     }
 
