@@ -15,9 +15,9 @@ public:
 		if (boost) {
 			fuel -= dt;
 		}
-		// take 3 times as long to recharge
+		// take 6 times as long to recharge
 		else {
-			fuel += dt/3;
+			fuel += dt/6;
 		}
 
 		// clamp fuel

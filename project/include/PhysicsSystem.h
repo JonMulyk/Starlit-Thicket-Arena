@@ -154,7 +154,7 @@ public:
 	void shatter(physx::PxVec3 location, physx::PxVec3 direction);
 
 	// updates collsions
-	void updateCollisions(Command& command);
+	void updateCollisions();
 
 	// resets map
 	void reintialize();
