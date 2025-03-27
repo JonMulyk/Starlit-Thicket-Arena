@@ -516,7 +516,7 @@ void PhysicsSystem::updateCollisions(Command& command) {
 		}
 		// check which vehicle it was
 		else {
-			for (int i = 0; i < gState.dynamicEntities.size(); i++) {
+			for (int i = gState.dynamicEntities.size()-1; i >= 0; i--) {
 				auto& entity = gState.dynamicEntities[i];
 
 				if (entity.name == "aiCar") {
@@ -649,10 +649,11 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 	for (auto& entity : gState.dynamicEntities) {
 		if (entity.name == "playerCar") {
 			Command cmd;
-			cmd.brake = 0; command.brake + controllerCommand.brake;
-			cmd.throttle = physx::PxClamp(command.throttle + controllerCommand.throttle, .5f, .9f);
-			cmd.steer = command.steer + controllerCommand.steer;
-
+			cmd.brake = physx::PxMax(command.brake, controllerCommand.brake);
+			cmd.throttle = 0.5 + physx::PxMax(command.throttle, controllerCommand.throttle) / 2.f;
+			cmd.steer = (abs(command.steer) > abs(controllerCommand.steer)) ? command.steer : controllerCommand.steer;
+			cmd.fuel = min(command.fuel, controllerCommand.fuel);
+			cmd.boost = (controllerCommand.boost == false) ? command.boost : controllerCommand.boost;
 			entity.vehicle->setPhysxCommand(cmd);
 
 			// Step the vehicle
@@ -663,15 +664,27 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 
 			// boost
 			physx::PxRigidBody* rigidBody = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody;
-			if (command.boost && command.fuel > 0) {
+			if (cmd.boost && cmd.fuel > 0) {
 				rigidBody->setMaxLinearVelocity(100);
 				rigidBody->addForce(entity.vehicle->forward * 20, PxForceMode::eACCELERATION);
 			}
 			else {
 				physx::PxReal curr_max = rigidBody->getMaxLinearVelocity() - 250 * timestep;
 				curr_max = (curr_max < 10) ? 10 : curr_max;
-				rigidBody->setMaxLinearVelocity(curr_max);
+
+				// brake
+				if (cmd.brake != 0) {
+					rigidBody->setMaxLinearVelocity(10.f - 4.f * cmd.brake);
+				}
+
+				else {
+					rigidBody->setMaxLinearVelocity(curr_max);
+				}
 			}
+
+			// update fuel
+			gState.playerVehicle.fuel = cmd.fuel;
+			controllerCommand.updateBoost(timestep);
 			command.updateBoost(timestep);
 
 			// run physx simulation
@@ -719,7 +732,13 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			else {
 				physx::PxReal curr_max = rigidBody->getMaxLinearVelocity() - 250 * timestep;
 				curr_max = (curr_max < 10) ? 10 : curr_max;
-				rigidBody->setMaxLinearVelocity(curr_max);
+
+				if (entity.vehicle->command.brake != 0) {
+					rigidBody->setMaxLinearVelocity(10.f - 4.f * entity.vehicle->command.brake);
+				}
+				else {
+					rigidBody->setMaxLinearVelocity(curr_max);
+				}
 			}
 			entity.vehicle->command.updateBoost(timestep);
 
