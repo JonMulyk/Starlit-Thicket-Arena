@@ -360,65 +360,59 @@ PhysicsSystem::~PhysicsSystem() {
 void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	physx::PxMaterial* pMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
 
-	// Create shape
-	float height = 0.5f;
+	// create shape
+	float height = .5f;
 	float width = 0.01f;
 	physx::PxBoxGeometry geom(trailStep / 2, height, width);
 	physx::PxShape* shape = gPhysics->createShape(geom, *pMaterial);
 
-	// Setup transform for the trail segment
 	physx::PxTransform wallTransform(
 		physx::PxVec3(x, height, z),
 		physx::PxQuat(rot, physx::PxVec3(0, 1, 0))
 	);
 	physx::PxRigidStatic* body = gPhysics->createRigidStatic(wallTransform);
 
-	// Set up collision filtering
+	// update shape and attach
 	physx::PxFilterData itemFilter(
 		COLLISION_FLAG_OBSTACLE,
 		COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0
 	);
 	shape->setSimulationFilterData(itemFilter);
+
 	body->attachShape(*shape);
+	body->setName(name);
 
-	// Create a unique name for this trail segment
-	std::string uniqueName = "trail_" + std::to_string(trailCounter++);
-	body->setName(uniqueName.c_str());
-
-	// Determine model type based on the owner's name
 	int modelType = 0;
 	if (strcmp(name, "vehicle1") == 0) modelType = 1;
 	if (strcmp(name, "vehicle2") == 0) modelType = 2;
 	if (strcmp(name, "vehicle3") == 0) modelType = 3;
 
-	// Create the static entity using uniqueName so it matches later in trail removal
-	gState.staticEntities.push_back(Entity(uniqueName, &pModels[modelType], new Transform()));
+	gState.staticEntities.push_back(Entity(name, &pModels[modelType], new Transform()));
+
 	gState.staticEntities.back().transform->pos = glm::vec3(
 		wallTransform.p.x,
-		wallTransform.p.y - 0.3f,
+		wallTransform.p.y - 0.3,
 		wallTransform.p.z
 	);
-	gState.staticEntities.back().transform->scale = glm::vec3(trailStep / 2, height, 1.3f);
+
+	gState.staticEntities.back().transform->scale = glm::vec3(trailStep / 2, height, 1.3);
+
 	gState.staticEntities.back().transform->rot = glm::vec3(0, static_cast<float>(rand()), 0);
 
+
 	gScene->addActor(*body);
-	TrailSegment segment;
-	segment.actor = body;
-	segment.creationTime = simulationTime;
-	segment.uniqueName = uniqueName;
-	segment.ownerName = name;
-	trailSegments.push_back(segment);
+
+	// Clean up
 	shape->release();
 	pMaterial = nullptr;
 
-	// may need this ???
+	// add the add the block to the graph
 	physx::PxVec3 dir = wallTransform.q.getBasisVector0();
 	physx::PxVec3 start = wallTransform.p - .5f * trailStep * dir;
 	physx::PxVec3 end = wallTransform.p + .5f * trailStep * dir;
-	gState.staticEntities.back().start = { start.x, start.z };
-	gState.staticEntities.back().end = { end.x, end.z };
 
-	gState.gMap.updateMap(gState.staticEntities.back().start, gState.staticEntities.back().end);
+	gState.gMap.updateMap({ start.x, start.z }, { end.x, end.z });
+
 }
 
 
@@ -508,21 +502,22 @@ void PhysicsSystem::shatter(physx::PxVec3 location, physx::PxVec3 direction) {
 	}
 }
 
-void PhysicsSystem::updateCollisions(Command& command) {
+void PhysicsSystem::updateCollisions() {
 	// Detect collisions
 	auto collisionPair = gContactReportCallback->getCollisionPair();
 	if (gContactReportCallback->checkCollision()) {
 		int aiCounter = 0;
 		std::string colliding1 = collisionPair.first->getName();
 		std::string colliding2 = collisionPair.second->getName();
-    
-		for (int i = gState.dynamicEntities.size()-1; i >= 0; i--) {
+
+		for (int i = 0; i < gState.dynamicEntities.size(); i++) {
 			auto& entity = gState.dynamicEntities[i];
 			if (entity.name != "aiCar" && entity.name != "playerCar") continue;
 			if (entity.name == "aiCar") {
 				aiCounter++;
 			}
 				
+
 			if (entity.vehicle->name == colliding1) {
 				shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 				entity.vehicle->vehicle.destroy();
@@ -547,52 +542,29 @@ void PhysicsSystem::updateCollisions(Command& command) {
 				// Remove all static entity objects
 				for (int g = gState.staticEntities.size() - 1; g >= 0; g--) {
 					if (gState.staticEntities[g].name == colliding1) {
-            	gState.gMap.updateMap(
-								gState.staticEntities[g].start,
-								gState.staticEntities[g].end,
-								1
-							);
 						gState.staticEntities.erase(gState.staticEntities.begin() + g);
 					}
 				}
 				gState.addScoreToVehicle(colliding2, 1);
-				/*
-				if (colliding2 == "playerVehicle") {
-					gState.addScoreToVehicle("player1", 1);
-				}
-				else if (colliding2 == "vehicle1")
-				{
-					gState.addScoreToVehicle("ai1", 1);
-				}
-				else if (colliding2 == "vehicle2")
-				{
-					gState.addScoreToVehicle("ai2", 1);
-				}
-				else if (colliding2 == "vehicle3")
-				{
-					gState.addScoreToVehicle("ai3", 1);
-				}
-				*/
 			}
 		}
+
 		if (colliding1 == "playerVehicle") {
 			pendingReinit = true;
 			reinitTime = 0.0;
 			playerDied = true;
 			printf("Reset because of Player");
-      command.reset();
 		}
 
 		if (aiCounter <= 1) {
 			printf("Reset because of AI\n");
 			//printf("%f\n", aiCounter);
-;			pendingReinit = true;
+			;                pendingReinit = true;
 			reinitTime = 0.0;
-      command.reset();
 		}
-		
 
-	gContactReportCallback->readNewCollision();
+
+		gContactReportCallback->readNewCollision();
 	}
 }
 
@@ -663,16 +635,17 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 				cmd.brake = 1.0f;        // Apply full brake to stop movement
 				cmd.throttle = 0.0f;     // Set throttle to 0
 				cmd.steer = 0.0f;        // Set steer to 0 to stop turning
-
+				command.fuel = 1;
+				controllerCommand.fuel = 1;
 				entity.vehicle->setPhysxCommand(cmd);
 			}
 			else {
-        cmd.brake = physx::PxMax(command.brake, controllerCommand.brake);
-        cmd.throttle = 0.5 + physx::PxMax(command.throttle, controllerCommand.throttle) / 2.f;
-        cmd.steer = (abs(command.steer) > abs(controllerCommand.steer)) ? command.steer : controllerCommand.steer;
-        cmd.fuel = min(command.fuel, controllerCommand.fuel);
-        cmd.boost = (controllerCommand.boost == false) ? command.boost : controllerCommand.boost;
-        entity.vehicle->setPhysxCommand(cmd);
+				cmd.brake = physx::PxMax(command.brake, controllerCommand.brake);
+				cmd.throttle = 0.5 + physx::PxMax(command.throttle, controllerCommand.throttle) / 2.f;
+				cmd.steer = (abs(command.steer) > abs(controllerCommand.steer)) ? command.steer : controllerCommand.steer;
+				cmd.fuel = min(command.fuel, controllerCommand.fuel);
+				cmd.boost = (controllerCommand.boost == false) ? command.boost : controllerCommand.boost;
+				entity.vehicle->setPhysxCommand(cmd);
 			}
 
 
@@ -786,7 +759,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			}
 		}
 	}
-	updateCollisions(command);
+	updateCollisions();
 
 	// Simulate the entire PhysX scene
 	gScene->simulate(timestep);
