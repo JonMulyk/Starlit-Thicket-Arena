@@ -69,3 +69,4 @@ void TimeSeconds::reset() {
     m_accumulator = 0.0;
     m_elapsedTime = 0.0;  // Critical: ensure elapsed time starts at 0
 }
+

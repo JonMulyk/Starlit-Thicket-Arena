@@ -56,7 +56,8 @@ int main() {
     Texture gold("project/assets/textures/gold.jpg", true);
     Texture neon("project/assets/textures/neon.jpg", true);
     Texture fire("project/assets/textures/fire.jpg", true);
-
+    Texture grass("project/assets/textures/green-grass.jpg", true);
+    Texture blueGrass("project/assets/textures/696.jpg", true);
     // Model Setup
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
@@ -77,12 +78,15 @@ int main() {
     Skybox skybox("project/assets/textures/skybox/", skyboxShader);
 
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
+    Model groundPlaneModel2(sceneShader, grass, "project/assets/models/reallySquareArena.obj");
+    Model groundPlaneModel3(sceneShader, blueGrass, "project/assets/models/reallySquareArena.obj");
     UIManager uiManager(window.getWidth(), window.getHeight());
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
-    const double roundDuration = 20;
+    const double roundDuration = 200;
 
     bool isAudioInitialized = false;
+
     AudioSystem audio;
 
     MainMenu menu(window, arial, controller1);
@@ -119,6 +123,19 @@ int main() {
             gameState = GameStateEnum::PLAYING;
         }
 
+        if (selectedLevel == 1)
+        {
+            sceneModels.push_back(groundPlaneModel);
+        }
+        if (selectedLevel == 2)
+        {
+            sceneModels.push_back(groundPlaneModel2);
+        }
+        if (selectedLevel == 3)
+        {
+            sceneModels.push_back(groundPlaneModel3);
+        }
+
         // Game setup
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -134,7 +151,7 @@ int main() {
         audio.init(physicsSystem, &camera);
 
         // Static scene data
-        sceneModels.push_back(groundPlaneModel);
+        //sceneModels.push_back(groundPlaneModel);
 
         physicsSystem->updateTransforms(gState.dynamicEntities);
 
@@ -151,14 +168,23 @@ int main() {
             timer.tick();
             input.poll();
             controller1.Update();
-            audio.update();
             // Update camera zoom based on car speed:
             //float carSpeed = physicsSystem->getCarSpeed(0);
+
             camera.updateZoom(physicsSystem->getCarSpeed(0));
             camera.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle.curDir.z, gState.playerVehicle.curDir.x)), timer.dt);
 
+            physicsSystem->update(timer.getFrameTime());
 
+            if (physicsSystem->playerDied) {
+                audio.stopCarSounds(); 
+            }
+            else {
+                audio.startCarSounds();  
+                audio.update();
+            }
 
+            physicsSystem->update(timer.getFrameTime());
 
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
@@ -191,14 +217,13 @@ int main() {
             gameState = GameStateEnum::MENU;
             gState.dynamicEntities.clear();
             gState.staticEntities.clear();
-            //sceneModels.clear();
+            sceneModels.clear();
 
             gState.reset();
             audio.stopMusic();
             timer.reset();
             delete physicsSystem;
             //delete audio;
-
         }
 
     }
