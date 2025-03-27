@@ -1,10 +1,8 @@
 #include "GameMap.h"
 
 GameMap::GameMap()
-	: grid(GRID_SIZE, std::vector<int>(GRID_SIZE, GRID_SIZE)),
-	REQUIRED_CLEARANCE(ceil((0.85) * (GRID_SIZE - 1) / float(2 * MAX_ACTUAL))) {
-	REQUIRED_CLEARANCE = (REQUIRED_CLEARANCE < 1) ? 1 : REQUIRED_CLEARANCE;
-}
+	: grid(GRID_SIZE, std::vector<int>(GRID_SIZE, 1))
+{}
 
 // --- Helpers
 bool GameMap::outOfBound(int a) {
@@ -24,97 +22,92 @@ float GameMap::toGameSpace(int a) {
 	return ((float(a) / float(GRID_SIZE - 1)) * 2.0f * MAX_ACTUAL) - MAX_ACTUAL;
 }
 
-// --- Clearance based graph finding
-void GameMap::addBlock(int x, int y) {
+// --- Graph updates
+void GameMap::addBlock(int x, int y, int blocking) {
 	// check invalid coordinates
 	if (outOfBound(x) || outOfBound(y)) {
 		return;
 	}
+	grid[x][y] = blocking;
+}
 
-	// add if currently it is not blocked
-	if (grid[x][y] != 0) {
-		grid[x][y] = 0;
-		q.push({ x, y });
+void GameMap::updateGrid(int x0, int y0, int x1, int y1, int blocking) {
+	// add start and end
+	addBlock(x0, y0, blocking);
+	addBlock(x1, y1, blocking);
+
+	// convert start to float
+	float x = x0;
+	float y = y0;
+
+	// get x and y distance
+	int dx = x1 - x0;
+	int dy = y1 - y0;
+
+	// get step direction
+	int stepX = (dx > 0) ? 1 : (dx < 0) ? -1 : 0;
+	int stepY = (dy > 0) ? 1 : (dy < 0) ? -1 : 0;
+
+	// get discrete step range
+	float tDeltaX = (std::abs(dx) != 0) ? (1.0f / std::abs(dx)) : std::numeric_limits<float>::infinity();
+	float tDeltaY = (std::abs(dy) != 0) ? (1.0f / std::abs(dy)) : std::numeric_limits<float>::infinity();
+
+	// get first boundaries
+	float tMaxX, tMaxY;
+	if (dx == 0)
+		tMaxX = std::numeric_limits<float>::infinity();
+	else if (stepX > 0)
+		tMaxX = ((x0 + 1) - x) * tDeltaX;
+	else
+		tMaxX = (x - x0) * tDeltaX;
+
+	if (dy == 0)
+		tMaxY = std::numeric_limits<float>::infinity();
+	else if (stepY > 0)
+		tMaxY = ((y0 + 1) - y) * tDeltaY;
+	else
+		tMaxY = (y - y0) * tDeltaY;
+
+	// distance between two points (squared)
+	float dd = dx * dx + dy * dy;
+
+	// traverse till the checked cells equal dd
+	while ((((x - x0) * dx + (y - y0) * dy) / dd) < 1.0f) {
+
+		// check if boundary is x or y
+		if (tMaxX < tMaxY) {
+			// advance x
+			x += stepX;
+			tMaxX += tDeltaX;
+		}
+		else if (tMaxX > tMaxY) {
+			// advance y
+			y += stepY;
+			tMaxY += tDeltaY;
+		}
+		else {
+			// next boundary is a corner; advance both
+			x += stepX;
+			tMaxX += tDeltaX;
+			y += stepY;
+			tMaxY += tDeltaY;
+
+			// add the adjacent boxes to a corner
+			addBlock(x, y - stepY, blocking);
+			addBlock(x - stepX, y, blocking);
+		}
+
+		// add new visited square
+		addBlock(x, y, blocking);
 	}
 }
 
-void GameMap::updateGrid(physx::PxVec2 start, physx::PxVec2 end) {
-	// Convert game space to grid space
-	physx::PxVec2T<int> p1 = {
-		toGridSpace(start.x),
-		toGridSpace(start.y)
-	};
-
-	physx::PxVec2T<int> p2 = {
-		toGridSpace(end.x),
-		toGridSpace(end.y)
-	};
-
-	// p1 and p2 are out of bounds end
-	if ((outOfBound(p1.x) || outOfBound(p1.y)) && (outOfBound(p2.x) || outOfBound(p2.y))) {
-		return;
-	}
-
-
-	// add start
-	addBlock(p1.x, p1.y);
-
-	// end if line is a point
-	if (p1 == p2) {
-		return;
-	}
-
-	// add end
-	addBlock(p2.x, p2.y);
-
-	// take discrete jumps
-	physx::PxVec2 v = { float(p2.x - p1.x), float(p2.y - p1.y) };
-
-	if (abs(v.x) > abs(v.y)) {
-		int sign = (v.x >= 0) ? 1 : -1;
-		v = v / abs(v.x);
-
-		for (int i = 0; p1.x + i != p2.x; i += sign) {
-			addBlock(p1.x + i, p1.y + int(i * v.y));
-		}
-	}
-	else {
-		int sign = (v.y >= 0) ? 1 : -1;
-		v = v / abs(v.y);
-
-		for (int i = 0; p1.y + i != p2.y; i += sign) {
-			addBlock(p1.x + int(i * v.x), p1.y + i);
-		}
-	}
-}
-
-void GameMap::propogateWeights() {
-	while (!q.empty()) {
-		// get current position
-		physx::PxVec2T<int> cur = q.front();
-		q.pop();
-
-		// go through each direction
-		for (int dir = 0; dir < 8; dir++) {
-			physx::PxVec2T<int> n = cur + dt[dir];
-
-			// Check boundaries.
-			if (outOfBound(n.x) || outOfBound(n.y)) {
-				continue;
-			}
-
-			// If the neighbor is open and we found a shorter distance.
-			if (grid[n.x][n.y] > grid[cur.x][cur.y] + 1) {
-				grid[n.x][n.y] = grid[cur.x][cur.y] + 1;
-				q.push(n);
-			}
-		}
-	}
-}
-
-void GameMap::updateMap(physx::PxVec2 start, physx::PxVec2 end) {
-	updateGrid(start, end);
-	propogateWeights();
+void GameMap::updateMap(physx::PxVec2 start, physx::PxVec2 end, int blocking) {
+	int x0 = toGridSpace(start.x);
+	int y0 = toGridSpace(start.y);
+	int x1 = toGridSpace(end.x);
+	int y1 = toGridSpace(end.y);
+	updateGrid(x0, y0, x1, y1, blocking);
 }
 
 int GameMap::isBlocked(double x0, double z0) {
@@ -135,18 +128,22 @@ void GameMap::printGraph() {
 	for (int y = GRID_SIZE - 1; y >= 0; y--) {
 		for (int x = 0; x < GRID_SIZE; x++) {
 			if (grid[x][y] == 0) {
-				std::cout << ".   ";
+				std::cout << " ";
 			}
-			else if (grid[x][y] < 10) {
-				std::cout << grid[x][y] << "   ";
-			}
-			else if (grid[x][y] < 100)
-				std::cout << grid[x][y] << "  ";
 			else {
-				std::cout << grid[x][y] << " ";
+				std::cout << "#";
 			}
 		}
 		std::cout << std::endl;
+	}
+}
+
+// reset graph
+void GameMap::resetMap() {
+	for (int i = 0; i < GRID_SIZE; i++) {
+		for (int j = 0; j < GRID_SIZE; j++) {
+			grid[i][j] = 1;
+		}
 	}
 }
 
@@ -283,8 +280,8 @@ std::vector<std::shared_ptr<Node>> GameMap::aStar(float angle, int startX, int s
 			if (newX < 0 || newX >= GRID_SIZE || newY < 0 || newY >= GRID_SIZE)
 				continue;
 
-			// Check clearance.
-			if ((grid[newX][newY] < 8) && (current->sCost+1 > 8))
+			// check for blocking
+			if (grid[newX][newY] == 0)
 				continue;
 
 			// Check if already visited.
@@ -346,7 +343,7 @@ float GameMap::rayCast(int x0, int y0, float angle, float step) {
 		}
 
 		// check or obstacle
-		if (grid[x][y] < 1) {
+		if (grid[x][y] == 0) {
 			break;
 		}
 
@@ -451,8 +448,8 @@ bool GameMap::checkCollisions(int x0, int y0, int x1, int y1) {
 			}
 
 			// check for collision
-			if (grid[int(std::floor(x))][int(std::floor(y - stepY))] < 1 ||
-				grid[int(std::floor(x - stepX))][int(std::floor(y))] < 1)
+			if (grid[int(std::floor(x))][int(std::floor(y - stepY))] == 0 ||
+				grid[int(std::floor(x - stepX))][int(std::floor(y))] == 0)
 				return false;
 		}
 
@@ -462,7 +459,7 @@ bool GameMap::checkCollisions(int x0, int y0, int x1, int y1) {
 		}
 
 		// check collision
-		if (grid[int(std::floor(x))][int(std::floor(y))] < 1) {
+		if (grid[int(std::floor(x))][int(std::floor(y))] == 0) {
 			return false;
 		}
 	}

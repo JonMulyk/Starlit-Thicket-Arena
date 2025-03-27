@@ -220,7 +220,8 @@ int main() {
             sceneModels.clear();
 
             gState.reset();
-            audio.stopMusic();
+            command.reset();
+            audio.stopMusic(); 
             timer.reset();
             delete physicsSystem;
             //delete audio;

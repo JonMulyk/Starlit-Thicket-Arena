@@ -8,6 +8,7 @@
 class Entity;
 
 struct PlayerVehicle {
+	float fuel;
 	physx::PxVec3 curDir;
 	physx::PxVec3 curPos;
 };

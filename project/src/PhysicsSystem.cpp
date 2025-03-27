@@ -413,9 +413,12 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 
 	// may need this ???
 	physx::PxVec3 dir = wallTransform.q.getBasisVector0();
-	physx::PxVec3 start = wallTransform.p - 0.5f * trailStep * dir;
-	physx::PxVec3 end = wallTransform.p + 0.5f * trailStep * dir;
-	gState.gMap.updateMap({ start.x, start.z }, { end.x, end.z });
+	physx::PxVec3 start = wallTransform.p - .5f * trailStep * dir;
+	physx::PxVec3 end = wallTransform.p + .5f * trailStep * dir;
+	gState.staticEntities.back().start = { start.x, start.z };
+	gState.staticEntities.back().end = { end.x, end.z };
+
+	gState.gMap.updateMap(gState.staticEntities.back().start, gState.staticEntities.back().end);
 }
 
 
@@ -505,15 +508,15 @@ void PhysicsSystem::shatter(physx::PxVec3 location, physx::PxVec3 direction) {
 	}
 }
 
-void PhysicsSystem::updateCollisions() {
+void PhysicsSystem::updateCollisions(Command& command) {
 	// Detect collisions
 	auto collisionPair = gContactReportCallback->getCollisionPair();
 	if (gContactReportCallback->checkCollision()) {
 		int aiCounter = 0;
 		std::string colliding1 = collisionPair.first->getName();
 		std::string colliding2 = collisionPair.second->getName();
-
-		for (int i = 0; i < gState.dynamicEntities.size(); i++) {
+    
+		for (int i = gState.dynamicEntities.size()-1; i >= 0; i--) {
 			auto& entity = gState.dynamicEntities[i];
 			if (entity.name != "aiCar" && entity.name != "playerCar") continue;
 			if (entity.name == "aiCar") {
@@ -544,6 +547,11 @@ void PhysicsSystem::updateCollisions() {
 				// Remove all static entity objects
 				for (int g = gState.staticEntities.size() - 1; g >= 0; g--) {
 					if (gState.staticEntities[g].name == colliding1) {
+            	gState.gMap.updateMap(
+								gState.staticEntities[g].start,
+								gState.staticEntities[g].end,
+								1
+							);
 						gState.staticEntities.erase(gState.staticEntities.begin() + g);
 					}
 				}
@@ -567,19 +575,20 @@ void PhysicsSystem::updateCollisions() {
 				*/
 			}
 		}
-
 		if (colliding1 == "playerVehicle") {
 			pendingReinit = true;
 			reinitTime = 0.0;
 			playerDied = true;
 			printf("Reset because of Player");
+      command.reset();
 		}
 
 		if (aiCounter <= 1) {
 			printf("Reset because of AI\n");
 			//printf("%f\n", aiCounter);
-;				pendingReinit = true;
+;			pendingReinit = true;
 			reinitTime = 0.0;
+      command.reset();
 		}
 		
 
@@ -658,12 +667,12 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 				entity.vehicle->setPhysxCommand(cmd);
 			}
 			else {
-				// Normal handling for player car movement
-				cmd.brake = 0;
-				cmd.throttle = physx::PxClamp(command.throttle + controllerCommand.throttle, .5f, .9f);
-				cmd.steer = command.steer + controllerCommand.steer;
-
-				entity.vehicle->setPhysxCommand(cmd);
+        cmd.brake = physx::PxMax(command.brake, controllerCommand.brake);
+        cmd.throttle = 0.5 + physx::PxMax(command.throttle, controllerCommand.throttle) / 2.f;
+        cmd.steer = (abs(command.steer) > abs(controllerCommand.steer)) ? command.steer : controllerCommand.steer;
+        cmd.fuel = min(command.fuel, controllerCommand.fuel);
+        cmd.boost = (controllerCommand.boost == false) ? command.boost : controllerCommand.boost;
+        entity.vehicle->setPhysxCommand(cmd);
 			}
 
 
@@ -673,6 +682,32 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			PxReal forwardSpeed = entity.vehicle->velocity.dot(entity.vehicle->forward);
 			const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
 
+			// boost
+			physx::PxRigidBody* rigidBody = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody;
+			if (cmd.boost && cmd.fuel > 0) {
+				rigidBody->setMaxLinearVelocity(100);
+				rigidBody->addForce(entity.vehicle->forward * 20, PxForceMode::eACCELERATION);
+			}
+			else {
+				physx::PxReal curr_max = rigidBody->getMaxLinearVelocity() - 250 * timestep;
+				curr_max = (curr_max < 10) ? 10 : curr_max;
+
+				// brake
+				if (cmd.brake != 0) {
+					rigidBody->setMaxLinearVelocity(10.f - 4.f * cmd.brake);
+				}
+
+				else {
+					rigidBody->setMaxLinearVelocity(curr_max);
+				}
+			}
+
+			// update fuel
+			gState.playerVehicle.fuel = cmd.fuel;
+			controllerCommand.updateBoost(timestep);
+			command.updateBoost(timestep);
+
+			// run physx simulation
 			entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
 			entity.vehicle->vehicle.step(timestep, gVehicleSimulationContext);
 
@@ -695,7 +730,6 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 				}
 			}
 
-
 			// Update player vehicle state
 			gState.playerVehicle.curPos = currPos;
 			gState.playerVehicle.curDir = entity.vehicle->forward.getNormalized();
@@ -709,6 +743,26 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			const PxReal forwardSpeed = entity.vehicle->velocity.dot(entity.vehicle->forward);
 			const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
 
+			// boost
+			physx::PxRigidBody* rigidBody = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody;
+			if (entity.vehicle->command.boost && entity.vehicle->command.fuel > 0) {
+				rigidBody->setMaxLinearVelocity(100);
+				rigidBody->addForce(entity.vehicle->forward * 20, PxForceMode::eACCELERATION);
+			}
+			else {
+				physx::PxReal curr_max = rigidBody->getMaxLinearVelocity() - 250 * timestep;
+				curr_max = (curr_max < 10) ? 10 : curr_max;
+
+				if (entity.vehicle->command.brake != 0) {
+					rigidBody->setMaxLinearVelocity(10.f - 4.f * entity.vehicle->command.brake);
+				}
+				else {
+					rigidBody->setMaxLinearVelocity(curr_max);
+				}
+			}
+			entity.vehicle->command.updateBoost(timestep);
+
+			// run physx simulation
 			entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
 			entity.vehicle->vehicle.step(timestep, gVehicleSimulationContext);
 
@@ -732,7 +786,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			}
 		}
 	}
-	updateCollisions();
+	updateCollisions(command);
 
 	// Simulate the entire PhysX scene
 	gScene->simulate(timestep);
@@ -825,6 +879,11 @@ void PhysicsSystem::updateTrailLifetime(float dt) {
 			// Remove the corresponding static entity from gState.staticEntities by matching the unique name.
 			for (auto it = gState.staticEntities.begin(); it != gState.staticEntities.end(); ) {
 				if (it->name == trailSegments[i].uniqueName) {
+					gState.gMap.updateMap(
+						it->start,
+						it->end,
+						1
+					);
 					it = gState.staticEntities.erase(it);
 				}
 				else {
@@ -861,8 +920,14 @@ void PhysicsSystem::removeAllTrailSegmentsByOwner(const std::string& owner)
 
 			// Remove the corresponding static entity from the render list.
 			for (auto it = gState.staticEntities.begin(); it != gState.staticEntities.end(); ) {
-				if (it->name == trailSegments[i].uniqueName)
+				if (it->name == trailSegments[i].uniqueName) {
+					gState.gMap.updateMap(
+						it->start,
+						it->end,
+						1
+					);
 					it = gState.staticEntities.erase(it);
+				}
 				else
 					++it;
 			}
