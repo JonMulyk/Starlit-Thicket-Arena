@@ -160,7 +160,6 @@ int main() {
 
             physicsSystem->update(timer.getFrameTime());
 
-            std::cout << physicsSystem->playerDied << "\n";
             if (physicsSystem->playerDied) {
                 audio.stopCarSounds(); 
             }
