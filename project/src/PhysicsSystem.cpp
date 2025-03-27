@@ -360,60 +360,65 @@ PhysicsSystem::~PhysicsSystem() {
 void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	physx::PxMaterial* pMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
 
-	// create shape
-	float height = .5f;
+	// Create shape
+	float height = 0.5f;
 	float width = 0.01f;
 	physx::PxBoxGeometry geom(trailStep / 2, height, width);
 	physx::PxShape* shape = gPhysics->createShape(geom, *pMaterial);
 
+	// Setup transform for the trail segment
 	physx::PxTransform wallTransform(
 		physx::PxVec3(x, height, z),
 		physx::PxQuat(rot, physx::PxVec3(0, 1, 0))
 	);
 	physx::PxRigidStatic* body = gPhysics->createRigidStatic(wallTransform);
 
-	// update shape and attach
+	// Set up collision filtering
 	physx::PxFilterData itemFilter(
 		COLLISION_FLAG_OBSTACLE,
 		COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0
 	);
 	shape->setSimulationFilterData(itemFilter);
-
 	body->attachShape(*shape);
-	body->setName(name);
 
+	// Create a unique name for this trail segment
+	std::string uniqueName = "trail_" + std::to_string(trailCounter++);
+	body->setName(uniqueName.c_str());
+
+	// Determine model type based on the owner's name
 	int modelType = 0;
 	if (strcmp(name, "vehicle1") == 0) modelType = 1;
 	if (strcmp(name, "vehicle2") == 0) modelType = 2;
 	if (strcmp(name, "vehicle3") == 0) modelType = 3;
 
-	gState.staticEntities.push_back(Entity(name, &pModels[modelType], new Transform()));
-
+	// Create the static entity using uniqueName so it matches later in trail removal
+	gState.staticEntities.push_back(Entity(uniqueName, &pModels[modelType], new Transform()));
 	gState.staticEntities.back().transform->pos = glm::vec3(
 		wallTransform.p.x,
-		wallTransform.p.y - 0.3,
+		wallTransform.p.y - 0.3f,
 		wallTransform.p.z
 	);
-
-	gState.staticEntities.back().transform->scale = glm::vec3(trailStep / 2, height, 1.3);
-
+	gState.staticEntities.back().transform->scale = glm::vec3(trailStep / 2, height, 1.3f);
 	gState.staticEntities.back().transform->rot = glm::vec3(0, static_cast<float>(rand()), 0);
 
-
 	gScene->addActor(*body);
-
-	// Clean up
+	TrailSegment segment;
+	segment.actor = body;
+	segment.creationTime = simulationTime;
+	segment.uniqueName = uniqueName;
+	segment.ownerName = name;
+	trailSegments.push_back(segment);
 	shape->release();
 	pMaterial = nullptr;
 
-	// add the add the block to the graph
+	// may need this ???
 	physx::PxVec3 dir = wallTransform.q.getBasisVector0();
-	physx::PxVec3 start = wallTransform.p - .5f * trailStep * dir;
-	physx::PxVec3 end = wallTransform.p + .5f * trailStep * dir;
-
+	physx::PxVec3 start = wallTransform.p - 0.5f * trailStep * dir;
+	physx::PxVec3 end = wallTransform.p + 0.5f * trailStep * dir;
 	gState.gMap.updateMap({ start.x, start.z }, { end.x, end.z });
-
 }
+
+
 
 physx::PxVec3 PhysicsSystem::getPos(int i) {
 	physx::PxVec3 position = rigidDynamicList[i]->getGlobalPose().p;
@@ -633,6 +638,8 @@ void PhysicsSystem::updatePhysics(double dt) {
 	gScene->fetchResults(true);
 
 	updateTransforms(gState.dynamicEntities);
+
+	if (gState.tempTrails) updateTrailLifetime(dt);
 }
 
 void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
@@ -730,6 +737,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 	// Simulate the entire PhysX scene
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
+	if(gState.tempTrails) updateTrailLifetime(timestep);
 }
 
 bool PhysicsSystem::getExplosion() {
@@ -801,6 +809,70 @@ std::vector<physx::PxVec3> PhysicsSystem::getAIPositions() {
 	return aiPositions;
 }
 
+void PhysicsSystem::updateTrailLifetime(float dt) {
+	// Update the running simulation time.
+	simulationTime += dt;
+	// Iterate backward through the trail segments.
+	for (int i = trailSegments.size() - 1; i >= 0; i--) {
+		if (simulationTime - trailSegments[i].creationTime >= trailLifetime) {
+			if (trailSegments[i].actor) {
+				// --- Check if the actor is actually in the scene before removing ---
+				if (trailSegments[i].actor->getScene() == gScene) {
+					gScene->removeActor(*trailSegments[i].actor);
+				}
+				trailSegments[i].actor->release();
+			}
+			// Remove the corresponding static entity from gState.staticEntities by matching the unique name.
+			for (auto it = gState.staticEntities.begin(); it != gState.staticEntities.end(); ) {
+				if (it->name == trailSegments[i].uniqueName) {
+					it = gState.staticEntities.erase(it);
+				}
+				else {
+					++it;
+				}
+			}
+			// Erase the trail segment from the vector.
+			trailSegments.erase(trailSegments.begin() + i);
+		}
+	}
+}
+
+void PhysicsSystem::removeAllTrailSegmentsByOwner(const std::string& owner)
+{
+	// Iterate backward through the trail segments.
+	for (int i = trailSegments.size() - 1; i >= 0; i--) {
+		if (trailSegments[i].ownerName == owner) {
+			// Recompute the start and end positions from the actor's transform.
+			if (trailSegments[i].actor) {
+				physx::PxTransform pose = trailSegments[i].actor->getGlobalPose();
+				// Use the same logic as in addTrail:
+				physx::PxVec3 dir = pose.q.getBasisVector0();
+				float halfStep = trailStep / 2.0f;
+				physx::PxVec3 startVec = pose.p - halfStep * dir;
+				physx::PxVec3 endVec = pose.p + halfStep * dir;
+				gState.gMap.updateMap({ startVec.x, startVec.z }, { endVec.x, endVec.z });
+			}
+
+			// Remove the actor from the scene if it is still there.
+			if (trailSegments[i].actor && trailSegments[i].actor->getScene() == gScene) {
+				gScene->removeActor(*trailSegments[i].actor);
+				trailSegments[i].actor->release();
+			}
+
+			// Remove the corresponding static entity from the render list.
+			for (auto it = gState.staticEntities.begin(); it != gState.staticEntities.end(); ) {
+				if (it->name == trailSegments[i].uniqueName)
+					it = gState.staticEntities.erase(it);
+				else
+					++it;
+			}
+
+			// Erase this trail segment from the vector.
+			trailSegments.erase(trailSegments.begin() + i);
+		}
+	}
+}
+
 void PhysicsSystem::update(double deltaTime) {
 	// Handle countdown before reinitialization
 	if (pendingReinit) {
@@ -817,4 +889,3 @@ void PhysicsSystem::update(double deltaTime) {
 
 	//updateCollisions();
 }
-

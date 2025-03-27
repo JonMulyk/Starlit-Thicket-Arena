@@ -47,5 +47,7 @@ class GameState {
 		void addScoreToVehicle(std::string name, uint64_t value);
 		void initializeScores(uint16_t numberOfPlayers, uint16_t numberOfAiCars);
 
+		bool resetAudio = false;
+		bool tempTrails = false;
 };
 
