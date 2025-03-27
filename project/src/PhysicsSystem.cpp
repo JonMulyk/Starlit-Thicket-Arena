@@ -879,11 +879,11 @@ void PhysicsSystem::updateTrailLifetime(float dt) {
 			// Remove the corresponding static entity from gState.staticEntities by matching the unique name.
 			for (auto it = gState.staticEntities.begin(); it != gState.staticEntities.end(); ) {
 				if (it->name == trailSegments[i].uniqueName) {
-          gState.gMap.updateMap(
-            it.start,
-            it.end,
-            1
-          );
+					gState.gMap.updateMap(
+						it->start,
+						it->end,
+						1
+					);
 					it = gState.staticEntities.erase(it);
 				}
 				else {
@@ -920,8 +920,14 @@ void PhysicsSystem::removeAllTrailSegmentsByOwner(const std::string& owner)
 
 			// Remove the corresponding static entity from the render list.
 			for (auto it = gState.staticEntities.begin(); it != gState.staticEntities.end(); ) {
-				if (it->name == trailSegments[i].uniqueName)
+				if (it->name == trailSegments[i].uniqueName) {
+					gState.gMap.updateMap(
+						it->start,
+						it->end,
+						1
+					);
 					it = gState.staticEntities.erase(it);
+				}
 				else
 					++it;
 			}
