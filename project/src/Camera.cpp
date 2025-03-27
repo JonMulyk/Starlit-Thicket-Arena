@@ -145,7 +145,7 @@ void Camera::updateZoom(float speed) {
 		targetZoom = 70.0f;
         
     }
-	std::cout << targetZoom << std::endl;
+
     // Smoothly interpolate from the current zoom to the target zoom
     Zoom = lerp(Zoom, targetZoom, t);
 }
