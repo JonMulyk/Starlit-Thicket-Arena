@@ -850,27 +850,23 @@ void PhysicsSystem::updateTrailLifetime(float dt) {
 	// Iterate backward through the trail segments.
 	for (int i = trailSegments.size() - 1; i >= 0; i--) {
 		if (simulationTime - trailSegments[i].creationTime >= trailLifetime) {
-			// Capture the actor's transform before removal.
 			physx::PxTransform pose;
 			if (trailSegments[i].actor) {
 				pose = trailSegments[i].actor->getGlobalPose();
-				// Remove actor from scene if still present.
 				if (trailSegments[i].actor->getScene() == gScene) {
 					gScene->removeActor(*trailSegments[i].actor);
 				}
 				trailSegments[i].actor->release();
 			}
 
-			// Update the map based on the actor's pose.
+			// Update map
 			physx::PxVec3 dir = pose.q.getBasisVector0();
 			float halfStep = trailStep / 2.0f;
 			physx::PxVec3 startVec = pose.p - halfStep * dir;
 			physx::PxVec3 endVec = pose.p + halfStep * dir;
 			gState.gMap.updateMap({ startVec.x, startVec.z }, { endVec.x, endVec.z }, 1);
 
-			// Remove the corresponding static entity from gState.staticEntities
-			// by comparing the static entity's position to the trail actor's position.
-			// Adjust the threshold as needed (here 0.5f is used).
+			// remove trail based on position now instead of a unique name
 			for (auto it = gState.staticEntities.begin(); it != gState.staticEntities.end(); ) {
 				glm::vec3 entityPos = it->transform->pos;
 				if (fabs(entityPos.x - pose.p.x) < 0.5f && fabs(entityPos.z - pose.p.z) < 0.5f) {
@@ -881,7 +877,7 @@ void PhysicsSystem::updateTrailLifetime(float dt) {
 				}
 			}
 
-			// Erase the expired trail segment.
+			// Erase segment
 			trailSegments.erase(trailSegments.begin() + i);
 		}
 	}
