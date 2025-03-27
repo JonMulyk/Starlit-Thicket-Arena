@@ -158,6 +158,8 @@
     <None Include="project\assets\shaders\text.frag" />
     <None Include="project\assets\shaders\minimapShader.vert" />
     <None Include="project\assets\shaders\minimapShader.frag" />
+    <None Include="project\assets\shaders\transparentBoxShader.vert" />
+    <None Include="project\assets\shaders\transparentBoxShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="project\include\Windowing.h">
@@ -1523,6 +1525,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\LevelSelect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\ControlMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
