@@ -1,4 +1,6 @@
 #include "AudioSystem.h"
+#include "AudioEngine.h"
+#include <AudioSystem.h>
 #include <iostream>
 
 void AudioSystem::init() {
@@ -94,6 +96,8 @@ void AudioSystem::update() {
 		listenerLook = { 0.0f, 0.0f, 1.0f };
 		listenerUp = { 0.0f, 1.0f, 0.0f };
 		audioEngine.Set3dListenerAndOrientation(listenerPosition, listenerLook, listenerUp);
+
+		//c_camera->updateZoom(carSpeed);
 		
 	}
 	std::vector<physx::PxVec3> aiPositions = c_physicsSystem->getAIPositions();
@@ -190,3 +194,22 @@ void AudioSystem::stopMusic() {
 	}
 	aiChannels.clear();
 }
+
+void AudioSystem::stopCarSounds() {
+	if (carChannel != nullptr) {
+		carChannel->stop();  // Stop the car sound
+		carChannel = nullptr;
+		carSoundPlaying = false;
+	}
+}
+
+void AudioSystem::startCarSounds() {
+	if (carChannel == nullptr) {
+
+		audioEngine.PlaySounds(carSound, Vector3{ 0, 0, 0 }, carVolume, &carChannel);
+		carChannel->setMode(FMOD_LOOP_NORMAL | FMOD_3D); 
+		carChannel->setLoopCount(-1);
+		carSoundPlaying = true;
+	}
+}
+

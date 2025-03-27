@@ -19,4 +19,5 @@ public:
 
     // Constructor
     Entity(std::string name, Model* model, Transform* transform);
+	void setScale(float x, float y, float z);
 };

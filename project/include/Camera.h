@@ -81,6 +81,12 @@ public:
     void incrementTheta(float dt);
 
     void incrementPhi(float dp);
+
+    // Linear interpolation function
+    float lerp(float a, float b, float t) { return a + t * (b - a);}
+
+    void updateZoom(float speed);
+    void updateYawWithDelay(float targetYaw, float deltaTime);
 };
 
 

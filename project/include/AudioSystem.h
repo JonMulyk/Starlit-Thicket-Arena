@@ -34,6 +34,12 @@ public:
 
 	void stopMusic();
 
+	void stopCarSounds();
+
+	void startCarSounds();
+
+	bool carSoundPlaying = false;
+
 	CAudioEngine audioEngine;
 	CAudioEngine* audioEnginePtr;
 	PhysicsSystem* c_physicsSystem;

@@ -36,6 +36,8 @@ public:
 
     void checkCompileErrors(unsigned int shader, std::string type);
 
+    void setVec4(const std::string& name, const glm::vec4& value) const;
+
     operator GLint() const;
 };
 
