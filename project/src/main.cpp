@@ -38,7 +38,7 @@ int main() {
     DynamicCamera camera(gState, timer);
     //Camera camera(gState, timer, true, glm::vec3(0.0f, 250.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), -90.0f, -90.0f);
 
-    Windowing window(1200, 1000);
+    Windowing window(1920, 1080);
 
     Input input(window, camera, timer, command);
     Controller controller1(1, camera, controllerCommand);
