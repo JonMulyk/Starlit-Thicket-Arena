@@ -510,7 +510,7 @@ void PhysicsSystem::updateCollisions(Command& command) {
 		std::string colliding1 = collisionPair.first->getName();
 		std::string colliding2 = collisionPair.second->getName();
     
-		for for (int i = gState.dynamicEntities.size()-1; i >= 0; i--) {
+		for (int i = gState.dynamicEntities.size()-1; i >= 0; i--) {
 			auto& entity = gState.dynamicEntities[i];
 			if (entity.name != "aiCar" && entity.name != "playerCar") continue;
 			if (entity.name == "aiCar") {
