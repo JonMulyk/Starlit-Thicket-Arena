@@ -658,11 +658,11 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 				entity.vehicle->setPhysxCommand(cmd);
 			}
 			else {
-				// Normal handling for player car movement
-				cmd.brake = 0;
-				cmd.throttle = physx::PxClamp(command.throttle + controllerCommand.throttle, .5f, .9f);
-				cmd.steer = command.steer + controllerCommand.steer;
-
+				cmd.brake = physx::PxMax(command.brake, controllerCommand.brake);
+				cmd.throttle = 0.5 + physx::PxMax(command.throttle, controllerCommand.throttle) / 2.f;
+				cmd.steer = (abs(command.steer) > abs(controllerCommand.steer)) ? command.steer : controllerCommand.steer;
+				cmd.fuel = min(command.fuel, controllerCommand.fuel);
+				cmd.boost = (controllerCommand.boost == false) ? command.boost : controllerCommand.boost;
 				entity.vehicle->setPhysxCommand(cmd);
 			}
 
