@@ -145,7 +145,6 @@ void Camera::updateZoom(float speed) {
 		targetZoom = 70.0f;
         
     }
-
     // Smoothly interpolate from the current zoom to the target zoom
     Zoom = lerp(Zoom, targetZoom, t);
 }

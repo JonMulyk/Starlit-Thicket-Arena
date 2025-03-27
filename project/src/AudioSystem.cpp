@@ -97,12 +97,11 @@ void AudioSystem::update() {
 		listenerUp = { 0.0f, 1.0f, 0.0f };
 		audioEngine.Set3dListenerAndOrientation(listenerPosition, listenerLook, listenerUp);
 
-		//c_camera->updateZoom(carSpeed);
-		
 	}
 	std::vector<physx::PxVec3> aiPositions = c_physicsSystem->getAIPositions();
 	size_t numChannels = std::min(aiChannels.size(), aiPositions.size());
 	for (size_t i = 0; i < numChannels; i++) {
+		if (!aiChannels[i]) continue;
 		FMOD_VECTOR pos;
 		pos.x = aiPositions[i].x;
 		pos.y = aiPositions[i].y;
@@ -117,7 +116,7 @@ void AudioSystem::update() {
 
 		aiChannels[i]->setPitch(aiPitch);
 	}
-	
+
 }
 
 void AudioSystem::shutdown() {
@@ -180,13 +179,13 @@ void AudioSystem::startLevelMusic() {
 void AudioSystem::stopMusic() {
 	audioEngine.StopAllChannels();
 	if (musicChannel != nullptr) {
-		musicChannel->stop(); 
-		musicChannel = nullptr;  
+		musicChannel->stop();
+		musicChannel = nullptr;
 	}
 
 	if (carChannel != nullptr) {
-		carChannel->stop();  
-		carChannel = nullptr;  
+		carChannel->stop();
+		carChannel = nullptr;
 	}
 
 	for (auto& aiChannel : aiChannels) {
@@ -212,4 +211,3 @@ void AudioSystem::startCarSounds() {
 		carSoundPlaying = true;
 	}
 }
-
