@@ -29,7 +29,7 @@ void Vehicle::update(GameState& gState) {
 	float targetDist = (targetLocaton - prevPos).magnitude();
 	float bufferDist = forwardSearch(gState);
 
-	if (bufferDist < 30) {
+	if (bufferDist < 40) {
 		avoid(gState);
 	}
 	else if (targetDist < 100) {
@@ -54,7 +54,7 @@ float Vehicle::forwardSearch(GameState& gState) {
 	float baseAngle = atan2(prevDir.z, prevDir.x);
 
 	// go through all the angles
-	for (float i = -5; i <= 5; i += 1.f) {
+	for (float i = -10; i <= 10; i += 1.f) {
 		float angle = baseAngle + i * PI / 180;
 		if (angle < -PI) {
 			angle += 2 * PI;
