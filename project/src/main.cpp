@@ -37,8 +37,9 @@ int main() {
     TimeSeconds timer;
     DynamicCamera camera(gState, timer);
     //Camera camera(gState, timer, true, glm::vec3(0.0f, 250.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), -90.0f, -90.0f);
-
-    Windowing window(1200, 1000);
+    int windowWidth = 1920; //change this instead
+    int windowHeight = 1080;
+    Windowing window(windowWidth, windowHeight);
 
     Input input(window, camera, timer, command);
     Controller controller1(1, camera, controllerCommand);
@@ -51,7 +52,7 @@ int main() {
 
     Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
-    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
+    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf", windowWidth, windowHeight);
     Texture container("project/assets/textures/container.jpg", true);
     Texture gold("project/assets/textures/gold.jpg", true);
     Texture neon("project/assets/textures/neon.jpg", true);
@@ -171,8 +172,8 @@ int main() {
             // Update camera zoom based on car speed:
             //float carSpeed = physicsSystem->getCarSpeed(0);
 
-            camera.updateZoom(physicsSystem->getCarSpeed(0));
-            camera.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle.curDir.z, gState.playerVehicle.curDir.x)), timer.dt);
+            //camera.updateZoom(physicsSystem->getCarSpeed(0));
+            //camera.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle.curDir.z, gState.playerVehicle.curDir.x)), timer.dt);
 
             physicsSystem->update(timer.getFrameTime());
 

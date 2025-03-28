@@ -127,10 +127,13 @@ private:
         float buttonX = 0.5f * windowWidth;
         float buttonY = 0.5f * windowHeight;
 
-        Text Start = Text("Start", buttonX + 60, buttonY + 300.0f, 1.0f, glm::vec3(1, 1, 1));
+
+        Text Start = Text("Start", 0.4f * windowWidth, 0.4f * windowHeight, 1.0f, glm::vec3(1, 1, 1));
         Text Controls = Text("Controls", buttonX + 30.0f, buttonY + 160, 1.0f, glm::vec3(1, 1, 1));
         Text Exit = Text("Exit", buttonX + 70.0f, buttonY + 10.0f, 1.0f, glm::vec3(1, 1, 1));
 
+        float test = Start.getX();
+        printf("%d", windowWidth);
         uiText.push_back(Start);
         uiText.push_back(Controls);
         uiText.push_back(Exit);
