@@ -111,7 +111,7 @@ private:
 		float remainingLifetime;
 	};
 	std::vector<TrailSegment> trailSegments;
-	float trailLifetime = 4.5f; // seconds
+	float trailLifetime = 5.0f; // seconds
 	unsigned int trailCounter = 0;
 	float simulationTime = 0.0f; // running simulation time
 	void updateTrailLifetime(float dt);
