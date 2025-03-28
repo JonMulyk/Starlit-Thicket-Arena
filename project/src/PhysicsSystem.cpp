@@ -406,6 +406,14 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 	shape->release();
 	pMaterial = nullptr;
 
+	TrailSegment segment;
+	segment.actor = body;
+	segment.creationTime = simulationTime;
+	segment.uniqueName = name;
+	segment.ownerName = name;
+	segment.remainingLifetime = trailLifetime;
+	trailSegments.push_back(segment);
+
 	// add the add the block to the graph
 	physx::PxVec3 dir = wallTransform.q.getBasisVector0();
 	physx::PxVec3 start = wallTransform.p - .5f * trailStep * dir;
@@ -842,32 +850,39 @@ void PhysicsSystem::updateTrailLifetime(float dt) {
 	// Iterate backward through the trail segments.
 	for (int i = trailSegments.size() - 1; i >= 0; i--) {
 		if (simulationTime - trailSegments[i].creationTime >= trailLifetime) {
+			physx::PxTransform pose;
 			if (trailSegments[i].actor) {
-				// --- Check if the actor is actually in the scene before removing ---
+				pose = trailSegments[i].actor->getGlobalPose();
 				if (trailSegments[i].actor->getScene() == gScene) {
 					gScene->removeActor(*trailSegments[i].actor);
 				}
 				trailSegments[i].actor->release();
 			}
-			// Remove the corresponding static entity from gState.staticEntities by matching the unique name.
+
+			// Update map
+			physx::PxVec3 dir = pose.q.getBasisVector0();
+			float halfStep = trailStep / 2.0f;
+			physx::PxVec3 startVec = pose.p - halfStep * dir;
+			physx::PxVec3 endVec = pose.p + halfStep * dir;
+			gState.gMap.updateMap({ startVec.x, startVec.z }, { endVec.x, endVec.z }, 1);
+
+			// remove trail based on position now instead of a unique name
 			for (auto it = gState.staticEntities.begin(); it != gState.staticEntities.end(); ) {
-				if (it->name == trailSegments[i].uniqueName) {
-					gState.gMap.updateMap(
-						it->start,
-						it->end,
-						1
-					);
+				glm::vec3 entityPos = it->transform->pos;
+				if (fabs(entityPos.x - pose.p.x) < 0.5f && fabs(entityPos.z - pose.p.z) < 0.5f) {
 					it = gState.staticEntities.erase(it);
 				}
 				else {
 					++it;
 				}
 			}
-			// Erase the trail segment from the vector.
+
+			// Erase segment
 			trailSegments.erase(trailSegments.begin() + i);
 		}
 	}
 }
+
 
 void PhysicsSystem::removeAllTrailSegmentsByOwner(const std::string& owner)
 {
