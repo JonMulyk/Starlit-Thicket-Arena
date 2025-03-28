@@ -75,16 +75,24 @@ private:
         controlsText.push_back(Text("Controller", buttonX + 800.0f, buttonY + 1100, 1.0f, glm::vec3(1, 1, 1)));
         
         //keyboard
-        controlsText.push_back(Text("W - Accelerate", buttonX + 300, buttonY + 1050.0f, 0.6, glm::vec3(1, 1, 1)));
-        controlsText.push_back(Text("A - Left", buttonX + 300, buttonY + 1000.0f, 0.6, glm::vec3(1, 1, 1)));
-        controlsText.push_back(Text("R - Right", buttonX + 300, buttonY + 950.0f, 0.6, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("w - Accelerate", buttonX + 300, buttonY + 1050.0f, 0.6, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("a - Left", buttonX + 300, buttonY + 1000.0f, 0.6, glm::vec3(1, 1, 1)));
+        //controlsText.push_back(Text("s - Break", buttonX + 300, buttonY + 950.0f, 0.6, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("d - Right", buttonX + 300, buttonY + 950.0f, 0.6, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("space - Boost", buttonX + 300, buttonY + 900.0f, 0.6, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("mouse - Camera", buttonX + 300, buttonY + 850.0f, 0.6, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("scroll wheel - zoom", buttonX + 300, buttonY + 800.0f, 0.6, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("escape - Exit", buttonX + 300, buttonY + 750.0f, 0.6, glm::vec3(1, 1, 1)));
 
         //controller
         controlsText.push_back(Text("Left Joystick - Turn", buttonX + 800.0f, buttonY + 1050, 0.6f, glm::vec3(1, 1, 1)));
-        controlsText.push_back(Text("Right Trigger - Accelerate", buttonX + 800.0f, buttonY + 1000, 0.6f, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("Right Joystick - Camera", buttonX + 800.0f, buttonY + 1000, 0.6f, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("Right Trigger - Accelerate", buttonX + 800.0f, buttonY + 950, 0.6f, glm::vec3(1, 1, 1)));
+        //controlsText.push_back(Text("Left Trigger - Break", buttonX + 800.0f, buttonY + 900, 0.6f, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("B - Boost", buttonX + 800.0f, buttonY + 900, 0.6f, glm::vec3(1, 1, 1)));
 
 
-        controlsText.push_back(Text("Press B or Backspace to return", buttonX + 550.0f, buttonY + 400, 0.6f, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("Press B (controller) or Backspace to return", buttonX + 550.0f, buttonY + 400, 0.6f, glm::vec3(1, 1, 1)));
     }
 
     // Render the text from the vector
