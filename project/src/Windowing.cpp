@@ -1,4 +1,5 @@
 #include "Windowing.h"
+#include <iostream>
 #include <exception>
 
 Windowing::Windowing(int width, int height, std::string name, bool fullscreen) {
@@ -8,14 +9,18 @@ Windowing::Windowing(int width, int height, std::string name, bool fullscreen) {
         throw std::exception("Failed to initialize GLFW\n");
     }
 
-    m_fullscren = fullscreen;
+    m_fullscreen = fullscreen;
 
     m_monitor = glfwGetPrimaryMonitor();
     m_mode = glfwGetVideoMode(m_monitor);
 
-    if (m_fullscren)
+    if (m_fullscreen)
     {
-        m_window = glfwCreateWindow(width, height, name.c_str(), m_monitor, nullptr);
+        //m_window = glfwCreateWindow(width, height, name.c_str(), m_monitor, nullptr);
+        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE); // remove borders
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // disable resizing
+        m_window = glfwCreateWindow(m_mode->width, m_mode->height, name.c_str(), nullptr, nullptr);
+        glfwSetWindowPos(m_window, 0, 0);
     }
     else
     {
@@ -80,3 +85,20 @@ Windowing::operator GLFWwindow* () const { return m_window; }
 void Windowing::frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
+
+void Windowing::toggleFullscreen()
+{
+    m_fullscreen = !m_fullscreen;
+    std::cout << "fullscreen: " << m_fullscreen << std::endl;
+
+    if (m_fullscreen)
+    {
+        glfwSetWindowMonitor(m_window, m_monitor, 0, 0, m_mode->width, m_mode->height, m_mode->refreshRate);
+    }
+    else
+    {
+        glfwSetWindowMonitor(m_window, nullptr, 0, 0, this->getWidth(), this->getHeight(), 0);
+    }
+
+}
+

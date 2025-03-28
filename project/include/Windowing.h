@@ -10,7 +10,7 @@ private:
     GLFWwindow* m_window;
     GLFWmonitor* m_monitor;
     const GLFWvidmode* m_mode;
-    bool m_fullscren;
+    bool m_fullscreen;
 
 public:
     // Constructor and destructor
@@ -35,5 +35,7 @@ public:
     // Callback for when the framebuffer size changes.
     static void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
     GLFWwindow* getGLFWwindow() const { return m_window; }
+
+    void toggleFullscreen();
 };
 
