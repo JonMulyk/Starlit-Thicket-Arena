@@ -37,8 +37,8 @@ int main() {
     TimeSeconds timer;
     DynamicCamera camera(gState, timer);
     //Camera camera(gState, timer, true, glm::vec3(0.0f, 250.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), -90.0f, -90.0f);
-    int windowWidth = 1920; //change this instead
-    int windowHeight = 1080;
+    int windowWidth = 1200; //change this instead
+    int windowHeight = 1000;
     Windowing window(windowWidth, windowHeight);
 
     Input input(window, camera, timer, command);

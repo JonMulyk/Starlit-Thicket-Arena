@@ -18,12 +18,12 @@ public:
         };
 
         float vertices[] = {
-            convertX(x), convertY(y), 0.0f, 0.0f,
             convertX(x), convertY(y + height), 0.0f, 0.0f,
-            convertX(x + width), convertY(y + height), 0.0f, 0.0f,
             convertX(x), convertY(y), 0.0f, 0.0f,
-            convertX(x + width), convertY(y + height), 0.0f, 0.0f,
-            convertX(x + width), convertY(y), 0.0f, 0.0f
+            convertX(x + width), convertY(y), 0.0f, 0.0f,
+            convertX(x), convertY(y + height), 0.0f, 0.0f,
+            convertX(x + width), convertY(y), 0.0f, 0.0f,
+            convertX(x + width), convertY(y + height), 0.0f, 0.0f
         };
 
         unsigned int VBO, VAO;

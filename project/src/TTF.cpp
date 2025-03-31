@@ -105,6 +105,7 @@ void TTF::render(std::string text, float x, float y, float scale, glm::vec3 colo
     glActiveTexture(GL_TEXTURE0);
 
     glBindVertexArray(VAO);
+    //scale = std::min(1920 / 800.0f, 1080 / 600.0f); //i hate this code
 
     // iterate through all characters
     std::string::const_iterator c;
