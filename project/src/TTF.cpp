@@ -92,7 +92,33 @@ TTF::TTF(const char* vert_path, const char* frag_path, const char* font_path, in
     glUniformMatrix4fv(glGetUniformLocation(m_shader, "projection"), 1, GL_FALSE, glm::value_ptr(textProjection));
 }
 
-void TTF::render(std::string text, float x, float y, float scale, glm::vec3 color) {
+float TTF::getInitalXDrawPosition(std::string text, float x, TEXT_POSITION textPosition, float scale)
+{
+    if (textPosition != TEXT_POSITION::LEFT)
+    {
+        float textWidth = 0.0f;
+		// iterate through all characters
+        for (char c : text)
+        {
+            Character ch = fontLUT[c];
+            textWidth += (ch.advance >> 6) * scale;
+        }
+
+        if (textPosition == TEXT_POSITION::CENTER)
+        {
+            x -= textWidth / 2.0f;
+        }
+        else
+        {
+            x -= textWidth;
+        }
+    }
+
+    return x;
+}
+
+void TTF::render(std::string text, float x, float y, float scale, glm::vec3 color, TEXT_POSITION textPosition) 
+{
     // activate corresponding render state	
     m_shader.use();
 
@@ -105,15 +131,7 @@ void TTF::render(std::string text, float x, float y, float scale, glm::vec3 colo
 
     glBindVertexArray(VAO);
 
-    // iterate through all characters
-    float textWidth = 0.0f;
-    for (char c : text)
-    {
-        Character ch = fontLUT[c];
-        textWidth += (ch.advance >> 6) * scale;
-    }
-
-    x -= textWidth / 2.0f;
+    x = getInitalXDrawPosition(text, x, textPosition, scale);
 
     std::string::const_iterator c;
     for (c = text.begin(); c != text.end(); c++)
