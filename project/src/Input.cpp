@@ -45,6 +45,11 @@ void Input::processKeyboard() {
         r_command.steer += 1.0;
     }
 
+    r_command.boost = false;
+    if (glfwGetKey(r_window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        r_command.boost = true;
+    }
+
     // Camera movement (arrows)
     if (glfwGetKey(r_window, GLFW_KEY_UP) == GLFW_PRESS) {
         r_camera.ProcessKeyboard(Camera::Camera_Movement::FORWARD, deltaTime);

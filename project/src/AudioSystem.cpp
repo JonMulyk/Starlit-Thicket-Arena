@@ -1,4 +1,6 @@
 #include "AudioSystem.h"
+#include "AudioEngine.h"
+#include <AudioSystem.h>
 #include <iostream>
 
 void AudioSystem::init() {
@@ -94,11 +96,12 @@ void AudioSystem::update() {
 		listenerLook = { 0.0f, 0.0f, 1.0f };
 		listenerUp = { 0.0f, 1.0f, 0.0f };
 		audioEngine.Set3dListenerAndOrientation(listenerPosition, listenerLook, listenerUp);
-		
+
 	}
 	std::vector<physx::PxVec3> aiPositions = c_physicsSystem->getAIPositions();
 	size_t numChannels = std::min(aiChannels.size(), aiPositions.size());
 	for (size_t i = 0; i < numChannels; i++) {
+		if (!aiChannels[i]) continue;
 		FMOD_VECTOR pos;
 		pos.x = aiPositions[i].x;
 		pos.y = aiPositions[i].y;
@@ -113,7 +116,7 @@ void AudioSystem::update() {
 
 		aiChannels[i]->setPitch(aiPitch);
 	}
-	
+
 }
 
 void AudioSystem::shutdown() {
@@ -176,17 +179,35 @@ void AudioSystem::startLevelMusic() {
 void AudioSystem::stopMusic() {
 	audioEngine.StopAllChannels();
 	if (musicChannel != nullptr) {
-		musicChannel->stop(); 
-		musicChannel = nullptr;  
+		musicChannel->stop();
+		musicChannel = nullptr;
 	}
 
 	if (carChannel != nullptr) {
-		carChannel->stop();  
-		carChannel = nullptr;  
+		carChannel->stop();
+		carChannel = nullptr;
 	}
 
 	for (auto& aiChannel : aiChannels) {
 		aiChannel = nullptr;
 	}
 	aiChannels.clear();
+}
+
+void AudioSystem::stopCarSounds() {
+	if (carChannel != nullptr) {
+		carChannel->stop();  // Stop the car sound
+		carChannel = nullptr;
+		carSoundPlaying = false;
+	}
+}
+
+void AudioSystem::startCarSounds() {
+	if (carChannel == nullptr) {
+
+		audioEngine.PlaySounds(carSound, Vector3{ 0, 0, 0 }, carVolume, &carChannel);
+		carChannel->setMode(FMOD_LOOP_NORMAL | FMOD_3D); 
+		carChannel->setLoopCount(-1);
+		carSoundPlaying = true;
+	}
 }

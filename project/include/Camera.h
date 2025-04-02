@@ -84,8 +84,11 @@ public:
 
     void incrementPhi(float dp);
 
-    void setFollowTarget(Transform* target) { followTarget = target; }
-    Transform* getFollowTarget() const { return followTarget; }
+    // Linear interpolation function
+    float lerp(float a, float b, float t) { return a + t * (b - a);}
+
+    void updateZoom(float speed);
+    void updateYawWithDelay(float targetYaw, float deltaTime);
 };
 
 

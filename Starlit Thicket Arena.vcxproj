@@ -167,6 +167,8 @@
     <None Include="project\assets\shaders\text.vert" />
     <None Include="project\assets\shaders\textShader.frag" />
     <None Include="project\assets\shaders\textShader.vert" />
+    <None Include="project\assets\shaders\transparentBoxShader.frag" />
+    <None Include="project\assets\shaders\transparentBoxShader.vert" />
     <None Include="project\assets\shaders\VertShader.vert" />
   </ItemGroup>
   <ItemGroup>
@@ -640,6 +642,7 @@
     <ClInclude Include="project\include\Button.h" />
     <ClInclude Include="project\include\Camera.h" />
     <ClInclude Include="project\include\Command.h" />
+    <ClInclude Include="project\include\ControlMenu.h" />
     <ClInclude Include="project\include\GameMap.h" />
     <ClInclude Include="project\include\LevelSelect.h" />
     <ClInclude Include="project\include\MainMenu.h" />

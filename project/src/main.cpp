@@ -34,18 +34,15 @@ int main() {
     GameState gState;
     InitManager::initGLFW();
     Command command;
-	Command controllerCommand1;
-	Command controllerCommand2;
-	Command controllerCommand3;
-	Command controllerCommand4;
+    Command controllerCommand;
     TimeSeconds timer;
     DynamicCamera camera(gState, timer);
     DynamicCamera camera2(gState, timer);
     DynamicCamera camera3(gState, timer);
     DynamicCamera camera4(gState, timer);
 
-    Windowing window(1200, 1000);
-
+    //Windowing window(1200, 1000, "", false);
+    Windowing window(1920, 1080);
     Input input(window, camera, timer, command);
     Controller controller1(1, camera, controllerCommand1);
 	Controller controller2(2, camera2, controllerCommand2);
@@ -70,12 +67,13 @@ int main() {
 
     Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
-    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
+    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf", window.getWidth(), window.getHeight());
     Texture container("project/assets/textures/container.jpg", true);
     Texture gold("project/assets/textures/gold.jpg", true);
     Texture neon("project/assets/textures/neon.jpg", true);
     Texture fire("project/assets/textures/fire.jpg", true);
-
+    Texture grass("project/assets/textures/green-grass.jpg", true);
+    Texture blueGrass("project/assets/textures/696.jpg", true);
     // Model Setup
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
@@ -89,34 +87,33 @@ int main() {
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
     std::vector<Model> sceneModels;
     GameStateEnum gameState = GameStateEnum::MENU;
-    
+
     // Skybox
     Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
     Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Skybox skybox("project/assets/textures/skybox/", skyboxShader);
 
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
+    Model groundPlaneModel2(sceneShader, grass, "project/assets/models/reallySquareArena.obj");
+    Model groundPlaneModel3(sceneShader, blueGrass, "project/assets/models/reallySquareArena.obj");
     UIManager uiManager(window.getWidth(), window.getHeight());
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
-    RenderingSystem renderer2(shader, camera2, window, arial, gState);
-    RenderingSystem renderer3(shader, camera3, window, arial, gState);
-    RenderingSystem renderer4(shader, camera4, window, arial, gState);
-    const double roundDuration = 20;
+    const double roundDuration = 200;
 
     bool isAudioInitialized = false;
+
     AudioSystem audio;
 
     MainMenu menu(window, arial, controller1);
-    LevelSelectMenu levelSelectMenu(window, arial, controller1);
-	splitScreenSelect splitScreenSelectMenu(window, arial, controller1);
+    LevelSelectMenu levelSelectMenu(window, arial, controller1, gState);
 
 
-    std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube};
+    std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
 
     // Minimap 
     Shader minimapShader("minimapShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
-    StaticCamera minimapCamera(timer, glm::vec3(0.0f, 250.0f, 0.0f), 
+    StaticCamera minimapCamera(timer, glm::vec3(0.0f, 250.0f, 0.0f),
         glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
     // Number of players playing for scoreboard 
@@ -130,7 +127,7 @@ int main() {
             bool startGame = false;
             // Display main menu and level select until a valid level is chosen.
             while (!window.shouldClose() && !startGame) {
-                glViewport(0, 0, window.getWidth(), window.getHeight()); // ensure fullscreen for menus
+                glViewport(0, 0, window.getWidth(), window.getHeight()); // reset viewport to ensure fullscreen
                 menu.displayMenu();
                 if (window.shouldClose()) break;
                 selectedLevel = levelSelectMenu.displayMenuLevel();
@@ -150,6 +147,19 @@ int main() {
 
             // Proceed to start the game.
             gameState = GameStateEnum::PLAYING;
+        }
+
+        if (selectedLevel == 1)
+        {
+            sceneModels.push_back(groundPlaneModel);
+        }
+        if (selectedLevel == 2)
+        {
+            sceneModels.push_back(groundPlaneModel2);
+        }
+        if (selectedLevel == 3)
+        {
+            sceneModels.push_back(groundPlaneModel3);
         }
 
         // Game setup
@@ -180,13 +190,13 @@ int main() {
         audio.init(physicsSystem, &camera);
 
         // Static scene data
-        sceneModels.push_back(groundPlaneModel);
+        //sceneModels.push_back(groundPlaneModel);
 
         physicsSystem->updateTransforms(gState.dynamicEntities);
-        
+
         // reset scoreboard
-		gState.initializeScores(numberOfPlayers, numberOfAiCars);
-		uiManager.addScoreText(gState);
+        gState.initializeScores(numberOfPlayers, numberOfAiCars);
+        uiManager.addScoreText(gState);
 
 
         // Main Loop
@@ -199,24 +209,23 @@ int main() {
             audio.update();
 
             controller1.Update();
-            if (gState.splitScreenEnabled || gState.splitScreenEnabled4) {
-                controller2.Update();
+            // Update camera zoom based on car speed:
+            //float carSpeed = physicsSystem->getCarSpeed(0);
+
+            camera.updateZoom(physicsSystem->getCarSpeed(0));
+            camera.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle.curDir.z, gState.playerVehicle.curDir.x)), timer.dt);
+
+            physicsSystem->update(timer.getFrameTime());
+
+            if (physicsSystem->playerDied) {
+                audio.stopCarSounds(); 
             }
-            if (gState.splitScreenEnabled4) {
-                controller3.Update();
-                controller4.Update();
+            else {
+                audio.startCarSounds();  
+                audio.update();
             }
 
-            // Vector of controller Commands
-            std::vector<Command*> controllerCommands;
-            controllerCommands.push_back(&controllerCommand1);
-            if (gState.splitScreenEnabled || gState.splitScreenEnabled4) {
-                controllerCommands.push_back(&controllerCommand2);
-            }
-            if (gState.splitScreenEnabled4) {
-                controllerCommands.push_back(&controllerCommand3);
-                controllerCommands.push_back(&controllerCommand4);
-            }
+            physicsSystem->update(timer.getFrameTime());
 
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
@@ -225,78 +234,16 @@ int main() {
                 timer.advance();
             }
 
-            if (gState.splitScreenEnabled) {
-                //std::cout << "here\n";
-				camera.setFollowTarget(physicsSystem->getTransformAt(0));
-                camera2.setFollowTarget(physicsSystem->getTransformAt(1));
-                // Left half
-                glViewport(0, window.getHeight() / 2, window.getWidth(), window.getHeight() / 2);
-                uiManager.updateUIText(timer, roundDuration, gState);
-                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera1 (a Camera instance)
-                glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
-                glEnable(GL_DEPTH_TEST);
+            // update dynamic UI text
+            uiManager.updateUIText(timer, roundDuration, gState);
 
-                // Right half
-                //print camera2 position
-                glViewport(0, 0, window.getWidth(), window.getHeight() / 2);
-                uiManager.updateUIText(timer, roundDuration, gState);
-                renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera2 (a Camera instance)
-                glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
-                glEnable(GL_DEPTH_TEST);
-            }
-            else if (gState.splitScreenEnabled4) {
-                camera.setFollowTarget(physicsSystem->getTransformAt(0));
-                camera2.setFollowTarget(physicsSystem->getTransformAt(1));
-                camera3.setFollowTarget(physicsSystem->getTransformAt(2));
-                camera4.setFollowTarget(physicsSystem->getTransformAt(3));
-                // split the screen into 4 separate quadrants
-                // top left
-                glViewport(0, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
-                uiManager.updateUIText(timer, roundDuration, gState);
-                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
-                glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
-                glEnable(GL_DEPTH_TEST);
+            // render everything except minimap
+            renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
 
-                // top right
-                glViewport(window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
-                uiManager.updateUIText(timer, roundDuration, gState);
-                renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
-                glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
-                glEnable(GL_DEPTH_TEST);
-
-                // bottom left
-                glViewport(0, 0, window.getWidth() / 2, window.getHeight() / 2);
-                uiManager.updateUIText(timer, roundDuration, gState);
-                renderer3.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
-                glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
-                glEnable(GL_DEPTH_TEST);
-
-                // bottom right
-                glViewport(window.getWidth() / 2, 0, window.getWidth() / 2, window.getHeight() / 2);
-                uiManager.updateUIText(timer, roundDuration, gState);
-                renderer4.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
-                glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
-                glEnable(GL_DEPTH_TEST);
-            }
-            else {
-                // update dynamic UI text
-                uiManager.updateUIText(timer, roundDuration, gState);
-
-                // render everything except minimap
-                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
-                // render minimap
-                glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
-                glEnable(GL_DEPTH_TEST);
-            }
-        
-            
+            // render minimap
+            glDisable(GL_DEPTH_TEST);
+            renderer.renderMinimap(minimapShader, minimapCamera);
+            glEnable(GL_DEPTH_TEST);
 
             glfwSwapBuffers(window);
 
@@ -311,14 +258,14 @@ int main() {
             gameState = GameStateEnum::MENU;
             gState.dynamicEntities.clear();
             gState.staticEntities.clear();
-            //sceneModels.clear();
+            sceneModels.clear();
 
             gState.reset();
+            command.reset();
             audio.stopMusic(); 
             timer.reset();
             delete physicsSystem;
             //delete audio;
-
         }
 
     }

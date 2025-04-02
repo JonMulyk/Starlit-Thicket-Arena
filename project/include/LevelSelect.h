@@ -19,12 +19,13 @@ bug: unless we reinitialize the audio, when the game resets, the music does not 
 */
 class LevelSelectMenu {
 public:
-    LevelSelectMenu(Windowing& window, TTF& textRenderer, Controller& controller)
-        : window(window), textRenderer(textRenderer), controller(controller),
+    LevelSelectMenu(Windowing& window, TTF& textRenderer, Controller& controller, GameState& gameState)
+        : window(window), textRenderer(textRenderer), controller(controller), gameState(gameState),
         level1Button(0, 0, 0, 0, glm::vec3(0, 0, 0)),
         level2Button(0, 0, 0, 0, glm::vec3(0, 0, 0)),
         level3Button(0, 0, 0, 0, glm::vec3(0, 0, 0)),
-        backButton(0, 0, 0, 0, glm::vec3(0, 0, 0))
+        backButton(0, 0, 0, 0, glm::vec3(0, 0, 0)),
+		trailsButton(0, 0, 0, 0, glm::vec3(0, 0, 0))
     {
         initializeUIText();
         compileShaders();
@@ -49,9 +50,9 @@ public:
             audio.startLevelMusic();
             audioInitialized = true;
         }
-
         audio.startLevelMusic();
-        int selectedLevel = 0; //0 means no selection yet
+        int selectedLevel = 0; // 0 means no selection yet
+        static bool trailsButtonClicked = false; // debounce flag for trails button
         while (selectedLevel == 0 && !window.shouldClose()) {
             window.clear();
             renderMenu();
@@ -66,11 +67,11 @@ public:
 
                 if (level1Button.isClicked(xpos, ypos)) {
                     selectedLevel = 1;
-                    audio.stopMusic(); 
+                    audio.stopMusic();
                 }
                 else if (level2Button.isClicked(xpos, ypos)) {
                     selectedLevel = 2;
-                    audio.stopMusic(); 
+                    audio.stopMusic();
                 }
                 else if (level3Button.isClicked(xpos, ypos)) {
                     selectedLevel = 3;
@@ -78,13 +79,23 @@ public:
                 }
                 else if (backButton.isClicked(xpos, ypos)) {
                     selectedLevel = -1;
-                    audio.stopMusic(); 
+                    audio.stopMusic();
+                }
+                else if (trailsButton.isClicked(xpos, ypos)) {
+                    if (!trailsButtonClicked) {  // only toggle on first press
+                        gameState.tempTrails = !gameState.tempTrails;
+                        std::cout << "changing trails: " << gameState.tempTrails << std::endl;
+                        trailsButtonClicked = true;
+                    }
                 }
             }
-
+            else {
+                trailsButtonClicked = false; // reset debounce when mouse button is released
+            }
         }
-        return selectedLevel; // 1 = level 1, 2 = level 2, 3 = level 3
+        return selectedLevel; // 1 = level 1, 2 = level 2, 3 = level 3, -1 = back
     }
+
 
 private:
 
@@ -95,17 +106,16 @@ private:
     unsigned int backgroundTexture;
     TTF& textRenderer;
     int windowWidth, windowHeight;
-    Button level1Button, level2Button, level3Button, backButton;
+    Button level1Button, level2Button, level3Button, backButton, trailsButton;
     AudioSystem audio;
     bool audioInitialized;
-
+    GameState& gameState;
     int currentSelection = 0;
+
     void renderMenu() {
         glDisable(GL_DEPTH_TEST);
         drawBackground();
         glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
-
-
 
         //horizontal button conversion, can be modifeid to be different
         float buttonY = 0.85f * windowHeight;
@@ -121,6 +131,7 @@ private:
         level3Button = Button(startX + 2 * (buttonWidth + spacing), buttonY, buttonWidth, buttonHeight, glm::vec3(1, 0, 0));
         backButton = Button(startX + 3 * (buttonWidth + spacing), buttonY, buttonWidth, buttonHeight, glm::vec3(1, 0, 0));
 
+        trailsButton = Button(0.4f * windowWidth, 0.65f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
 
 
         //green if currentSelected, otherwise red, somewhat different from mainMenu
@@ -128,11 +139,13 @@ private:
         level2Button.setColor(currentSelection == 1 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
         level3Button.setColor(currentSelection == 2 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
         backButton.setColor(currentSelection == 3 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
+        trailsButton.setColor(gameState.tempTrails ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
 
         level1Button.draw(shader, windowWidth, windowHeight);
         level2Button.draw(shader, windowWidth, windowHeight);
         level3Button.draw(shader, windowWidth, windowHeight);
         backButton.draw(shader, windowWidth, windowHeight);
+		trailsButton.draw(shader, windowWidth, windowHeight);
 
         //render text
         renderText(uiText);
@@ -142,20 +155,26 @@ private:
     void initializeUIText() {
         glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
-        float buttonX = 0.5f * windowWidth;
-        float buttonY = 0.5f * windowHeight;
+        //float buttonX = 0.5f * windowWidth;
+        //float buttonY = 0.5f * windowHeight;
 
-        /*
-        hard cocded text, text and button is initilized different and trying to find the right conversion npm, is hard to calculate
-        probably more milsetone 5 stuff...
+        //horizontal button conversion, can be modifeid to be different
+        //float buttonY = 0.85f * windowHeight;
+        float buttonHeight = 0.1 * windowHeight;
+        float buttonWidth = 0.2f * windowWidth;
+        float spacing = 0.05f * windowWidth;
+        float totalWidth = 4 * buttonWidth + 3 * spacing;
+        float shiftRight = 0.1f * windowWidth;
+        float startX = (windowWidth - totalWidth) / 2 + shiftRight; //cursed 2.0
+        float baseScale = std::min(windowWidth, windowHeight) * 0.00085f;
+        float tempTrailsScale = std::min(windowWidth, windowHeight) * 0.00065f; //needs to be smaller
 
-        essentially, for the buttons the middle of the screen os the (0,0) -> (1,1) is like the top right coordinates, however for the text the top
-        left is like the (0,0) -> (windowWidth, windowHeight) is the bottom left?
-        */
-        uiText.push_back(Text("Level 1", buttonX - 500, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Level 2", buttonX - 140, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Level 3", buttonX + 220, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Back", buttonX + 600, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
+
+        uiText.push_back(Text("Stage 1", startX, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("Stage 2", startX + buttonWidth + spacing, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("Stage 3", startX + 2 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("Back", startX + 3 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+		uiText.push_back(Text("Y - Temp Trails", (0.5f) * windowWidth, 0.31f * windowHeight, tempTrailsScale, glm::vec3(1, 1, 1)));
 
     }
 
@@ -172,7 +191,7 @@ private:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         int width, height, nrChannels;
         stbi_set_flip_vertically_on_load(true);
-        unsigned char* data = stbi_load("project/assets/background/backgrounMainMenu.jpg", &width, &height, &nrChannels, 0);
+        unsigned char* data = stbi_load("project/assets/background/levelSelect.jpg", &width, &height, &nrChannels, 0);
         if (data) {
             GLenum format = (nrChannels == 3) ? GL_RGB : GL_RGBA;
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -225,6 +244,7 @@ private:
         static bool keyUpReleased = false;  
         static bool keyDownReleased = false;  
         static bool keyEnterReleased = false;  
+        static bool trailsButtonClicked = false;
 
  
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_LEFT) == GLFW_RELEASE && keyUpReleased) {
@@ -259,12 +279,23 @@ private:
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
             keyEnterReleased = true;   
         }
+
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_Y) == GLFW_PRESS) {
+            if (!trailsButtonClicked) {  // only toggle on first press
+                gameState.tempTrails = !gameState.tempTrails;
+                trailsButtonClicked = true;
+            }
+        }
+        else {
+            trailsButtonClicked = false;
+        }
     }
 
     void handleControllerInput(int& selectedLevel) {
         static bool dpadUpReleased = false; 
         static bool dpadDownReleased = false; 
-        static bool aButtonReleased = false;       
+        static bool aButtonReleased = false;  
+        static bool trailsButtonClicked = false;
 
         if (!controller.isConnected()) return;
 
@@ -298,5 +329,18 @@ private:
         if (controller.isButtonPressed(XINPUT_GAMEPAD_A)) {
             aButtonReleased = true; 
         }
+
+
+        if (controller.isButtonPressed(XINPUT_GAMEPAD_Y)) {
+            if (!trailsButtonClicked) {  // only toggle on first press
+                gameState.tempTrails = !gameState.tempTrails;
+                trailsButtonClicked = true;
+            }
+        }
+        else {
+            trailsButtonClicked = false;
+        }
+
+
     }
 };

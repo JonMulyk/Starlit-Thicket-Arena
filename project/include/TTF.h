@@ -22,7 +22,7 @@ private:
 
     static std::map<char, Character> createFontLookup(const char* font);
 public:
-    TTF(const char* vert_path, const char* frag_path, const char* font_path);
+    TTF(const char* vert_path, const char* frag_path, const char* font_path, int windowWidth, int windowHeight);
     void render(std::string text, float x, float y, float scale, glm::vec3 color);
 };
 

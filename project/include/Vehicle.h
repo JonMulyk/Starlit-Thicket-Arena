@@ -31,22 +31,17 @@ public:
 private:
 	// -- helpers
 	const float PI = 3.14159265f;
-
-	// gives a random value for steer
-	float randomSteer();
-
 	float steerToPoint(float x, float y);
+	float forwardSearch(GameState& gState);
 
-	// -- direct attack
-		// direct path infront of player
+	// -- direct attack using linear direction
 	void directAttack(GameState& gState, PxVec3 player);
 
-	// -- Planned attack
-		// get path to cut of user
-	bool plannedAttack(GameState& gState);
+	// -- Planned attack using A*
+	bool plannedAttack(GameState& gState, PxVec3 target);
 
 	// find path to player
-	void findPathToPlayer(GameState& gState);
+	void findPathToPlayer(GameState& gState, PxVec3 target);
 
 	// get the command to go to next way point
 	bool commandFromPath();
@@ -58,6 +53,6 @@ private:
 	bool arcClearance(const PxVec2& initPos, float initAng, int turnDir, GameState& gState, float& dist);
 
 	// -- wandering
-		// if there no way to the player and there are no obsticles, roam to free space
+	float openArea(GameState& gState);
 	void wander(GameState& gState);
 };
