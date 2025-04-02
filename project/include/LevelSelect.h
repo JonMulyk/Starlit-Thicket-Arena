@@ -167,13 +167,14 @@ private:
         float shiftRight = 0.1f * windowWidth;
         float startX = (windowWidth - totalWidth) / 2 + shiftRight; //cursed 2.0
         float baseScale = std::min(windowWidth, windowHeight) * 0.00085f;
+        float tempTrailsScale = std::min(windowWidth, windowHeight) * 0.00065f; //needs to be smaller
 
 
         uiText.push_back(Text("Stage 1", startX, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
         uiText.push_back(Text("Stage 2", startX + buttonWidth + spacing, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
         uiText.push_back(Text("Stage 3", startX + 2 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
         uiText.push_back(Text("Back", startX + 3 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
-		uiText.push_back(Text("Y - Temp Trails", (0.5f) * windowWidth, 0.3f * windowHeight, baseScale, glm::vec3(1, 1, 1)));
+		uiText.push_back(Text("Y - Temp Trails", (0.5f) * windowWidth, 0.31f * windowHeight, tempTrailsScale, glm::vec3(1, 1, 1)));
 
     }
 
@@ -243,6 +244,7 @@ private:
         static bool keyUpReleased = false;  
         static bool keyDownReleased = false;  
         static bool keyEnterReleased = false;  
+        static bool trailsButtonClicked = false;
 
  
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_LEFT) == GLFW_RELEASE && keyUpReleased) {
@@ -276,6 +278,16 @@ private:
         }
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
             keyEnterReleased = true;   
+        }
+
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_Y) == GLFW_PRESS) {
+            if (!trailsButtonClicked) {  // only toggle on first press
+                gameState.tempTrails = !gameState.tempTrails;
+                trailsButtonClicked = true;
+            }
+        }
+        else {
+            trailsButtonClicked = false;
         }
     }
 
