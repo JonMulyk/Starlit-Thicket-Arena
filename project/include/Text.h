@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <glm.hpp>
 #include <string>
+#include "TTF.h"
 
 class Text
 {
@@ -15,10 +16,13 @@ class Text
 		float y;
 		float scale;
 		glm::vec3 color;
+		TTF::TEXT_POSITION textPosition = TTF::TEXT_POSITION::CENTER;
 
 	public:
 		Text(const std::string& name, const std::string& text, float x, float y, float scale, const glm::vec3& color);
+		Text(const std::string& name, const std::string& text, float x, float y, float scale, const glm::vec3& color, TTF::TEXT_POSITION textPosition);
 		Text(const std::string& text, float x, float y, float scale, const glm::vec3& color);
+		Text(const std::string& text, float x, float y, float scale, const glm::vec3& color, TTF::TEXT_POSITION textPosition);
 
 		//copy constructor
 		Text(const Text& other);
@@ -36,5 +40,6 @@ class Text
 		float getY() const;
 		float getScale() const;
 		glm::vec3 getColor() const;
+		TTF::TEXT_POSITION getTextPosition() const;
 
 };
