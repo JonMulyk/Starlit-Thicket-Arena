@@ -34,6 +34,10 @@ int main() {
     GameState gState;
     InitManager::initGLFW();
     Command command;
+    Command controllerCommand1;
+    Command controllerCommand2;
+    Command controllerCommand3;
+    Command controllerCommand4;
     Command controllerCommand;
     TimeSeconds timer;
     DynamicCamera camera(gState, timer);
@@ -99,6 +103,9 @@ int main() {
     UIManager uiManager(window.getWidth(), window.getHeight());
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
+    RenderingSystem renderer2(shader, camera2, window, arial, gState);
+    RenderingSystem renderer3(shader, camera3, window, arial, gState);
+    RenderingSystem renderer4(shader, camera4, window, arial, gState);
     const double roundDuration = 200;
 
     bool isAudioInitialized = false;
@@ -107,6 +114,7 @@ int main() {
 
     MainMenu menu(window, arial, controller1);
     LevelSelectMenu levelSelectMenu(window, arial, controller1, gState);
+    splitScreenSelect splitScreenSelectMenu(window, arial, controller1);
 
 
     std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
@@ -209,8 +217,23 @@ int main() {
             audio.update();
 
             controller1.Update();
-            // Update camera zoom based on car speed:
-            //float carSpeed = physicsSystem->getCarSpeed(0);
+            if (gState.splitScreenEnabled || gState.splitScreenEnabled4) {
+                controller2.Update();
+            }
+            if (gState.splitScreenEnabled4) {
+                controller3.Update();
+                controller4.Update();
+            }
+            // Vector of controller Commands
+            std::vector<Command*> controllerCommands;
+            controllerCommands.push_back(&controllerCommand1);
+            if (gState.splitScreenEnabled || gState.splitScreenEnabled4) {
+                controllerCommands.push_back(&controllerCommand2);
+            }
+            if (gState.splitScreenEnabled4) {
+                controllerCommands.push_back(&controllerCommand3);
+                controllerCommands.push_back(&controllerCommand4);
+            }
 
             camera.updateZoom(physicsSystem->getCarSpeed(0));
             camera.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle.curDir.z, gState.playerVehicle.curDir.x)), timer.dt);
@@ -234,16 +257,76 @@ int main() {
                 timer.advance();
             }
 
-            // update dynamic UI text
-            uiManager.updateUIText(timer, roundDuration, gState);
+            if (gState.splitScreenEnabled) {
+                //std::cout << "here\n";
+                camera.setFollowTarget(physicsSystem->getTransformAt(0));
+                camera2.setFollowTarget(physicsSystem->getTransformAt(1));
+                // Left half
+                glViewport(0, window.getHeight() / 2, window.getWidth(), window.getHeight() / 2);
+                uiManager.updateUIText(timer, roundDuration, gState);
+                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera1 (a Camera instance)
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
 
-            // render everything except minimap
-            renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                // Right half
+                //print camera2 position
+                glViewport(0, 0, window.getWidth(), window.getHeight() / 2);
+                uiManager.updateUIText(timer, roundDuration, gState);
+                renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera2 (a Camera instance)
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
+            }
+            else if (gState.splitScreenEnabled4) {
+                camera.setFollowTarget(physicsSystem->getTransformAt(0));
+                camera2.setFollowTarget(physicsSystem->getTransformAt(1));
+                camera3.setFollowTarget(physicsSystem->getTransformAt(2));
+                camera4.setFollowTarget(physicsSystem->getTransformAt(3));
+                // split the screen into 4 separate quadrants
+                // top left
+                glViewport(0, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
+                uiManager.updateUIText(timer, roundDuration, gState);
+                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
 
-            // render minimap
-            glDisable(GL_DEPTH_TEST);
-            renderer.renderMinimap(minimapShader, minimapCamera);
-            glEnable(GL_DEPTH_TEST);
+                // top right
+                glViewport(window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
+                uiManager.updateUIText(timer, roundDuration, gState);
+                renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
+
+                // bottom left
+                glViewport(0, 0, window.getWidth() / 2, window.getHeight() / 2);
+                uiManager.updateUIText(timer, roundDuration, gState);
+                renderer3.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
+
+                // bottom right
+                glViewport(window.getWidth() / 2, 0, window.getWidth() / 2, window.getHeight() / 2);
+                uiManager.updateUIText(timer, roundDuration, gState);
+                renderer4.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
+            }
+            else {
+                // update dynamic UI text
+                uiManager.updateUIText(timer, roundDuration, gState);
+
+                // render everything except minimap
+                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                // render minimap
+                glDisable(GL_DEPTH_TEST);
+                renderer.renderMinimap(minimapShader, minimapCamera);
+                glEnable(GL_DEPTH_TEST);
+            }
 
             glfwSwapBuffers(window);
 

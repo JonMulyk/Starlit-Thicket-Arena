@@ -89,6 +89,9 @@ public:
 
     void updateZoom(float speed);
     void updateYawWithDelay(float targetYaw, float deltaTime);
+
+    void setFollowTarget(Transform* target) { followTarget = target; }
+    Transform* getFollowTarget() const { return followTarget; }
 };
 
 

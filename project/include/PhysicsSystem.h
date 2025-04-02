@@ -108,9 +108,10 @@ private:
 		float creationTime;
 		std::string uniqueName;
 		std::string ownerName;
+		float remainingLifetime;
 	};
 	std::vector<TrailSegment> trailSegments;
-	float trailLifetime = 6.5f; // seconds
+	float trailLifetime = 5.0f; // seconds
 	unsigned int trailCounter = 0;
 	float simulationTime = 0.0f; // running simulation time
 	void updateTrailLifetime(float dt);
@@ -128,7 +129,7 @@ private:
 	bool initPhysics();
 	bool pendingReinit = false;
 	double reinitTime = 0.0;
-	double reinitDelay = 3.0;  
+	double reinitDelay = 3.0;
 public:
 	void cleanupPhysics();
 	// Ctor/Dtor
@@ -163,7 +164,8 @@ public:
 	void updatePhysics(double dt);
 
 	// Do fixed step physics calculations
-	void stepPhysics(float timestep, Command& command, const std::vector<Command*>& controllerCommands);
+	//void stepPhysics(float timestep, Command& command, Command& controllerCommand);
+	void stepPhysics(float timestep, Command& command, std::vector<Command*>& controllerCommands);
 
 	bool getExplosion();
 	glm::vec3 getExplosionLocation();
