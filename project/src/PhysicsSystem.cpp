@@ -631,37 +631,12 @@ void PhysicsSystem::updatePhysics(double dt) {
 	if (gState.tempTrails) updateTrailLifetime(dt);
 }
 
-static Vehicle* playerVehicle = nullptr;
-static Vehicle* aiVehicle1 = nullptr;
-static Vehicle* aiVehicle2 = nullptr;
-static Vehicle* aiVehicle3 = nullptr;
-
-void PhysicsSystem::stepPhysics(float timestep, Command& command, std::vector<Command*>& controllerCommands) {
+void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
 	// namespaces
 	using namespace physx; using namespace snippetvehicle2;
 
-	//vehicle pointers
 	for (auto& entity : gState.dynamicEntities) {
 		if (entity.name == "playerCar") {
-			if (playerVehicle == nullptr) {
-				playerVehicle = entity.vehicle;
-			}
-		}
-		else if (entity.name == "aiCar") {
-			if (aiVehicle1 == nullptr) {
-				aiVehicle1 = entity.vehicle;
-			}
-			else if (aiVehicle2 == nullptr) {
-				aiVehicle2 = entity.vehicle;
-			}
-			else if (aiVehicle3 == nullptr) {
-				aiVehicle3 = entity.vehicle;
-			}
-		}
-	}
-
-	for (auto& entity : gState.dynamicEntities) {
-		if (entity.vehicle == playerVehicle) {
 			Command cmd;
 
 			if (playerDied) {
@@ -669,17 +644,18 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, std::vector<Co
 				cmd.throttle = 0.0f;     // Set throttle to 0
 				cmd.steer = 0.0f;        // Set steer to 0 to stop turning
 				command.fuel = 1;
-				controllerCommands[0]->fuel = 1;
+				controllerCommand.fuel = 1;
 				entity.vehicle->setPhysxCommand(cmd);
 			}
 			else {
-				cmd.brake = physx::PxMax(command.brake, controllerCommands[0]->brake);
-				cmd.throttle = 0.5 + physx::PxMax(command.throttle, controllerCommands[0]->throttle) / 2.f;
-				cmd.steer = (abs(command.steer) > abs(controllerCommands[0]->steer)) ? command.steer : controllerCommands[0]->steer;
-				cmd.fuel = min(command.fuel, controllerCommands[0]->fuel);
-				cmd.boost = (controllerCommands[0]->boost == false) ? command.boost : controllerCommands[0]->boost;
+				cmd.brake = physx::PxMax(command.brake, controllerCommand.brake);
+				cmd.throttle = 0.5 + physx::PxMax(command.throttle, controllerCommand.throttle) / 2.f;
+				cmd.steer = (abs(command.steer) > abs(controllerCommand.steer)) ? command.steer : controllerCommand.steer;
+				cmd.fuel = min(command.fuel, controllerCommand.fuel);
+				cmd.boost = (controllerCommand.boost == false) ? command.boost : controllerCommand.boost;
 				entity.vehicle->setPhysxCommand(cmd);
 			}
+
 
 			// Step the vehicle
 			entity.vehicle->forward = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
@@ -709,7 +685,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, std::vector<Co
 
 			// update fuel
 			gState.playerVehicle.fuel = cmd.fuel;
-			controllerCommands[0]->updateBoost(timestep);
+			controllerCommand.updateBoost(timestep);
 			command.updateBoost(timestep);
 
 			// run physx simulation

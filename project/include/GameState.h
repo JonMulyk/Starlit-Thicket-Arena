@@ -33,6 +33,9 @@ class GameState {
 
 		GameMap gMap;
 		PlayerVehicle playerVehicle;
+		PlayerVehicle playerVehicle2;
+		PlayerVehicle playerVehicle3;
+		PlayerVehicle playerVehicle4;
 		std::vector<Entity> dynamicEntities;
 		std::vector<Entity> staticEntities;
 		

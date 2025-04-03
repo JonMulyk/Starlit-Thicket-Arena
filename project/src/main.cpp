@@ -236,7 +236,13 @@ int main() {
             }
 
             camera.updateZoom(physicsSystem->getCarSpeed(0));
-            camera.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle.curDir.z, gState.playerVehicle.curDir.x)), timer.dt);
+            //camera.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle.curDir.z, gState.playerVehicle.curDir.x)), timer.dt);
+			camera2.updateZoom(physicsSystem->getCarSpeed(1));
+			//camera2.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle2.curDir.z, gState.playerVehicle2.curDir.x)), timer.dt);
+			camera3.updateZoom(physicsSystem->getCarSpeed(2));
+			//camera3.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle3.curDir.z, gState.playerVehicle3.curDir.x)), timer.dt);
+			camera4.updateZoom(physicsSystem->getCarSpeed(3));
+			//camera4.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle4.curDir.z, gState.playerVehicle4.curDir.x)), timer.dt);
 
             physicsSystem->update(timer.getFrameTime());
 
