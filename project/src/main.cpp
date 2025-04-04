@@ -258,7 +258,7 @@ int main() {
 
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
-                physicsSystem->stepPhysics(timer.dt, command, controllerCommands);
+                physicsSystem->stepPhysics(timer.dt, command, controllerCommand1);
                 physicsSystem->updatePhysics(timer.dt);
                 timer.advance();
             }
