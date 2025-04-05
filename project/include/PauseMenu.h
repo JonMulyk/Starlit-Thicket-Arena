@@ -22,10 +22,10 @@ class PauseScreen {
 public:
     PauseScreen(Windowing& window, TTF& textRenderer, Controller& controller, AudioSystem& audio)
         : window(window), textRenderer(textRenderer), controller(controller), audio(audio),
-        resumeButton(0, 0, 0, 0, glm::vec3(1, 1, 1)),
-        quitButton(0, 0, 0, 0, glm::vec3(1, 1, 1)), currentSelection(0)
+        resumeButton(0, 0, 0, 0, glm::vec3(0, 0, 0)),
+        quitButton(0, 0, 0, 0, glm::vec3(0, 0, 0)), currentSelection(0)
     {
-        shader = new Shader("PauseShader", "project/assets/shaders/overlayShader.vert", "project/assets/shaders/overlayShader.frag");
+        shader = new Shader("MainMenuShader", "project/assets/shaders/mainMenuShader.vert", "project/assets/shaders/mainMenuShader.frag");
         setupButtons();
         setupText();
     }
@@ -50,6 +50,7 @@ public:
             glfwPollEvents();
             controller.Update();
 
+
             if (controller.isButtonJustReleased(XINPUT_GAMEPAD_A) || glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
                 if (currentSelection == 0) {
                     audio.resumePauseSounds();
@@ -61,7 +62,16 @@ public:
                 }
             }
 
-\
+
+            if (currentSelection == 0) {
+                resumeButton.setColor(glm::vec3(0, 1, 0));
+                quitButton.setColor(glm::vec3(1, 0, 0));
+            }
+            else if (currentSelection == 1) {
+                resumeButton.setColor(glm::vec3(1, 0, 0));
+                quitButton.setColor(glm::vec3(0, 1, 0));
+            }
+
             if (controller.isButtonJustReleased(XINPUT_GAMEPAD_DPAD_DOWN) || glfwGetKey(window.getGLFWwindow(), GLFW_KEY_DOWN) == GLFW_PRESS) {
                 currentSelection = (currentSelection + 1) % 2;
             }
@@ -91,8 +101,9 @@ private:
         float height = 0.07f * h;
         float x = 0.375f * w;
 
-        resumeButton = Button(x, 0.4f * h, width, height, glm::vec3(1, 1, 1));
-        quitButton = Button(x, 0.52f * h, width, height, glm::vec3(1, 1, 1));
+        resumeButton = Button(x, 0.4f * h, width, height, glm::vec3(1, 0, 0));
+        quitButton = Button(x, 0.52f * h, width, height, glm::vec3(0, 0, 0));
+
     }
 
     void setupText() {
@@ -133,7 +144,7 @@ private:
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
-
+        
         shader->use();
         shader->setVec4("overlayColor", glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -142,9 +153,7 @@ private:
         glDeleteBuffers(1, &EBO);
         glDeleteVertexArrays(1, &VAO);
 
-        //does not work for some reason wtf
-        resumeButton.setColor(currentSelection == 0 ? glm::vec3(0, 1, 0) : glm::vec3(1, 1, 1));
-        quitButton.setColor(currentSelection == 1 ? glm::vec3(0.8f, 0.2f, 0.2f) : glm::vec3(1, 1, 1));
+
 
         resumeButton.draw(shader, window.getWidth(), window.getHeight());
         quitButton.draw(shader, window.getWidth(), window.getHeight());
