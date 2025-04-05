@@ -7,6 +7,8 @@
 #include "Shader.h"
 #include <GLFW/glfw3.h>
 #include <vector>
+#include "TransparentBoxRenderer.h"
+
 
 /*
 TODO:
@@ -20,14 +22,15 @@ public:
     {
         loadControlsBackground();
         initializeControlsText();
-        boxShader = new Shader("project/assets/shaders/transparentBoxShader.vert", "project/assets/shaders/transparentBoxShader.frag");
+        //boxShader = new Shader("project/assets/shaders/transparentBoxShader.vert", "project/assets/shaders/transparentBoxShader.frag");
     }
 
     ~ControlsMenu() {
         glDeleteTextures(1, &backgroundTexture);
         controlsText.clear();
-        delete boxShader; 
+        //delete boxShader; 
         //delete shader;
+
     }
 
     //controls menu stuff
@@ -40,14 +43,13 @@ public:
             glDisable(GL_DEPTH_TEST);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             drawBackground();
-            drawTransparentBox(-0.6f, -0.6f, 1.2f, 1.2f, 0.5f);
+            //drawTransparentBox(-0.6f, -0.6f, 1.2f, 1.2f, 0.5f);
+            boxRenderer.draw(-0.6f, -0.6f, 1.2f, 1.2f, 0.5f);
             renderText(controlsText);
             window.swapBuffer();
             glfwPollEvents();
             handleKeyboardInput(inControls);
             handleControllerInput(inControls);
-
-
         }
     }
 
@@ -61,6 +63,7 @@ private:
     int windowWidth, windowHeight;
     Shader* boxShader;
     Button backButton;
+    TransparentBoxRenderer boxRenderer;
 
 
     //intialize stuff here
@@ -129,45 +132,6 @@ private:
         stbi_set_flip_vertically_on_load(false);
     }
 
-    void drawTransparentBox(float x, float y, float width, float height, float alpha) {
-
-        boxShader->use();
-        boxShader->setVec4("boxColor", glm::vec4(0.0f, 0.0f, 0.0f, alpha));
-
-        float vertices[] = {
-            x,         y + height, 0.0f, 1.0f,
-            x,         y,          0.0f, 0.0f,
-            x + width, y,          1.0f, 0.0f,
-            x,         y + height, 0.0f, 1.0f,
-            x + width, y,          1.0f, 0.0f,
-            x + width, y + height, 1.0f, 1.0f
-        };
-
-        unsigned int VBO, VAO;
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-
-        glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-
-        glDisable(GL_BLEND);
-        glBindVertexArray(0);
-        glDeleteBuffers(1, &VBO);
-        glDeleteVertexArrays(1, &VAO);
-    }
-
 
     // Draw the background
     void drawBackground() {
@@ -230,4 +194,4 @@ private:
     }
 };
 
-#endif // CONTROLS_H
+#endif 
