@@ -9,6 +9,7 @@ private:
     double m_frameTime = 0.0;
     double m_accumulator = 0.0;
     double m_elapsedTime = 0.0;
+    bool m_stopped;
 
 public:
     // Fixed time step (seconds per update)
@@ -35,4 +36,6 @@ public:
     std::string formatTimeToHumanReadable(double timeInSeconds) const;
 
     void reset();
+    void stop();
+    void resume();
 };

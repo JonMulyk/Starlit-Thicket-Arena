@@ -16,7 +16,8 @@ struct PlayerVehicle {
 enum class GameStateEnum {
 	MENU,
 	PLAYING,
-	RESET
+	RESET,
+	PAUSE
 };
 
 class GameState {

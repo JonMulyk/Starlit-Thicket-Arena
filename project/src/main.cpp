@@ -186,6 +186,24 @@ int main() {
 
             physicsSystem->update(timer.getFrameTime());
 
+            //pause
+            if (input.isKeyReleased(GLFW_KEY_P) || controller1.isButtonJustReleased(XINPUT_GAMEPAD_START)) {
+                gameState = GameStateEnum::PAUSE;
+                timer.stop();
+                audio.pauseMusic();
+            }
+
+            while (gameState == GameStateEnum::PAUSE) {
+                input.poll();
+                controller1.Update();
+
+                if (input.isKeyReleased(GLFW_KEY_P) || controller1.isButtonJustReleased(XINPUT_GAMEPAD_START)) {
+                    gameState = GameStateEnum::PLAYING;
+                    timer.resume();
+                    audio.resumePauseSounds();
+                }
+            }
+
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
                 physicsSystem->stepPhysics(timer.dt, command, controllerCommand);

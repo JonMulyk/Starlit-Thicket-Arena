@@ -141,3 +141,10 @@ void Input::scrollCallback(GLFWwindow* window, double x_offset, double y_offset)
         << "\ty-offset: " << y_offset << std::endl;
     */
 }
+
+bool Input::isKeyReleased(int key) {
+    static bool wasPressed = false;
+    bool isReleased = wasPressed && (glfwGetKey(r_window, key) == GLFW_RELEASE);
+    wasPressed = (glfwGetKey(r_window, key) == GLFW_PRESS);
+    return isReleased;
+}

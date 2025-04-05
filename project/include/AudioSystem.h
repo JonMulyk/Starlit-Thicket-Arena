@@ -38,6 +38,10 @@ public:
 
 	void startCarSounds();
 
+	void pauseMusic();
+
+	void resumePauseSounds();
+
 	bool carSoundPlaying = false;
 
 	CAudioEngine audioEngine;
