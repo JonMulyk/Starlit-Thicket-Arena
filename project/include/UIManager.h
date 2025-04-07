@@ -12,6 +12,8 @@ class UIManager
 		std::vector<Text> uiText;
 		int windowWidth;
 		int windowHeight;
+		float textScale = 1.0f;
+
 
 		void initializeUIText();
 

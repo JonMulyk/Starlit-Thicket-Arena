@@ -5,13 +5,24 @@ Text::Text(const std::string& name, const std::string& text, float x, float y, f
 {
 }
 
+Text::Text(const std::string& name, const std::string& text, float x, float y, float scale, const glm::vec3& color, TTF::TEXT_POSITION textPosition)
+	: name(name), textToRender(text), x(x), y(y), scale(scale), color(color), textPosition(textPosition)
+{
+}
+
+
 Text::Text(const std::string& text, float x, float y, float scale, const glm::vec3& color)
 	: name(""), textToRender(text), x(x), y(y), scale(scale), color(color) 
 {
 }
 
+Text::Text(const std::string& text, float x, float y, float scale, const glm::vec3& color, TTF::TEXT_POSITION textPosition)
+	: name(""), textToRender(text), x(x), y(y), scale(scale), color(color), textPosition(textPosition)
+{
+}
+
 Text::Text(const Text& other)
-	: name(other.name), textToRender(other.textToRender), x(other.x), y(other.y), scale(other.scale), color(other.color)
+	: name(other.name), textToRender(other.textToRender), x(other.x), y(other.y), scale(other.scale), color(other.color), textPosition(other.textPosition)
 {
 }
 
@@ -25,6 +36,7 @@ Text& Text::operator=(const Text& other)
 		y = other.y;
 		scale = other.scale;
 		color = other.color;
+		textPosition = other.textPosition;
 	}
 
 	return *this;
@@ -64,4 +76,9 @@ float Text::getScale() const
 glm::vec3 Text::getColor() const
 {
 	return this->color;
+}
+
+TTF::TEXT_POSITION Text::getTextPosition() const
+{
+	return this->textPosition;
 }

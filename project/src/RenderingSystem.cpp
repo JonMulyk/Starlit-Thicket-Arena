@@ -108,7 +108,7 @@ void RenderingSystem::renderText(const std::string& text, float x, float y, floa
 void RenderingSystem::renderText(const std::vector<Text>& renderingText) {
     for (const auto& text : renderingText)
     {
-		textRenderer.render(text.getTextToRender(), text.getX(), text.getY(), text.getScale(), text.getColor());
+		textRenderer.render(text.getTextToRender(), text.getX(), text.getY(), text.getScale(), text.getColor(), text.getTextPosition());
     }
 }
 
