@@ -87,6 +87,8 @@ int main() {
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
     const double roundDuration = 200;
+    //PauseResult pauseResult = PauseResult::RESUME;
+
 
     bool isAudioInitialized = false;
 
@@ -200,14 +202,19 @@ int main() {
             while (gameState == GameStateEnum::PAUSE) {
                 input.poll();
                 controller1.Update();
-
                 window.clear();
                 bool resumeGame = pause.displayPauseScreen();
-                gameState = GameStateEnum::PLAYING;
-                timer.resume();
-                audio.resumePauseSounds();
 
-
+                if (resumeGame) {
+                    gameState = GameStateEnum::PLAYING;
+                    timer.resume();
+                    audio.resumePauseSounds();
+                }
+                else {
+                    //back to main menu
+                    gameState = GameStateEnum::RESET;
+                    //break; //might need this...
+                }
             }
 
             // Update physics
@@ -238,6 +245,7 @@ int main() {
 
         //reset
         if (gameState == GameStateEnum::RESET) {
+            //pauseResult = PauseResult::RESUME;
             gameState = GameStateEnum::MENU;
             gState.dynamicEntities.clear();
             gState.staticEntities.clear();
