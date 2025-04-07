@@ -201,6 +201,7 @@
     <ClCompile Include="project\src\MainMenu.cpp" />
     <ClCompile Include="project\src\Mesh.cpp" />
     <ClCompile Include="project\src\Model.cpp" />
+    <ClCompile Include="project\src\PauseMenu.cpp" />
     <ClCompile Include="project\src\PhysicsSystem.cpp" />
     <ClCompile Include="project\src\Shader.cpp" />
     <ClCompile Include="project\src\Skybox.cpp" />

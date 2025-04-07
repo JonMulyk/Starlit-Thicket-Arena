@@ -16,6 +16,7 @@ LevelSelectMenu::LevelSelectMenu(Windowing& window, TTF& textRenderer, Controlle
 LevelSelectMenu::~LevelSelectMenu() {
     delete backgroundRenderer;
     uiText.clear();
+    //delete shader;
 }
 
 int LevelSelectMenu::displayMenuLevel() {
@@ -27,7 +28,7 @@ int LevelSelectMenu::displayMenuLevel() {
     }
     audio.startLevelMusic();
     int selectedLevel = 0; // 0 means no selection yet
-    static bool trailsButtonClicked = false; // debounce flag for trails button
+    static bool trailsButtonClicked = false;
     backgroundRenderer = new BackgroundRenderer("project/assets/background/levelSelect.jpg", shader); //load background here
     while (selectedLevel == 0 && !window.shouldClose()) {
         window.clear();
