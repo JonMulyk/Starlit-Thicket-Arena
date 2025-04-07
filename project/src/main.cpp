@@ -228,13 +228,9 @@ int main() {
             // Vector of controller Commands
             std::vector<Command*> controllerCommands;
             controllerCommands.push_back(&controllerCommand1);
-            if (gState.splitScreenEnabled || gState.splitScreenEnabled4) {
-                controllerCommands.push_back(&controllerCommand2);
-            }
-            if (gState.splitScreenEnabled4) {
-                controllerCommands.push_back(&controllerCommand3);
-                controllerCommands.push_back(&controllerCommand4);
-            }
+            controllerCommands.push_back(&controllerCommand2);
+            controllerCommands.push_back(&controllerCommand3);
+            controllerCommands.push_back(&controllerCommand4);
 
             if (physicsSystem->deadCars[0] == 0) camera.updateZoom(physicsSystem->getCarSpeed(0));
             //camera.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle.curDir.z, gState.playerVehicle.curDir.x)), timer.dt);
@@ -263,7 +259,7 @@ int main() {
 
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
-                physicsSystem->stepPhysics(timer.dt, command, controllerCommand1);
+                physicsSystem->stepPhysics(timer.dt, command, controllerCommands);
                 physicsSystem->updatePhysics(timer.dt);
                 timer.advance();
             }

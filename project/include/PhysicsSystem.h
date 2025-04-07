@@ -168,7 +168,7 @@ public:
 	void updatePhysics(double dt);
 
 	// Do fixed step physics calculations
-	void stepPhysics(float timestep, Command& command, Command& controllerCommand);
+	void stepPhysics(float timestep, Command& keyboardCommand, const std::vector<Command*>& playerCommands);
 
 	bool getExplosion();
 	glm::vec3 getExplosionLocation();
