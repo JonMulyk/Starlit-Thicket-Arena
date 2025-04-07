@@ -307,7 +307,9 @@ bool PhysicsSystem::initVehicles(int numAI) {
 			gState.dynamicEntities.back().vehicle = vehicle;
 		}
 		else {
-			gState.dynamicEntities.emplace_back("aiCar", &pModels[4], transformList.back());
+			if (i == 1) gState.dynamicEntities.emplace_back("aiCar1", &pModels[4], transformList.back());
+			if (i == 2) gState.dynamicEntities.emplace_back("aiCar2", &pModels[4], transformList.back());
+			if (i == 3) gState.dynamicEntities.emplace_back("aiCar3", &pModels[4], transformList.back());
 			gState.dynamicEntities.back().vehicle = vehicle;
 		}
 	}
@@ -423,14 +425,32 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 
 }
 
-
-
 physx::PxVec3 PhysicsSystem::getPos(int i) {
 	physx::PxVec3 position = rigidDynamicList[i]->getGlobalPose().p;
 	return position;
 }
 
 Transform* PhysicsSystem::getTransformAt(int i) { return transformList[i]; }
+
+Transform* PhysicsSystem::getTransformAt(std::string name) {
+	Transform* c_name = nullptr;
+	for (int i = 0; i < gState.dynamicEntities.size(); i++) {
+		//std::cout << gState.dynamicEntities[i].name << std::endl;
+		if (gState.dynamicEntities[i].name == name) {
+			c_name = gState.dynamicEntities[i].transform;
+		}
+	}
+	return c_name;
+}
+
+glm::vec3 PhysicsSystem::getCarPos(std::string name) {
+	for (int i = 0; i < gState.dynamicEntities.size(); i++) {
+		if (gState.dynamicEntities[i].name == name) {
+			return gState.dynamicEntities[i].transform->pos;
+		}
+	}
+	return glm::vec3(0, 0, 0);
+}
 
 void PhysicsSystem::updateTransforms(std::vector<Entity>& entityList) {
 	for (int i = 0; i < entityList.size(); i++) {
@@ -517,15 +537,20 @@ void PhysicsSystem::updateCollisions() {
 		int aiCounter = 0;
 		std::string colliding1 = collisionPair.first->getName();
 		std::string colliding2 = collisionPair.second->getName();
+		//std::cout << "Collision: " << colliding1 << " - " << colliding2 << std::endl;
+		if (colliding1 == "playerVehicle" || colliding2 == "playerVehicle") deadCars[0] = 1;
+		if (colliding1 == "vehicle1" || colliding2 == "vehicle1") deadCars[1] = 1;
+		if (colliding1 == "vehicle2" || colliding2 == "vehicle2") deadCars[2] = 1;
+		if (colliding1 == "vehicle3" || colliding2 == "vehicle3") deadCars[3] = 1;
 
 		for (int i = 0; i < gState.dynamicEntities.size(); i++) {
 			auto& entity = gState.dynamicEntities[i];
-			if (entity.name != "aiCar" && entity.name != "playerCar") continue;
-			if (entity.name == "aiCar") {
+			if ((entity.name != "aiCar1" && entity.name != "aiCar2" && entity.name != "aiCar3") && entity.name != "playerCar") continue;
+			if (entity.name == "aiCar1" || entity.name == "aiCar2" || entity.name == "aiCar3") {
 				aiCounter++;
 			}
 
-
+			//std::cout << entity.vehicle->name << std::endl;
 			if (entity.vehicle->name == colliding1) {
 				shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 				entity.vehicle->vehicle.destroy();
@@ -557,17 +582,25 @@ void PhysicsSystem::updateCollisions() {
 			}
 		}
 
-		if (colliding1 == "playerVehicle") {
+		if (colliding1 == "playerVehicle" && !gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
 			pendingReinit = true;
 			reinitTime = 0.0;
 			playerDied = true;
-			printf("Reset because of Player");
+			//printf("Reset because of Player");
 		}
+		if (colliding1 == "vehicle1" || colliding2 == "vehicle1") player2Died = true;
+		if (colliding1 == "vehicle2" || colliding2 == "vehicle2") player3Died = true;
+		if (colliding1 == "vehicle3" || colliding2 == "vehicle3") player4Died = true;
 
 		if (aiCounter <= 1) {
-			printf("Reset because of AI\n");
+			//printf("Reset because of AI\n");
 			//printf("%f\n", aiCounter);
-			;                pendingReinit = true;
+		    pendingReinit = true;
+			reinitTime = 0.0;
+		}
+		//only one of the player alive bools is true
+		if ((playerDied + player2Died + player3Died + player4Died) >= 1) {
+			pendingReinit = true;
 			reinitTime = 0.0;
 		}
 
@@ -579,7 +612,7 @@ void PhysicsSystem::updateCollisions() {
 void PhysicsSystem::reintialize() {
 	for (int i = gState.dynamicEntities.size() - 1; i >= 0; i--) {
 		auto& entity = gState.dynamicEntities[i];
-		if (entity.name == "playerCar" || entity.name == "aiCar") {
+		if (entity.name == "playerCar" || (entity.name == "aiCar1" || entity.name == "aiCar2" || entity.name == "aiCar3")) {
 			entity.vehicle->vehicle.destroy();
 		}
 
@@ -715,7 +748,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			gState.playerVehicle.curPos = currPos;
 			gState.playerVehicle.curDir = entity.vehicle->forward.getNormalized();
 		}
-		else if (entity.name == "aiCar") {
+		else if ((entity.name == "aiCar1" || entity.name == "aiCar2" || entity.name == "aiCar3")) {
 			entity.vehicle->update(gState);
 
 			// Step the vehicle
@@ -781,7 +814,7 @@ bool PhysicsSystem::getExplosion() {
 
 glm::vec3 PhysicsSystem::getExplosionLocation() {
 	for (const auto& entity : gState.dynamicEntities) {
-		if (entity.name == "playerCar" || entity.name == "aiCar") {
+		if (entity.name == "playerCar" || (entity.name == "aiCar1" || entity.name == "aiCar2" || entity.name == "aiCar3")) {
 			if (entity.vehicle->name == gContactReportCallback->getCollisionPair().first->getName()) {
 				physx::PxVec3 pos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
 				return glm::vec3(pos.x, pos.y, pos.z);
@@ -835,7 +868,7 @@ std::vector<physx::PxVec3> PhysicsSystem::getAIPositions() {
 	// Loop through all dynamic entities
 	for (const auto& entity : gState.dynamicEntities) {
 		// Only process AI vehicles (skip the player)
-		if (entity.name == "aiCar" && entity.vehicle != nullptr) {
+		if ((entity.name == "aiCar1" || entity.name == "aiCar2" || entity.name == "aiCar3") && entity.vehicle != nullptr) {
 			// Retrieve the global position from the vehicle's rigid body
 			physx::PxVec3 pos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
 			aiPositions.push_back(pos);
@@ -936,6 +969,11 @@ void PhysicsSystem::update(double deltaTime) {
 			pendingReinit = false;
 			reinitTime = 0.0;
 			playerDied = false;
+			player2Died = false;
+			player3Died = false;
+			player4Died = false;
+			// Reset the deadCars array
+			std::fill(std::begin(deadCars), std::end(deadCars), 0);
 		}
 		return;  // Skip further updates while waiting for reinit
 	}

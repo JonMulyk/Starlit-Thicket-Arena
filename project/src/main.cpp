@@ -224,6 +224,7 @@ int main() {
                 controller3.Update();
                 controller4.Update();
             }
+
             // Vector of controller Commands
             std::vector<Command*> controllerCommands;
             controllerCommands.push_back(&controllerCommand1);
@@ -235,20 +236,24 @@ int main() {
                 controllerCommands.push_back(&controllerCommand4);
             }
 
-            camera.updateZoom(physicsSystem->getCarSpeed(0));
+            if (physicsSystem->deadCars[0] == 0) camera.updateZoom(physicsSystem->getCarSpeed(0));
             //camera.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle.curDir.z, gState.playerVehicle.curDir.x)), timer.dt);
-			camera2.updateZoom(physicsSystem->getCarSpeed(1));
+            if (physicsSystem->deadCars[1] == 0) camera2.updateZoom(physicsSystem->getCarSpeed(1));
 			//camera2.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle2.curDir.z, gState.playerVehicle2.curDir.x)), timer.dt);
-			camera3.updateZoom(physicsSystem->getCarSpeed(2));
+            if (physicsSystem->deadCars[2] == 0) camera3.updateZoom(physicsSystem->getCarSpeed(2));
 			//camera3.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle3.curDir.z, gState.playerVehicle3.curDir.x)), timer.dt);
-			camera4.updateZoom(physicsSystem->getCarSpeed(3));
+            if (physicsSystem->deadCars[3] == 0) camera4.updateZoom(physicsSystem->getCarSpeed(3));
 			//camera4.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle4.curDir.z, gState.playerVehicle4.curDir.x)), timer.dt);
 
             physicsSystem->update(timer.getFrameTime());
 
-            if (physicsSystem->playerDied) {
+            if (physicsSystem->playerDied || physicsSystem->deadCars[0] == 1) {
                 audio.stopCarSounds(); 
+                audio.stopAISounds();
             }
+			else if (physicsSystem->player2Died) audio.stopAISounds(physicsSystem->getCarPos("aiCar1"));
+			else if (physicsSystem->player3Died) audio.stopAISounds(physicsSystem->getCarPos("aiCar2"));
+			else if (physicsSystem->player4Died) audio.stopAISounds(physicsSystem->getCarPos("aiCar3"));
             else {
                 audio.startCarSounds();  
                 audio.update();
@@ -265,8 +270,8 @@ int main() {
 
             if (gState.splitScreenEnabled) {
                 //std::cout << "here\n";
-                camera.setFollowTarget(physicsSystem->getTransformAt(0));
-                camera2.setFollowTarget(physicsSystem->getTransformAt(1));
+                if (physicsSystem->deadCars[0] == 0) camera.setFollowTarget(physicsSystem->getTransformAt("playerCar"));
+                if (physicsSystem->deadCars[1] == 0) camera2.setFollowTarget(physicsSystem->getTransformAt("aiCar2"));
                 // Left half
                 glViewport(0, window.getHeight() / 2, window.getWidth(), window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState);
@@ -285,10 +290,10 @@ int main() {
                 glEnable(GL_DEPTH_TEST);
             }
             else if (gState.splitScreenEnabled4) {
-                camera.setFollowTarget(physicsSystem->getTransformAt(0));
-                camera2.setFollowTarget(physicsSystem->getTransformAt(1));
-                camera3.setFollowTarget(physicsSystem->getTransformAt(2));
-                camera4.setFollowTarget(physicsSystem->getTransformAt(3));
+                if (physicsSystem->deadCars[0] == 0) camera.setFollowTarget(physicsSystem->getTransformAt("playerCar"));
+                if (physicsSystem->deadCars[1] == 0) camera2.setFollowTarget(physicsSystem->getTransformAt("aiCar1"));
+                if (physicsSystem->deadCars[2] == 0) camera3.setFollowTarget(physicsSystem->getTransformAt("aiCar2"));
+                if (physicsSystem->deadCars[3] == 0) camera4.setFollowTarget(physicsSystem->getTransformAt("aiCar3"));
                 // split the screen into 4 separate quadrants
                 // top left
                 glViewport(0, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);

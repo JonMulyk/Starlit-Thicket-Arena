@@ -62,7 +62,7 @@ void Mesh::Draw(Shader& shader, std::string entityName) {
     glBindVertexArray(0);
 
     // reset textures so it doesn't bleed into other draw calls
-    if (entityName != "playerCar" && entityName != "aiCar")
+    if (entityName != "playerCar" && (entityName != "aiCar1" || entityName != "aiCar2" || entityName != "aiCar3"))
     {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, 0);

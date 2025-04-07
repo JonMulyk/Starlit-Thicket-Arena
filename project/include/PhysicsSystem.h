@@ -131,6 +131,8 @@ private:
 	double reinitTime = 0.0;
 	double reinitDelay = 3.0;
 public:
+	std::vector<int> deadCars = { 0,0,0,0 };
+	
 	void cleanupPhysics();
 	// Ctor/Dtor
 	PhysicsSystem(GameState& gameState, std::vector<Model> tModel);
@@ -147,6 +149,8 @@ public:
 
 	// get transformList transforms
 	Transform* getTransformAt(int i);
+	Transform* getTransformAt(std::string name);
+	glm::vec3 getCarPos(std::string name);
 
 	// update the transforms based on physx
 	void updateTransforms(std::vector<Entity>& entityList);
@@ -177,4 +181,7 @@ public:
 
 	void reset();
 	bool playerDied = false;
+	bool player2Died = false;
+	bool player3Died = false;
+	bool player4Died = false;
 };

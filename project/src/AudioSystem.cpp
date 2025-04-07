@@ -46,7 +46,6 @@ void AudioSystem::startBattleMusic() {
 	musicChannel->setMode(FMOD_LOOP_NORMAL | FMOD_2D);
 	musicChannel->setLoopCount(-1);
 
-
 	//start AI sounds
 	std::vector<physx::PxVec3> aiPositions = c_physicsSystem->getAIPositions();
 	for (size_t i = 0; i < aiPositions.size(); i++) {
@@ -123,10 +122,31 @@ void AudioSystem::shutdown() {
 	audioEngine.Shutdown();
 }
 
-
-
 void AudioSystem::explosion(glm::vec3 position) {
 	audioEngine.PlaySounds(explosionSound, Vector3{ position.x, position.y, position.z }, explosionVolume);
+	if (carChannel != nullptr) {
+		FMOD_VECTOR pos;
+		carChannel->get3DAttributes(&pos, nullptr);
+		float distance = glm::distance(glm::vec3(pos.x, pos.y, pos.z), position);
+		if (distance < 0.1f) {
+			return;
+		}
+	}
+	//kill AI channel at that position
+	for (auto channel : aiChannels) {
+		FMOD::Channel* aiChannel = nullptr;
+		if (channel != nullptr) {
+			FMOD_VECTOR pos;
+			channel->get3DAttributes(&pos, nullptr);
+			//set 0.1f distance buffer
+			float distance = glm::distance(glm::vec3(pos.x, pos.y, pos.z), position);
+			if (distance < 0.1f) {
+				channel->stop();
+				channel = nullptr;
+			}
+		}
+	}
+
 }
 
 void AudioSystem::startCar() {
@@ -145,15 +165,6 @@ void AudioSystem::playAISound(glm::vec3 position) {
 	aiChannel->set3DMinMaxDistance(1.0f, 1000.0f);
 	aiChannel->setLoopCount(-1);  // -1 means infinite looping.
 	aiChannels.push_back(aiChannel);
-	//std::cout << "Playing AI sound at position (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
-	//if (result != FMOD_OK || aiChannel == nullptr) {
-	//	std::cout << "Error playing AI sound at position ("
-	//		<< position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
-	//}
-	//else {
-	//	// Set the channel to 3D mode so that it is positioned in the world.
-	//	
-	//}
 }
 
 
@@ -202,6 +213,30 @@ void AudioSystem::stopCarSounds() {
 	}
 }
 
+void AudioSystem::stopAISounds() {
+	for (auto& aiChannel : aiChannels) {
+		if (aiChannel != nullptr) {
+			aiChannel->stop();  // Stop the AI sound
+			aiChannel = nullptr;
+		}
+	}
+	aiChannels.clear();
+}
+
+void AudioSystem::stopAISounds(glm::vec3 position) {
+	for (auto& aiChannel : aiChannels) {
+		if (aiChannel != nullptr) {
+			FMOD_VECTOR pos;
+			aiChannel->get3DAttributes(&pos, nullptr);
+			float distance = glm::distance(glm::vec3(pos.x, pos.y, pos.z), position);
+			if (distance < 0.1f) {
+				aiChannel->stop();  // Stop the AI sound
+				aiChannel = nullptr;
+			}
+		}
+	}
+}
+
 void AudioSystem::startCarSounds() {
 	if (carChannel == nullptr) {
 
@@ -209,5 +244,15 @@ void AudioSystem::startCarSounds() {
 		carChannel->setMode(FMOD_LOOP_NORMAL | FMOD_3D); 
 		carChannel->setLoopCount(-1);
 		carSoundPlaying = true;
+	}
+}
+
+void AudioSystem::startAISounds() {
+	if (aiChannels.empty()) {
+		// If there are no AI channels, create and initialize them
+		std::vector<physx::PxVec3> aiPositions = c_physicsSystem->getAIPositions();
+		for (size_t i = 0; i < aiPositions.size(); i++) {
+			playAISound(glm::vec3(aiPositions[i].x, aiPositions[i].y, aiPositions[i].z));
+		}
 	}
 }

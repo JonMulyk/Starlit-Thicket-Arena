@@ -33,7 +33,7 @@ glm::mat4 RenderingSystem::createModelWithTransformations(const Entity* entity, 
 	if (minimapRender)
 	{
         // cars
-		if (entity->name == "playerCar" || entity->name == "aiCar")
+		if (entity->name == "playerCar" || (entity->name == "aiCar1" || entity->name == "aiCar2" || entity->name == "aiCar3"))
 		{
 			model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 			model = glm::scale(model, entity->transform->scale * glm::vec3(1.9f, 1.0f, 1.9f));
@@ -55,7 +55,7 @@ glm::mat4 RenderingSystem::createModelWithTransformations(const Entity* entity, 
     
     // non-minimap 
     // cars
-	if (entity->name == "playerCar" || entity->name == "aiCar") {
+	if (entity->name == "playerCar" || (entity->name == "aiCar1" || entity->name == "aiCar2" || entity->name == "aiCar3")) {
 		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, entity->transform->scale * glm::vec3(0.5f, 1.0f, 0.4f));
 

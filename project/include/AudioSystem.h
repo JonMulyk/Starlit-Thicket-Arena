@@ -35,8 +35,12 @@ public:
 	void stopMusic();
 
 	void stopCarSounds();
+	void stopAISounds();
+	//stop car sound at a specific position
+	void stopAISounds(glm::vec3 position);
 
 	void startCarSounds();
+	void startAISounds();
 
 	bool carSoundPlaying = false;
 
