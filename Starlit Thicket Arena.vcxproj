@@ -198,6 +198,7 @@
     <ClCompile Include="project\src\Input.cpp" />
     <ClCompile Include="project\src\LevelSelect.cpp" />
     <ClCompile Include="project\src\main.cpp" />
+    <ClCompile Include="project\src\MainMenu.cpp" />
     <ClCompile Include="project\src\Mesh.cpp" />
     <ClCompile Include="project\src\Model.cpp" />
     <ClCompile Include="project\src\PhysicsSystem.cpp" />

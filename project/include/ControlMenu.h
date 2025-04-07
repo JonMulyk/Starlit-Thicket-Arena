@@ -1,6 +1,3 @@
-#ifndef CONTROLS_H
-#define CONTROLS_H
-
 #include "Windowing.h"
 #include "TTF.h"
 #include "Controller.h"
@@ -8,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include "TransparentBoxRenderer.h"
+#include <Text.h>
 
 
 /*
@@ -194,4 +192,3 @@ private:
     }
 };
 
-#endif 
