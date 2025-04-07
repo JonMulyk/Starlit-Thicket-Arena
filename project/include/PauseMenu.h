@@ -55,43 +55,34 @@ public:
             glfwPollEvents();
             controller.Update();
 
-            // Handle Resume and Quit buttons on release
             bool isEnterPressed = controller.isButtonPressed(XINPUT_GAMEPAD_A) || glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS;
 
             if (wasButtonPressed && !isEnterPressed) {
-                // The Enter button was just released, perform the action
                 if (currentSelection == 0) {
                     audio.resumePauseSounds();
-                    return true;  // Resume game
+                    return true;
                 }
                 else if (currentSelection == 1) {
-                    return false;  // Quit game
+                    return false;
                 }
             }
 
-            // Update the previous Enter button state
             wasButtonPressed = isEnterPressed;
 
-            // Handle Down arrow/DPAD Down for selection change
             bool isDownPressed = controller.isButtonPressed(XINPUT_GAMEPAD_DPAD_DOWN) || glfwGetKey(window.getGLFWwindow(), GLFW_KEY_DOWN) == GLFW_PRESS;
 
             if (wasDownPressed && !isDownPressed) {
-                // The Down button was just released, change selection
-                currentSelection = (currentSelection + 1) % 2;  // Toggle between resume and quit
+                currentSelection = (currentSelection + 1) % 2;
             }
 
-            // Update the previous Down button state
             wasDownPressed = isDownPressed;
 
-            // Handle Up arrow/DPAD Up for selection change
             bool isUpPressed = controller.isButtonPressed(XINPUT_GAMEPAD_DPAD_UP) || glfwGetKey(window.getGLFWwindow(), GLFW_KEY_UP) == GLFW_PRESS;
 
             if (wasUpPressed && !isUpPressed) {
-                // The Up button was just released, change selection
-                currentSelection = (currentSelection + 1) % 2;  // Toggle between resume and quit
+                currentSelection = (currentSelection + 1) % 2;
             }
 
-            // Update the previous Up button state
             wasUpPressed = isUpPressed;
         }
 
@@ -199,7 +190,7 @@ private:
 
         int width, height, nrChannels;
         stbi_set_flip_vertically_on_load(true);
-        unsigned char* data = stbi_load("project/assets/background/backgrounMainMenu.jpg", &width, &height, &nrChannels, 0);
+        unsigned char* data = stbi_load("project/assets/background/pauseScreen.jpg", &width, &height, &nrChannels, 0);
         if (data) {
             GLenum format = (nrChannels == 3) ? GL_RGB : GL_RGBA;
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
