@@ -186,6 +186,7 @@
     <ClCompile Include="lib\physx\include\snippetvehicle2common\SnippetVehicleRender.cpp" />
     <ClCompile Include="project\src\AudioEngine.cpp" />
     <ClCompile Include="project\src\AudioSystem.cpp" />
+    <ClCompile Include="project\src\BackgroundRenderer.cpp" />
     <ClCompile Include="project\src\Camera.cpp" />
     <ClCompile Include="project\src\Controller.cpp" />
     <ClCompile Include="project\src\DynamicCamera.cpp" />
@@ -642,6 +643,7 @@
     <ClInclude Include="lib\physx\include\vehicle\PxVehicleWheels.h" />
     <ClInclude Include="project\include\AudioEngine.h" />
     <ClInclude Include="project\include\AudioSystem.h" />
+    <ClInclude Include="project\include\BackgroundRenderer.h" />
     <ClInclude Include="project\include\Button.h" />
     <ClInclude Include="project\include\Camera.h" />
     <ClInclude Include="project\include\Command.h" />
