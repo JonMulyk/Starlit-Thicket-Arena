@@ -545,9 +545,8 @@ void PhysicsSystem::updateCollisions() {
 		// Iterate backwards for safe removal.
 		for (int i = 0; i < gState.dynamicEntities.size(); i++) {
 			auto& entity = gState.dynamicEntities[i];
-			std::cout << entity.name;
 			if ((entity.name != "aiCar1" && entity.name != "aiCar2" && entity.name != "aiCar3") && entity.name != "playerCar") continue;
-			std::cout << entity.vehicle->name << " colliding with" << colliding1 << " " << entity.name << std::endl;
+			//std::cout << entity.vehicle->name << " colliding with" << colliding1 << " " << entity.name << std::endl;
 			if (entity.vehicle->name == colliding1) {
 				shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 				entity.vehicle->vehicle.destroy();
@@ -564,6 +563,7 @@ void PhysicsSystem::updateCollisions() {
 				for (PxActor* actor : actors) {
 					const char* actorName = actor->getName();
 					if (actorName) {
+						std::cout << actorName << " colliding with1 " << colliding1 << std::endl;
 						if (actorName == colliding1) {
 							gScene->removeActor(*actor);
 						}
@@ -571,6 +571,7 @@ void PhysicsSystem::updateCollisions() {
 				}
 				// Remove all static entity objects
 				for (int g = gState.staticEntities.size() - 1; g >= 0; g--) {
+					std::cout << gState.staticEntities[g].name << " colliding with2 " << colliding1 << std::endl;
 					if (gState.staticEntities[g].name == colliding1) {
 						gState.staticEntities.erase(gState.staticEntities.begin() + g);
 					}
@@ -668,101 +669,103 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 	using namespace physx;
 	using namespace snippetvehicle2;
 
-	// For each dynamic entity, determine whether it is controlled by a player and compute an effective command.
+	// Process each dynamic entity.
 	for (auto& entity : gState.dynamicEntities) {
 		bool isPlayerControlled = false;
 		int playerIndex = -1;
+		std::string name = entity.name;
 
-		// Map vehicle names to player indices based on game mode.
+		// Determine control mapping based on game mode.
 		if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
-			if (entity.name == "playerCar") {
+			// 1-player mode: only "playerCar" is controlled.
+			if (name == "playerCar") {
 				isPlayerControlled = true;
 				playerIndex = 0;
 			}
 		}
-		else if (gState.splitScreenEnabled) { // 2-player mode
-			if (entity.name == "playerCar") {
+		else if (gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
+			// 2-player mode: "playerCar" (player 1) and "aiCar2" (player 2) are controlled.
+			if (name == "playerCar") {
 				isPlayerControlled = true;
 				playerIndex = 0;
 			}
-			else if (entity.name == "aiCar2") {
+			else if (name == "aiCar2") {
 				isPlayerControlled = true;
 				playerIndex = 1;
 			}
 		}
-		else if (gState.splitScreenEnabled4) { // 4-player mode
-			if (entity.name == "playerCar") {
+		else if (gState.splitScreenEnabled4) {
+			// 4-player mode: "playerCar", "aiCar1", "aiCar2", and "aiCar3" are all controlled.
+			if (name == "playerCar") {
 				isPlayerControlled = true;
 				playerIndex = 0;
 			}
-			else if (entity.name == "aiCar1") {
+			else if (name == "aiCar1") {
 				isPlayerControlled = true;
 				playerIndex = 1;
 			}
-			else if (entity.name == "aiCar2") {
+			else if (name == "aiCar2") {
 				isPlayerControlled = true;
 				playerIndex = 2;
 			}
-			else if (entity.name == "aiCar3") {
+			else if (name == "aiCar3") {
 				isPlayerControlled = true;
 				playerIndex = 3;
 			}
 		}
 
-		// Define an effective command for use in simulation.
 		Command effectiveCmd;
 		if (isPlayerControlled) {
-			// Determine the player death flag based on index.
-			bool playerDiedFlag = false;
-			if (playerIndex == 0) playerDiedFlag = playerDied;
-			else if (playerIndex == 1) playerDiedFlag = player2Died;
-			else if (playerIndex == 2) playerDiedFlag = player3Died;
-			else if (playerIndex == 3) playerDiedFlag = player4Died;
+			// Check if this player is “dead” so we issue a full-brake command.
+			bool playerIsDead = false;
+			if (playerIndex == 0)
+				playerIsDead = playerDied;
+			else if (playerIndex == 1)
+				playerIsDead = player2Died;
+			else if (playerIndex == 2)
+				playerIsDead = player3Died;
+			else if (playerIndex == 3)
+				playerIsDead = player4Died;
 
-			if (playerDiedFlag) {
-				// If the player is “dead,” set a full brake command.
+			if (playerIsDead) {
 				effectiveCmd.brake = 1.0f;
 				effectiveCmd.throttle = 0.0f;
 				effectiveCmd.steer = 0.0f;
 				effectiveCmd.fuel = 1;
 				effectiveCmd.boost = false;
 				playerCommands[playerIndex]->fuel = 1;
+				if (playerIndex == 0)
+					keyboardCommand.fuel = 1;
 			}
 			else {
+				// For player 1, combine keyboard and controller input.
 				if (playerIndex == 0) {
-					// Combine keyboard input and the corresponding controller input.
-					effectiveCmd.brake = PxMax(keyboardCommand.brake, playerCommands[playerIndex]->brake);
-					effectiveCmd.throttle = 0.5f + PxMax(keyboardCommand.throttle, playerCommands[playerIndex]->throttle) / 2.f;
-					effectiveCmd.steer = (fabs(keyboardCommand.steer) > fabs(playerCommands[playerIndex]->steer)) ? keyboardCommand.steer : playerCommands[playerIndex]->steer;
-					effectiveCmd.fuel = std::min(keyboardCommand.fuel, playerCommands[playerIndex]->fuel);
-					effectiveCmd.boost = (playerCommands[playerIndex]->boost == false) ? keyboardCommand.boost : playerCommands[playerIndex]->boost;
+					effectiveCmd.brake = PxMax(keyboardCommand.brake, playerCommands[0]->brake);
+					effectiveCmd.throttle = 0.5f + PxMax(keyboardCommand.throttle, playerCommands[0]->throttle) / 2.f;
+					effectiveCmd.steer = (fabs(keyboardCommand.steer) > fabs(playerCommands[0]->steer)) ? keyboardCommand.steer : playerCommands[0]->steer;
+					effectiveCmd.fuel = std::min(keyboardCommand.fuel, playerCommands[0]->fuel);
+					effectiveCmd.boost = (playerCommands[0]->boost == false) ? keyboardCommand.boost : playerCommands[0]->boost;
 				}
 				else {
-					//for other players dont use keyboard
-					effectiveCmd.brake = playerCommands[playerIndex]->brake;
-					effectiveCmd.throttle = 0.5f + playerCommands[playerIndex]->throttle / 2.f;
-					effectiveCmd.steer = playerCommands[playerIndex]->steer;
-					effectiveCmd.fuel = playerCommands[playerIndex]->fuel;
-					effectiveCmd.boost = playerCommands[playerIndex]->boost;
+					// Other players use only their controller input.
+					effectiveCmd = *playerCommands[playerIndex];
 				}
-				
 			}
 			entity.vehicle->setPhysxCommand(effectiveCmd);
 		}
 		else {
-			// For AI-controlled vehicles, call the existing AI update.
+			// For AI-controlled vehicles, update using AI logic.
 			entity.vehicle->update(gState);
 			effectiveCmd = entity.vehicle->command;
 		}
 
-		// Update vehicle motion using the effective command.
+		// Common simulation update for all vehicles.
 		entity.vehicle->forward = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
 		entity.vehicle->velocity = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
 		PxReal forwardSpeed = entity.vehicle->velocity.dot(entity.vehicle->forward);
 		const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
-		PxRigidBody* rigidBody = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody;
 
-		// Boost and brake handling based on effectiveCmd.
+		PxRigidBody* rigidBody = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody;
 		if (effectiveCmd.boost && effectiveCmd.fuel > 0) {
 			rigidBody->setMaxLinearVelocity(100);
 			rigidBody->addForce(entity.vehicle->forward * 20, PxForceMode::eACCELERATION);
@@ -770,26 +773,28 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 		else {
 			PxReal curr_max = rigidBody->getMaxLinearVelocity() - 250 * timestep;
 			curr_max = (curr_max < 10) ? 10 : curr_max;
-			if (effectiveCmd.brake != 0) {
+			if (effectiveCmd.brake != 0)
 				rigidBody->setMaxLinearVelocity(10.f - 4.f * effectiveCmd.brake);
-			}
-			else {
+			else
 				rigidBody->setMaxLinearVelocity(curr_max);
-			}
 		}
 
 		// Update boost timers.
 		if (isPlayerControlled) {
-			// Note: if you need to update for each player separately, ensure you do so for the correct index.
-			playerCommands[playerIndex]->updateBoost(timestep);
-			keyboardCommand.updateBoost(timestep);
+			if (playerIndex == 0) {
+				keyboardCommand.updateBoost(timestep);
+				playerCommands[0]->updateBoost(timestep);
+			}
+			else {
+				playerCommands[playerIndex]->updateBoost(timestep);
+			}
 		}
 		else {
 			entity.vehicle->command.updateBoost(timestep);
 		}
 
-		// Step the vehicle simulation.
-		entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
+		entity.vehicle->vehicle.mComponentSequence.setSubsteps(
+			entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
 		entity.vehicle->vehicle.step(timestep, gVehicleSimulationContext);
 
 		// Update trails.
@@ -800,26 +805,185 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 			float ratio = float(i + 1) / float(steps);
 			PxVec3 travNorm = ratio * entity.vehicle->prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
 			PxVec3 placementLoc = entity.vehicle->prevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
-			addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x), entity.vehicle->name.c_str());
+			addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x),
+				entity.vehicle->name.c_str());
 			entity.vehicle->prevPos += trailStep * travel.getNormalized();
-			if (i + 1 == steps) {
+			if (i + 1 == steps)
 				entity.vehicle->prevDir = travel;
-			}
 		}
 
-		// Update player vehicle state.
-		if (entity.name == "playerCar") {
+		// Update player state (for playerCar).
+		if (name == "playerCar") {
 			gState.playerVehicle.curPos = currPos;
 			gState.playerVehicle.curDir = entity.vehicle->forward.getNormalized();
 		}
 	}
 
 	updateCollisions();
-
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
 	if (gState.tempTrails) updateTrailLifetime(timestep);
 }
+
+
+
+
+//void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const std::vector<Command*>& playerCommands) {
+//	using namespace physx;
+//	using namespace snippetvehicle2;
+//
+//	// For each dynamic entity, determine whether it is controlled by a player and compute an effective command.
+//	for (auto& entity : gState.dynamicEntities) {
+//		bool isPlayerControlled = false;
+//		int playerIndex = -1;
+//
+//		// Map vehicle names to player indices based on game mode.
+//		if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
+//			if (entity.name == "playerCar") {
+//				isPlayerControlled = true;
+//				playerIndex = 0;
+//			}
+//		}
+//		else if (gState.splitScreenEnabled) { // 2-player mode
+//			if (entity.name == "playerCar") {
+//				isPlayerControlled = true;
+//				playerIndex = 0;
+//			}
+//			else if (entity.name == "aiCar2") {
+//				isPlayerControlled = true;
+//				playerIndex = 1;
+//			}
+//		}
+//		else if (gState.splitScreenEnabled4) { // 4-player mode
+//			if (entity.name == "playerCar") {
+//				isPlayerControlled = true;
+//				playerIndex = 0;
+//			}
+//			else if (entity.name == "aiCar1") {
+//				isPlayerControlled = true;
+//				playerIndex = 1;
+//			}
+//			else if (entity.name == "aiCar2") {
+//				isPlayerControlled = true;
+//				playerIndex = 2;
+//			}
+//			else if (entity.name == "aiCar3") {
+//				isPlayerControlled = true;
+//				playerIndex = 3;
+//			}
+//		}
+//
+//		// Define an effective command for use in simulation.
+//		Command effectiveCmd;
+//		if (isPlayerControlled) {
+//			// Determine the player death flag based on index.
+//			bool playerDiedFlag = false;
+//			if (playerIndex == 0) playerDiedFlag = playerDied;
+//			else if (playerIndex == 1) playerDiedFlag = player2Died;
+//			else if (playerIndex == 2) playerDiedFlag = player3Died;
+//			else if (playerIndex == 3) playerDiedFlag = player4Died;
+//
+//			if (playerDiedFlag) {
+//				// If the player is “dead,” set a full brake command.
+//				effectiveCmd.brake = 1.0f;
+//				effectiveCmd.throttle = 0.0f;
+//				effectiveCmd.steer = 0.0f;
+//				effectiveCmd.fuel = 1;
+//				effectiveCmd.boost = false;
+//				playerCommands[playerIndex]->fuel = 1;
+//			}
+//			else {
+//				if (playerIndex == 0) {
+//					// Combine keyboard input and the corresponding controller input.
+//					effectiveCmd.brake = PxMax(keyboardCommand.brake, playerCommands[playerIndex]->brake);
+//					effectiveCmd.throttle = 0.5f + PxMax(keyboardCommand.throttle, playerCommands[playerIndex]->throttle) / 2.f;
+//					effectiveCmd.steer = (fabs(keyboardCommand.steer) > fabs(playerCommands[playerIndex]->steer)) ? keyboardCommand.steer : playerCommands[playerIndex]->steer;
+//					effectiveCmd.fuel = std::min(keyboardCommand.fuel, playerCommands[playerIndex]->fuel);
+//					effectiveCmd.boost = (playerCommands[playerIndex]->boost == false) ? keyboardCommand.boost : playerCommands[playerIndex]->boost;
+//				}
+//				else {
+//					//for other players dont use keyboard
+//					effectiveCmd.brake = playerCommands[playerIndex]->brake;
+//					effectiveCmd.throttle = 0.5f + playerCommands[playerIndex]->throttle / 2.f;
+//					effectiveCmd.steer = playerCommands[playerIndex]->steer;
+//					effectiveCmd.fuel = playerCommands[playerIndex]->fuel;
+//					effectiveCmd.boost = playerCommands[playerIndex]->boost;
+//				}
+//				
+//			}
+//			entity.vehicle->setPhysxCommand(effectiveCmd);
+//		}
+//		else {
+//			// For AI-controlled vehicles, call the existing AI update.
+//			entity.vehicle->update(gState);
+//			effectiveCmd = entity.vehicle->command;
+//		}
+//
+//		// Update vehicle motion using the effective command.
+//		entity.vehicle->forward = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
+//		entity.vehicle->velocity = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
+//		PxReal forwardSpeed = entity.vehicle->velocity.dot(entity.vehicle->forward);
+//		const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
+//		PxRigidBody* rigidBody = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody;
+//
+//		// Boost and brake handling based on effectiveCmd.
+//		if (effectiveCmd.boost && effectiveCmd.fuel > 0) {
+//			rigidBody->setMaxLinearVelocity(100);
+//			rigidBody->addForce(entity.vehicle->forward * 20, PxForceMode::eACCELERATION);
+//		}
+//		else {
+//			PxReal curr_max = rigidBody->getMaxLinearVelocity() - 250 * timestep;
+//			curr_max = (curr_max < 10) ? 10 : curr_max;
+//			if (effectiveCmd.brake != 0) {
+//				rigidBody->setMaxLinearVelocity(10.f - 4.f * effectiveCmd.brake);
+//			}
+//			else {
+//				rigidBody->setMaxLinearVelocity(curr_max);
+//			}
+//		}
+//
+//		// Update boost timers.
+//		if (isPlayerControlled) {
+//			// Note: if you need to update for each player separately, ensure you do so for the correct index.
+//			playerCommands[playerIndex]->updateBoost(timestep);
+//			keyboardCommand.updateBoost(timestep);
+//		}
+//		else {
+//			entity.vehicle->command.updateBoost(timestep);
+//		}
+//
+//		// Step the vehicle simulation.
+//		entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
+//		entity.vehicle->vehicle.step(timestep, gVehicleSimulationContext);
+//
+//		// Update trails.
+//		const PxVec3 currPos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+//		PxVec3 travel = currPos - entity.vehicle->prevPos;
+//		int steps = travel.magnitude() / trailStep;
+//		for (int i = 0; i < steps; i++) {
+//			float ratio = float(i + 1) / float(steps);
+//			PxVec3 travNorm = ratio * entity.vehicle->prevDir.getNormalized() + (1 - ratio) * travel.getNormalized();
+//			PxVec3 placementLoc = entity.vehicle->prevPos - 1.2f * gState.dynamicEntities.at(0).transform->scale.x * travNorm;
+//			addTrail(placementLoc.x, placementLoc.z, -atan2(travNorm.z, travNorm.x), entity.vehicle->name.c_str());
+//			entity.vehicle->prevPos += trailStep * travel.getNormalized();
+//			if (i + 1 == steps) {
+//				entity.vehicle->prevDir = travel;
+//			}
+//		}
+//
+//		// Update player vehicle state.
+//		if (entity.name == "playerCar") {
+//			gState.playerVehicle.curPos = currPos;
+//			gState.playerVehicle.curDir = entity.vehicle->forward.getNormalized();
+//		}
+//	}
+//
+//	updateCollisions();
+//
+//	gScene->simulate(timestep);
+//	gScene->fetchResults(true);
+//	if (gState.tempTrails) updateTrailLifetime(timestep);
+//}
 
 
 bool PhysicsSystem::getExplosion() {
