@@ -545,8 +545,9 @@ void PhysicsSystem::updateCollisions() {
 		// Iterate backwards for safe removal.
 		for (int i = 0; i < gState.dynamicEntities.size(); i++) {
 			auto& entity = gState.dynamicEntities[i];
-			// Skip the player car so that we don't remove it immediately.
-			std::cout << entity.vehicle->name << " colliding with " << colliding1 << "\n";
+			std::cout << entity.name;
+			if ((entity.name != "aiCar1" && entity.name != "aiCar2" && entity.name != "aiCar3") && entity.name != "playerCar") continue;
+			std::cout << entity.vehicle->name << " colliding with" << colliding1 << " " << entity.name << std::endl;
 			if (entity.vehicle->name == colliding1) {
 				shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 				entity.vehicle->vehicle.destroy();
