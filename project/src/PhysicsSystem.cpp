@@ -538,19 +538,19 @@ void PhysicsSystem::updateCollisions() {
 
 		// Mark dead flags based on collisions.
 		if (colliding1 == "playerVehicle") {
-			deadCars[0] = 1;
+			//deadCars[0] = 1;
 			playerDied = true;
 		}
 		if (colliding1 == "vehicle1") {
-			deadCars[1] = 1;
-			player2Died = true;
+			//deadCars[1] = 1;
+		    player2Died = true;
 		}
 		if (colliding1 == "vehicle2") {
-			deadCars[2] = 1;
+			//deadCars[2] = 1;
 			player3Died = true;
 		}
 		if (colliding1 == "vehicle3") {
-			deadCars[3] = 1;
+			//deadCars[3] = 1;
 			player4Died = true;
 		}
 
@@ -593,24 +593,24 @@ void PhysicsSystem::updateCollisions() {
 		}
 
 		// Revised round reset logic based on game mode:
-		if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
-			if (playerDied) {
-				pendingReinit = true;
-				reinitTime = 0.0;
-			}
-		}
-		else if (gState.splitScreenEnabled) { // 2-player mode
-			if (playerDied && player2Died) {
-				pendingReinit = true;
-				reinitTime = 0.0;
-			}
-		}
-		else if (gState.splitScreenEnabled4) { // 4-player mode
-			if ((playerDied + player2Died + player3Died + player4Died) >= 3) {
-				pendingReinit = true;
-				reinitTime = 0.0;
-			}
-		}
+		//if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
+		//	if (playerDied) {
+		//		pendingReinit = true;
+		//		reinitTime = 0.0;
+		//	}
+		//}
+		//else if (gState.splitScreenEnabled) { // 2-player mode
+		//	if (playerDied && player2Died) {
+		//		pendingReinit = true;
+		//		reinitTime = 0.0;
+		//	}
+		//}
+		//else if (gState.splitScreenEnabled4) { // 4-player mode
+		//	if ((playerDied + player2Died + player3Died + player4Died) >= 3) {
+		//		pendingReinit = true;
+		//		reinitTime = 0.0;
+		//	}
+		//}
 
 		gContactReportCallback->readNewCollision();
 	}
