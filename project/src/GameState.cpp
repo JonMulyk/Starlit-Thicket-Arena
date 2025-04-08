@@ -47,6 +47,7 @@ void GameState::sortScores()
 //bool splitScreenEnabled4 = true;
 std::string GameState::physicsToUiNameConversion(std::string physicsName)
 {
+	//std::cout << "physics name: " << physicsName << std::endl;
 	if (splitScreenEnabled == false && splitScreenEnabled4 == false) {
 		if (physicsName == "playerVehicle") { return "player1"; }
 		if (physicsName == "vehicle1") { return "ai1"; }

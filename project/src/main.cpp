@@ -125,8 +125,8 @@ int main() {
         glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
     // Number of players playing for scoreboard 
-    uint16_t numberOfPlayers = 1;
-    uint16_t numberOfAiCars = 3;
+    //uint16_t numberOfPlayers = 1;
+    //uint16_t numberOfAiCars = 3;
 
     // Main Loop
     //timer.advance();
@@ -191,9 +191,10 @@ int main() {
         }
 
         PhysicsSystem* physicsSystem = new PhysicsSystem(gState, models);
-        camera2.setFollowTarget(physicsSystem->getTransformAt(1));
-        camera3.setFollowTarget(physicsSystem->getTransformAt(2));
-        camera4.setFollowTarget(physicsSystem->getTransformAt(3));
+        camera.setFollowTarget(physicsSystem->getTransformAt("playerCar"));
+        camera2.setFollowTarget(physicsSystem->getTransformAt("aiCar1"));
+        camera3.setFollowTarget(physicsSystem->getTransformAt("aiCar2"));
+        camera4.setFollowTarget(physicsSystem->getTransformAt("aiCar3"));
 
         audio.init(physicsSystem, &camera);
 
@@ -203,7 +204,10 @@ int main() {
         physicsSystem->updateTransforms(gState.dynamicEntities);
 
         // reset scoreboard
-        gState.initializeScores(numberOfPlayers, numberOfAiCars);
+        //gState.initializeScores(numberOfPlayers, numberOfAiCars);
+        if (gState.splitScreenEnabled) gState.initializeScores(2, 2);
+		else if (gState.splitScreenEnabled4) gState.initializeScores(4, 0);
+		else gState.initializeScores(1, 3);
         uiManager.addScoreText(gState);
 
 
