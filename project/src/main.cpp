@@ -271,7 +271,7 @@ int main() {
             if (gState.splitScreenEnabled) {
                 //std::cout << "here\n";
                 if (physicsSystem->deadCars[0] == 0) camera.setFollowTarget(physicsSystem->getTransformAt("playerCar"));
-                if (physicsSystem->deadCars[1] == 0) camera2.setFollowTarget(physicsSystem->getTransformAt("aiCar2"));
+                if (physicsSystem->deadCars[1] == 0) camera2.setFollowTarget(physicsSystem->getTransformAt("aiCar1"));
                 // Left half
                 glViewport(0, window.getHeight() / 2, window.getWidth(), window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState);
