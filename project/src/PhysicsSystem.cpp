@@ -536,7 +536,6 @@ void PhysicsSystem::updateCollisions() {
 		std::string colliding1 = collisionPair.first->getName();
 		std::string colliding2 = collisionPair.second->getName();
 
-		// Mark dead flags based on collisions.
 		if (colliding1 == "playerVehicle") {
 			deadCars[0] = 1;
 			playerDied = true;
@@ -554,36 +553,29 @@ void PhysicsSystem::updateCollisions() {
 			player4Died = true;
 		}
 
-		// Iterate backwards for safe removal.
 		for (int i = 0; i < gState.dynamicEntities.size(); i++) {
 			auto& entity = gState.dynamicEntities[i];
 			if ((entity.name != "aiCar1" && entity.name != "aiCar2" && entity.name != "aiCar3") && entity.name != "playerCar") continue;
-			//std::cout << entity.vehicle->name << " colliding with" << colliding1 << " " << entity.name << std::endl;
 			if (entity.vehicle->name == colliding1) {
 				shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 				entity.vehicle->vehicle.destroy();
 
-				// remove Dynamic Object
 				rigidDynamicList.erase(rigidDynamicList.begin() + i);
 				transformList.erase(transformList.begin() + i);
 				gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
 
-				// Remove all static physics objects
 				PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC);
 				std::vector<PxActor*> actors(gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC));
 				gScene->getActors(PxActorTypeFlag::eRIGID_STATIC, actors.data(), actorCount);
 				for (PxActor* actor : actors) {
 					const char* actorName = actor->getName();
 					if (actorName) {
-						//std::cout << actorName << " colliding with1 " << colliding1 << std::endl;
 						if (actorName == colliding1) {
 							gScene->removeActor(*actor);
 						}
 					}
 				}
-				// Remove all static entity objects
 				for (int g = gState.staticEntities.size() - 1; g >= 0; g--) {
-					//std::cout << gState.staticEntities[g].name << " colliding with2 " << colliding1 << std::endl;
 					if (gState.staticEntities[g].name == colliding1) {
 						gState.staticEntities.erase(gState.staticEntities.begin() + g);
 					}
@@ -605,7 +597,7 @@ void PhysicsSystem::updateCollisions() {
 			}
 		}
 		else if (gState.splitScreenEnabled4) { // 4-player mode
-			if ((playerDied + player2Died + player3Died + player4Died) >= 3) {
+			if ((playerDied + player2Died + player3Died + player4Died) >= 3) { //if 3 people have died then reset
 				pendingReinit = true;
 				reinitTime = 0.0;
 			}
@@ -675,22 +667,20 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 	using namespace physx;
 	using namespace snippetvehicle2;
 
-	// Process each dynamic entity.
 	for (auto& entity : gState.dynamicEntities) {
 		bool isPlayerControlled = false;
 		int playerIndex = -1;
 		std::string name = entity.name;
 
-		// Determine control mapping based on game mode.
 		if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
-			// 1-player mode: only "playerCar" is controlled.
+			// 1-player mode:
 			if (name == "playerCar") {
 				isPlayerControlled = true;
 				playerIndex = 0;
 			}
 		}
 		else if (gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
-			// 2-player mode: "playerCar" (player 1) and "aiCar2" (player 2) are controlled.
+			// 2-player mode
 			if (name == "playerCar") {
 				isPlayerControlled = true;
 				playerIndex = 0;
@@ -701,7 +691,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 			}
 		}
 		else if (gState.splitScreenEnabled4) {
-			// 4-player mode: "playerCar", "aiCar1", "aiCar2", and "aiCar3" are all controlled.
+			// 4-player mode:
 			if (name == "playerCar") {
 				isPlayerControlled = true;
 				playerIndex = 0;
@@ -722,7 +712,6 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 
 		if (isPlayerControlled) {
 			Command cmd;
-			// Check if this player is “dead” so we issue a full-brake command.
 			bool playerIsDead = false;
 			if (playerIndex == 0)
 				playerIsDead = playerDied;
@@ -744,7 +733,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 				entity.vehicle->setPhysxCommand(cmd);
 			}
 			else {
-				// For player 1, combine keyboard and controller input.
+				//keyboard only works for player 1
 				if (playerIndex == 0) {
 					cmd.brake = PxMax(keyboardCommand.brake, playerCommands[0]->brake);
 					cmd.throttle = 0.5f + PxMax(keyboardCommand.throttle, playerCommands[0]->throttle) / 2.f;
@@ -754,7 +743,6 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 					entity.vehicle->setPhysxCommand(cmd);
 				}
 				else {
-					// Other players use only their controller input.
 					cmd.brake = playerCommands[playerIndex]->brake;
 					cmd.throttle = 0.5f + playerCommands[playerIndex]->throttle / 2.f;
 					cmd.steer = playerCommands[playerIndex]->steer;
@@ -788,7 +776,6 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 					rigidBody->setMaxLinearVelocity(curr_max);
 				}
 			}
-			//std::cout << entity.vehicle->name << std::endl;
 			// update fuel
 			if (playerIndex == 0) gState.playerVehicle.fuel = cmd.fuel;
 			if (playerIndex == 1) gState.playerVehicle2.fuel = cmd.fuel;
@@ -838,7 +825,6 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 				gState.playerVehicle4.curDir = entity.vehicle->forward.getNormalized();
 			}
 		}
-		//std::cout <<"Bool: " << isPlayerControlled << " vehicle: " << entity.name << " entity: " << entity.vehicle->name << std::endl;
 		if (!isPlayerControlled && (entity.name == "aiCar1" || entity.name == "aiCar2" || entity.name == "aiCar3")) {
 			std::cout << "here for vehicle: " << entity.name << " Entity name: " << entity.vehicle->name << std::endl;
 			entity.vehicle->update(gState);
