@@ -329,7 +329,7 @@ int main() {
             }
             else {
                 // update dynamic UI text
-                uiManager.updateUIText(timer, roundDuration, gState);
+                uiManager.updateUIText(timer, roundDuration, gState, 0);
 
                 // render everything except minimap
                 renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
