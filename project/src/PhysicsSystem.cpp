@@ -537,10 +537,22 @@ void PhysicsSystem::updateCollisions() {
 		std::string colliding2 = collisionPair.second->getName();
 
 		// Mark dead flags based on collisions.
-		if (colliding1 == "playerVehicle" || colliding2 == "playerVehicle") deadCars[0] = 1;
-		if (colliding1 == "vehicle1" || colliding2 == "vehicle1") deadCars[1] = 1;
-		if (colliding1 == "vehicle2" || colliding2 == "vehicle2") deadCars[2] = 1;
-		if (colliding1 == "vehicle3" || colliding2 == "vehicle3") deadCars[3] = 1;
+		if (colliding1 == "playerVehicle") {
+			deadCars[0] = 1;
+			playerDied = true;
+		}
+		if (colliding1 == "vehicle1") {
+			deadCars[1] = 1;
+			player2Died = true;
+		}
+		if (colliding1 == "vehicle2") {
+			deadCars[2] = 1;
+			player3Died = true;
+		}
+		if (colliding1 == "vehicle3") {
+			deadCars[3] = 1;
+			player4Died = true;
+		}
 
 		// Iterate backwards for safe removal.
 		for (int i = 0; i < gState.dynamicEntities.size(); i++) {
@@ -579,11 +591,6 @@ void PhysicsSystem::updateCollisions() {
 				gState.addScoreToVehicle(colliding2, 1);
 			}
 		}
-
-		if (colliding1 == "playerVehicle" || colliding2 == "playerVehicle") playerDied = true;
-		if (colliding1 == "vehicle1" || colliding2 == "vehicle1") player2Died = true;
-		if (colliding1 == "vehicle2" || colliding2 == "vehicle2") player3Died = true;
-		if (colliding1 == "vehicle3" || colliding2 == "vehicle3") player4Died = true;
 
 		// Revised round reset logic based on game mode:
 		if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
