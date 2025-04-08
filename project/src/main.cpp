@@ -274,7 +274,7 @@ int main() {
                 if (physicsSystem->deadCars[1] == 0) camera2.setFollowTarget(physicsSystem->getTransformAt("aiCar1"));
                 // Left half
                 glViewport(0, window.getHeight() / 2, window.getWidth(), window.getHeight() / 2);
-                uiManager.updateUIText(timer, roundDuration, gState);
+                uiManager.updateUIText(timer, roundDuration, gState, 0);
                 renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera1 (a Camera instance)
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera);
@@ -283,7 +283,7 @@ int main() {
                 // Right half
                 //print camera2 position
                 glViewport(0, 0, window.getWidth(), window.getHeight() / 2);
-                uiManager.updateUIText(timer, roundDuration, gState);
+                uiManager.updateUIText(timer, roundDuration, gState, 1);
                 renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera2 (a Camera instance)
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera);
@@ -297,7 +297,7 @@ int main() {
                 // split the screen into 4 separate quadrants
                 // top left
                 glViewport(0, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
-                uiManager.updateUIText(timer, roundDuration, gState);
+                uiManager.updateUIText(timer, roundDuration, gState, 0);
                 renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera);
@@ -305,7 +305,7 @@ int main() {
 
                 // top right
                 glViewport(window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
-                uiManager.updateUIText(timer, roundDuration, gState);
+                uiManager.updateUIText(timer, roundDuration, gState, 1);
                 renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera);
@@ -313,7 +313,7 @@ int main() {
 
                 // bottom left
                 glViewport(0, 0, window.getWidth() / 2, window.getHeight() / 2);
-                uiManager.updateUIText(timer, roundDuration, gState);
+                uiManager.updateUIText(timer, roundDuration, gState, 2);
                 renderer3.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera);
@@ -321,7 +321,7 @@ int main() {
 
                 // bottom right
                 glViewport(window.getWidth() / 2, 0, window.getWidth() / 2, window.getHeight() / 2);
-                uiManager.updateUIText(timer, roundDuration, gState);
+                uiManager.updateUIText(timer, roundDuration, gState, 3);
                 renderer4.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera);
