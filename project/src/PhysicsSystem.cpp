@@ -520,7 +520,9 @@ void PhysicsSystem::updateCollisions() {
 
 		for (int i = 0; i < gState.dynamicEntities.size(); i++) {
 			auto& entity = gState.dynamicEntities[i];
-			if (entity.name != "aiCar" && entity.name != "playerCar") continue;
+			if (entity.name != "aiCar" && entity.name != "playerCar") {
+				continue;
+			}
 			if (entity.name == "aiCar") {
 				aiCounter++;
 			}
@@ -530,29 +532,12 @@ void PhysicsSystem::updateCollisions() {
 				shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 				entity.vehicle->vehicle.destroy();
 
-				// remove Dynamic Object
-				rigidDynamicList.erase(rigidDynamicList.begin() + i);
-				transformList.erase(transformList.begin() + i);
-				gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
+				removeDyanmicObject(i);
 
-				// Remove all static physics objects
-				PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC);
-				std::vector<PxActor*> actors(gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC));
-				gScene->getActors(PxActorTypeFlag::eRIGID_STATIC, actors.data(), actorCount);
-				for (PxActor* actor : actors) {
-					const char* actorName = actor->getName();
-					if (actorName) {
-						if (actorName == colliding1) {
-							gScene->removeActor(*actor);
-						}
-					}
-				}
-				// Remove all static entity objects
-				for (int g = gState.staticEntities.size() - 1; g >= 0; g--) {
-					if (gState.staticEntities[g].name == colliding1) {
-						gState.staticEntities.erase(gState.staticEntities.begin() + g);
-					}
-				}
+				removeStaticPhysicsObjects(colliding1);
+
+				removeStaticEntityObjects(colliding1);
+
 				gState.addScoreToVehicle(colliding2, 1);
 			}
 		}
@@ -573,6 +558,39 @@ void PhysicsSystem::updateCollisions() {
 
 
 		gContactReportCallback->readNewCollision();
+	}
+}
+
+void PhysicsSystem::removeDyanmicObject(uint32_t index)
+{
+	rigidDynamicList.erase(rigidDynamicList.begin() + index);
+	transformList.erase(transformList.begin() + index);
+	gState.dynamicEntities.erase(gState.dynamicEntities.begin() + index);
+}
+
+void PhysicsSystem::removeStaticPhysicsObjects(std::string colliding1)
+{
+	// Remove all static physics objects
+	PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC);
+	std::vector<PxActor*> actors(gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC));
+	gScene->getActors(PxActorTypeFlag::eRIGID_STATIC, actors.data(), actorCount);
+	for (PxActor* actor : actors) {
+		const char* actorName = actor->getName();
+		if (actorName) {
+			if (actorName == colliding1) {
+				gScene->removeActor(*actor);
+			}
+		}
+	}
+}
+
+void PhysicsSystem::removeStaticEntityObjects(std::string colliding1)
+{
+	// Remove all static entity objects
+	for (int g = gState.staticEntities.size() - 1; g >= 0; g--) {
+		if (gState.staticEntities[g].name == colliding1) {
+			gState.staticEntities.erase(gState.staticEntities.begin() + g);
+		}
 	}
 }
 

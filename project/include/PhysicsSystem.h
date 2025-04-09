@@ -156,6 +156,10 @@ public:
 
 	// updates collsions
 	void updateCollisions();
+	void removeDyanmicObject(uint32_t index);
+	void removeStaticPhysicsObjects(std::string colliding1);
+	void removeStaticEntityObjects(std::string colliding1);
+
 
 	// resets map
 	void reintialize();
