@@ -155,21 +155,26 @@ private:
     void initializeUIText() {
         glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
-        float buttonX = 0.5f * windowWidth;
-        float buttonY = 0.5f * windowHeight;
+        //float buttonX = 0.5f * windowWidth;
+        //float buttonY = 0.5f * windowHeight;
 
-        /*
-        hard cocded text, text and button is initilized different and trying to find the right conversion npm, is hard to calculate
-        probably more milsetone 5 stuff...
+        //horizontal button conversion, can be modifeid to be different
+        //float buttonY = 0.85f * windowHeight;
+        float buttonHeight = 0.1 * windowHeight;
+        float buttonWidth = 0.2f * windowWidth;
+        float spacing = 0.05f * windowWidth;
+        float totalWidth = 4 * buttonWidth + 3 * spacing;
+        float shiftRight = 0.1f * windowWidth;
+        float startX = (windowWidth - totalWidth) / 2 + shiftRight; //cursed 2.0
+        float baseScale = std::min(windowWidth, windowHeight) * 0.00085f;
+        float tempTrailsScale = std::min(windowWidth, windowHeight) * 0.00065f; //needs to be smaller
 
-        essentially, for the buttons the middle of the screen os the (0,0) -> (1,1) is like the top right coordinates, however for the text the top
-        left is like the (0,0) -> (windowWidth, windowHeight) is the bottom left?
-        */
-        uiText.push_back(Text("Level 1", buttonX - 500, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Level 2", buttonX - 140, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Level 3", buttonX + 220, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Back", buttonX + 600, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-		uiText.push_back(Text("Temp Trails", buttonX - 8.0f, buttonY - 60, 1.0f, glm::vec3(1, 1, 1)));
+
+        uiText.push_back(Text("Stage 1", startX, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("Stage 2", startX + buttonWidth + spacing, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("Stage 3", startX + 2 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("Back", startX + 3 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+		uiText.push_back(Text("Y - Temp Trails", (0.5f) * windowWidth, 0.31f * windowHeight, tempTrailsScale, glm::vec3(1, 1, 1)));
 
     }
 
@@ -186,7 +191,7 @@ private:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         int width, height, nrChannels;
         stbi_set_flip_vertically_on_load(true);
-        unsigned char* data = stbi_load("project/assets/background/backgrounMainMenu.jpg", &width, &height, &nrChannels, 0);
+        unsigned char* data = stbi_load("project/assets/background/levelSelect.jpg", &width, &height, &nrChannels, 0);
         if (data) {
             GLenum format = (nrChannels == 3) ? GL_RGB : GL_RGBA;
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -239,6 +244,7 @@ private:
         static bool keyUpReleased = false;  
         static bool keyDownReleased = false;  
         static bool keyEnterReleased = false;  
+        static bool trailsButtonClicked = false;
 
  
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_LEFT) == GLFW_RELEASE && keyUpReleased) {
@@ -272,6 +278,16 @@ private:
         }
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
             keyEnterReleased = true;   
+        }
+
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_Y) == GLFW_PRESS) {
+            if (!trailsButtonClicked) {  // only toggle on first press
+                gameState.tempTrails = !gameState.tempTrails;
+                trailsButtonClicked = true;
+            }
+        }
+        else {
+            trailsButtonClicked = false;
         }
     }
 

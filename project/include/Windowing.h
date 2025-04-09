@@ -8,10 +8,13 @@
 class Windowing {
 private:
     GLFWwindow* m_window;
+    GLFWmonitor* m_monitor;
+    const GLFWvidmode* m_mode;
+    bool m_fullscreen;
 
 public:
     // Constructor and destructor
-    Windowing(int width, int height, std::string name = "Starlit Thicket Arena");
+    Windowing(int width, int height, std::string name = "Starlit Thicket Arena", bool fullscreen = true);
     ~Windowing();
 
     // Clear the window
@@ -32,5 +35,7 @@ public:
     // Callback for when the framebuffer size changes.
     static void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
     GLFWwindow* getGLFWwindow() const { return m_window; }
+
+    void toggleFullscreen();
 };
 

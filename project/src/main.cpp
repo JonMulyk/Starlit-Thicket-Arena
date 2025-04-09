@@ -38,8 +38,8 @@ int main() {
     DynamicCamera camera(gState, timer);
     //Camera camera(gState, timer, true, glm::vec3(0.0f, 250.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), -90.0f, -90.0f);
 
-    Windowing window(1200, 1000);
-
+    //Windowing window(1200, 1000, "", false);
+    Windowing window(1920, 1080);
     Input input(window, camera, timer, command);
     Controller controller1(1, camera, controllerCommand);
     if (!controller1.isConnected()) {
@@ -51,7 +51,7 @@ int main() {
 
     Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
-    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf");
+    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf", window.getWidth(), window.getHeight());
     Texture container("project/assets/textures/container.jpg", true);
     Texture gold("project/assets/textures/gold.jpg", true);
     Texture neon("project/assets/textures/neon.jpg", true);

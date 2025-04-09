@@ -66,7 +66,9 @@ std::map<char, Character> TTF::createFontLookup(const char* font) {
     return LUT;
 }
 
-TTF::TTF(const char* vert_path, const char* frag_path, const char* font_path) : m_shader(vert_path, frag_path) {
+TTF::TTF(const char* vert_path, const char* frag_path, const char* font_path, int windowWidth, int windowHeight) 
+    : m_shader(vert_path, frag_path) 
+{
     fontLUT = createFontLookup(font_path);
 
     // Initialize the vertex array and buffer
@@ -85,12 +87,38 @@ TTF::TTF(const char* vert_path, const char* frag_path, const char* font_path) : 
     glBindVertexArray(0);
 
     // Cast the text projection matrix
-    glm::mat4 textProjection = glm::ortho(0.0f, static_cast<float>(1440), 0.0f, static_cast<float>(1440));
+    glm::mat4 textProjection = glm::ortho(0.0f, static_cast<float>(windowWidth), 0.0f, static_cast<float>(windowHeight));
     m_shader.use();
     glUniformMatrix4fv(glGetUniformLocation(m_shader, "projection"), 1, GL_FALSE, glm::value_ptr(textProjection));
 }
 
-void TTF::render(std::string text, float x, float y, float scale, glm::vec3 color) {
+float TTF::getInitalXDrawPosition(std::string text, float x, TEXT_POSITION textPosition, float scale)
+{
+    if (textPosition != TEXT_POSITION::LEFT)
+    {
+        float textWidth = 0.0f;
+		// iterate through all characters
+        for (char c : text)
+        {
+            Character ch = fontLUT[c];
+            textWidth += (ch.advance >> 6) * scale;
+        }
+
+        if (textPosition == TEXT_POSITION::CENTER)
+        {
+            x -= textWidth / 2.0f;
+        }
+        else
+        {
+            x -= textWidth;
+        }
+    }
+
+    return x;
+}
+
+void TTF::render(std::string text, float x, float y, float scale, glm::vec3 color, TEXT_POSITION textPosition) 
+{
     // activate corresponding render state	
     m_shader.use();
 
@@ -103,7 +131,8 @@ void TTF::render(std::string text, float x, float y, float scale, glm::vec3 colo
 
     glBindVertexArray(VAO);
 
-    // iterate through all characters
+    x = getInitalXDrawPosition(text, x, textPosition, scale);
+
     std::string::const_iterator c;
     for (c = text.begin(); c != text.end(); c++)
     {

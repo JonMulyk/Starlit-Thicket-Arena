@@ -86,6 +86,10 @@ private:
     AudioSystem audio;
     bool audioInitialized;
 
+    const std::string startText = "Start";
+    const std::string controlsText = "Controls";
+    const std::string exitText = "Exit";
+
     void renderMenu() {
         glDisable(GL_DEPTH_TEST);
         drawBackground();
@@ -124,12 +128,12 @@ private:
     void initializeUIText() {
         glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
-        float buttonX = 0.5f * windowWidth;
-        float buttonY = 0.5f * windowHeight;
 
-        Text Start = Text("Start", buttonX + 60, buttonY + 300.0f, 1.0f, glm::vec3(1, 1, 1));
-        Text Controls = Text("Controls", buttonX + 30.0f, buttonY + 160, 1.0f, glm::vec3(1, 1, 1));
-        Text Exit = Text("Exit", buttonX + 70.0f, buttonY + 10.0f, 1.0f, glm::vec3(1, 1, 1));
+        float baseScale = std::min(windowWidth, windowHeight) * 0.00085f;
+
+        Text Start = Text(startText, windowWidth * 0.5f, windowHeight * 0.55f, baseScale, glm::vec3(1, 1, 1));
+        Text Controls = Text(controlsText, windowWidth * 0.5f, windowHeight * 0.45f, baseScale, glm::vec3(1, 1, 1));
+        Text Exit = Text(exitText, windowWidth * 0.5f, windowHeight * 0.35, baseScale, glm::vec3(1, 1, 1));
 
         uiText.push_back(Start);
         uiText.push_back(Controls);

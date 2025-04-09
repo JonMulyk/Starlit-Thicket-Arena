@@ -49,6 +49,6 @@ class GameState {
 		void initializeScores(uint16_t numberOfPlayers, uint16_t numberOfAiCars);
 
 		bool resetAudio = false;
-		bool tempTrails = false;
+		bool tempTrails = true;
 };
 
