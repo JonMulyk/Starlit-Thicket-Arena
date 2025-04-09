@@ -186,6 +186,7 @@
     <ClCompile Include="lib\physx\include\snippetvehicle2common\SnippetVehicleRender.cpp" />
     <ClCompile Include="project\src\AudioEngine.cpp" />
     <ClCompile Include="project\src\AudioSystem.cpp" />
+    <ClCompile Include="project\src\BackgroundRenderer.cpp" />
     <ClCompile Include="project\src\Camera.cpp" />
     <ClCompile Include="project\src\Controller.cpp" />
     <ClCompile Include="project\src\DynamicCamera.cpp" />
@@ -197,8 +198,10 @@
     <ClCompile Include="project\src\Input.cpp" />
     <ClCompile Include="project\src\LevelSelect.cpp" />
     <ClCompile Include="project\src\main.cpp" />
+    <ClCompile Include="project\src\MainMenu.cpp" />
     <ClCompile Include="project\src\Mesh.cpp" />
     <ClCompile Include="project\src\Model.cpp" />
+    <ClCompile Include="project\src\PauseMenu.cpp" />
     <ClCompile Include="project\src\PhysicsSystem.cpp" />
     <ClCompile Include="project\src\Shader.cpp" />
     <ClCompile Include="project\src\Skybox.cpp" />
@@ -642,6 +645,7 @@
     <ClInclude Include="lib\physx\include\vehicle\PxVehicleWheels.h" />
     <ClInclude Include="project\include\AudioEngine.h" />
     <ClInclude Include="project\include\AudioSystem.h" />
+    <ClInclude Include="project\include\BackgroundRenderer.h" />
     <ClInclude Include="project\include\Button.h" />
     <ClInclude Include="project\include\Camera.h" />
     <ClInclude Include="project\include\Command.h" />
