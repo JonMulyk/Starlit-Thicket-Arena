@@ -277,7 +277,7 @@ int main() {
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
                 renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera1 (a Camera instance)
                 glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
+                renderer.renderMinimap(minimapShader, minimapCamera, 0);
                 glEnable(GL_DEPTH_TEST);
 
                 // Right half
@@ -286,7 +286,7 @@ int main() {
                 uiManager.updateUIText(timer, roundDuration, gState, 1);
                 renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera2 (a Camera instance)
                 glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
+                renderer.renderMinimap(minimapShader, minimapCamera, 1);
                 glEnable(GL_DEPTH_TEST);
             }
             else if (gState.splitScreenEnabled4) {
@@ -300,7 +300,7 @@ int main() {
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
                 renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
                 glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
+                renderer.renderMinimap(minimapShader, minimapCamera, 0);
                 glEnable(GL_DEPTH_TEST);
 
                 // top right
@@ -308,7 +308,7 @@ int main() {
                 uiManager.updateUIText(timer, roundDuration, gState, 1);
                 renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
                 glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
+                renderer.renderMinimap(minimapShader, minimapCamera, 1);
                 glEnable(GL_DEPTH_TEST);
 
                 // bottom left
@@ -316,7 +316,7 @@ int main() {
                 uiManager.updateUIText(timer, roundDuration, gState, 2);
                 renderer3.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
                 glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
+                renderer.renderMinimap(minimapShader, minimapCamera, 2);
                 glEnable(GL_DEPTH_TEST);
 
                 // bottom right
@@ -324,7 +324,7 @@ int main() {
                 uiManager.updateUIText(timer, roundDuration, gState, 3);
                 renderer4.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
                 glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
+                renderer.renderMinimap(minimapShader, minimapCamera, 3);
                 glEnable(GL_DEPTH_TEST);
             }
             else {
@@ -335,7 +335,7 @@ int main() {
                 renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
                 // render minimap
                 glDisable(GL_DEPTH_TEST);
-                renderer.renderMinimap(minimapShader, minimapCamera);
+                renderer.renderMinimap(minimapShader, minimapCamera, 0);
                 glEnable(GL_DEPTH_TEST);
             }
 

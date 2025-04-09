@@ -826,7 +826,6 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 			}
 		}
 		if (!isPlayerControlled && (entity.name == "aiCar1" || entity.name == "aiCar2" || entity.name == "aiCar3")) {
-			std::cout << "here for vehicle: " << entity.name << " Entity name: " << entity.vehicle->name << std::endl;
 			entity.vehicle->update(gState);
 
 			// Step the vehicle
