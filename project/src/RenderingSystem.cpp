@@ -185,18 +185,15 @@ void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam, i
     minimapShader.use();
     glViewport(minimapX, minimapY, minimapWidth, minimapHeight);
 
-    // --- Draw white background behind the minimap ---
-    // Enable the scissor test to restrict the clearing to our minimap region.
+    //background
     glEnable(GL_SCISSOR_TEST);
-    glScissor(minimapX, minimapY, minimapWidth, minimapHeight);
-    // Save the current clear color.
+	if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) glScissor(minimapX+106, minimapY, minimapWidth / 2 + 30, minimapHeight);
+	if (gState.splitScreenEnabled) glScissor(minimapX+172, minimapY, minimapWidth / 4 + 15, minimapHeight);
+    if (gState.splitScreenEnabled4) glScissor(minimapX+53, minimapY, minimapWidth / 2 + 15, minimapHeight);
     GLfloat oldClearColor[4];
     glGetFloatv(GL_COLOR_CLEAR_VALUE, oldClearColor);
-    // Set the clear color to white and clear both the color and depth buffers
-    // in the defined minimap area.
-    glClearColor(0.9f, 0.9f, 0.9f, 0.5f);
+    glClearColor(0.9f, 0.9f, 0.9f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // Restore the old clear color and disable scissor testing.
     glClearColor(oldClearColor[0], oldClearColor[1], oldClearColor[2], oldClearColor[3]);
     glDisable(GL_SCISSOR_TEST);
     // -----------------------------------------------------
@@ -205,17 +202,14 @@ void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam, i
     float minimapAspect = static_cast<float>(minimapWidth) / static_cast<float>(minimapHeight);
     float scale = 100.0f;
     glm::mat4 projection = glm::ortho(
-        -scale * minimapAspect, scale * minimapAspect,   // left, right
-        -scale, scale,                                   // bottom, top
-        -1000.0f, 1000.0f                                // near, far
+        -scale * minimapAspect, scale * minimapAspect,
+        -scale, scale,
+        -1000.0f, 1000.0f
     );
-
     minimapShader.setMat4("projection", projection);
 
     // Get the original view matrix and then rotate it.
     glm::mat4 view = minimapCam.GetViewMatrix();
-    // Compute the rotation angle in radians.
-    // (Note: the angle adjustments below follow your custom logic.)
     float angle = glm::radians(90.0f * player);
     if (player == 1) angle = glm::radians(180.f);
     if (player == 3) angle = glm::radians(0.f);
@@ -232,11 +226,9 @@ void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam, i
     for (auto it = shaderBatches.begin(); it != shaderBatches.end(); ++it) {
         Shader* shaderPtr = it->first;
         shaderPtr->use();
-        // Override with our custom projection and rotated view.
         shaderPtr->setMat4("projection", projection);
         shaderPtr->setMat4("view", view);
         setShaderUniforms(shaderPtr);
-
         for (const Entity* entity : it->second) {
             glm::mat4 model = createModelWithTransformations(entity, true);
             shaderPtr->setMat4("model", model);
@@ -244,6 +236,5 @@ void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam, i
         }
     }
 
-    // Reset the viewport back to the main view.
     glViewport(vpX, vpY, vpWidth, vpHeight);
 }

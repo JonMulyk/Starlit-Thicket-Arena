@@ -106,7 +106,7 @@ int main() {
     RenderingSystem renderer2(shader, camera2, window, arial, gState);
     RenderingSystem renderer3(shader, camera3, window, arial, gState);
     RenderingSystem renderer4(shader, camera4, window, arial, gState);
-    const double roundDuration = 200;
+    const double roundDuration = 5;
 
     bool isAudioInitialized = false;
 
