@@ -542,20 +542,7 @@ void PhysicsSystem::updateCollisions() {
 			}
 		}
 
-		if (colliding1 == "playerVehicle") {
-			pendingReinit = true;
-			reinitTime = 0.0;
-			playerDied = true;
-			printf("Reset because of Player");
-		}
-
-		if (aiCounter <= 1) {
-			printf("Reset because of AI\n");
-			//printf("%f\n", aiCounter);
-			;                pendingReinit = true;
-			reinitTime = 0.0;
-		}
-
+		checkForResetCollision(colliding1, aiCounter);
 
 		gContactReportCallback->readNewCollision();
 	}
@@ -592,6 +579,23 @@ void PhysicsSystem::removeStaticEntityObjects(std::string colliding1)
 			gState.staticEntities.erase(gState.staticEntities.begin() + g);
 		}
 	}
+}
+
+void PhysicsSystem::checkForResetCollision(std::string colliding1, int aiCounter)
+{
+		if (colliding1 == "playerVehicle") {
+			pendingReinit = true;
+			reinitTime = 0.0;
+			playerDied = true;
+			printf("Reset because of Player");
+		}
+
+		if (aiCounter <= 1) {
+			printf("Reset because of AI\n");
+			//printf("%f\n", aiCounter);
+			;                pendingReinit = true;
+			reinitTime = 0.0;
+		}
 }
 
 void PhysicsSystem::reintialize() {

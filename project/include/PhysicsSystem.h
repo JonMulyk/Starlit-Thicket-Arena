@@ -159,6 +159,7 @@ public:
 	void removeDyanmicObject(uint32_t index);
 	void removeStaticPhysicsObjects(std::string colliding1);
 	void removeStaticEntityObjects(std::string colliding1);
+	void checkForResetCollision(std::string colliding1, int aiCounter);
 
 
 	// resets map
