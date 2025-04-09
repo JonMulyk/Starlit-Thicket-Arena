@@ -141,6 +141,9 @@
     <ClCompile Include="project\src\DynamicCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="project\src\TransparentBoxRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="project\assets\shaders\FragShader.frag" />
@@ -160,6 +163,8 @@
     <None Include="project\assets\shaders\minimapShader.frag" />
     <None Include="project\assets\shaders\transparentBoxShader.vert" />
     <None Include="project\assets\shaders\transparentBoxShader.frag" />
+    <None Include="project\assets\shaders\overlayShader.vert" />
+    <None Include="project\assets\shaders\overlayShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="project\include\Windowing.h">
@@ -1528,6 +1533,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\ControlMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\TransparentBoxRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\PauseMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

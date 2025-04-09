@@ -161,6 +161,8 @@
     <None Include="project\assets\shaders\mainMenuShader.vert" />
     <None Include="project\assets\shaders\minimapShader.frag" />
     <None Include="project\assets\shaders\minimapShader.vert" />
+    <None Include="project\assets\shaders\overlayShader.frag" />
+    <None Include="project\assets\shaders\overlayShader.vert" />
     <None Include="project\assets\shaders\skyboxShader.frag" />
     <None Include="project\assets\shaders\skyboxShader.vert" />
     <None Include="project\assets\shaders\text.frag" />
@@ -206,6 +208,7 @@
     <ClCompile Include="project\src\TimeSeconds.cpp" />
     <ClCompile Include="project\src\tiny_obj_loader.cc" />
     <ClCompile Include="project\src\Transform.cpp" />
+    <ClCompile Include="project\src\TransparentBoxRenderer.cpp" />
     <ClCompile Include="project\src\UIManager.cpp" />
     <ClCompile Include="project\src\Vehicle.cpp" />
     <ClCompile Include="project\src\Windowing.cpp" />
@@ -646,6 +649,8 @@
     <ClInclude Include="project\include\GameMap.h" />
     <ClInclude Include="project\include\LevelSelect.h" />
     <ClInclude Include="project\include\MainMenu.h" />
+    <ClInclude Include="project\include\PauseMenu.h" />
+    <ClInclude Include="project\include\TransparentBoxRenderer.h" />
     <ClInclude Include="project\include\Vehicle.h" />
     <ClInclude Include="project\include\Controller.h" />
     <ClInclude Include="project\include\Entity.h" />

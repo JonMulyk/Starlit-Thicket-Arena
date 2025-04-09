@@ -33,4 +33,5 @@ public:
     static void cursorPosCallback(GLFWwindow* window, double x_position, double y_position);
     static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     static void scrollCallback(GLFWwindow* window, double x_offset, double y_offset);
+    bool isKeyReleased(int key);
 };

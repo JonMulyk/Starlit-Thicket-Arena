@@ -26,6 +26,8 @@
 #include "AudioSystem.h"
 #include "MainMenu.h"
 #include "LevelSelect.h"
+#include "TransparentBoxRenderer.h"
+#include <PauseMenu.h>
 
 
 
@@ -76,6 +78,7 @@ int main() {
     Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
     Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Skybox skybox("project/assets/textures/skybox/", skyboxShader);
+    TransparentBoxRenderer boxRenderer;
 
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
     Model groundPlaneModel2(sceneShader, grass, "project/assets/models/reallySquareArena.obj");
@@ -84,6 +87,8 @@ int main() {
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
     const double roundDuration = 200;
+    //PauseResult pauseResult = PauseResult::RESUME;
+
 
     bool isAudioInitialized = false;
 
@@ -91,7 +96,7 @@ int main() {
 
     MainMenu menu(window, arial, controller1);
     LevelSelectMenu levelSelectMenu(window, arial, controller1, gState);
-
+    PauseScreen pause(window, arial, controller1, audio);
 
     std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
 
@@ -186,6 +191,32 @@ int main() {
 
             physicsSystem->update(timer.getFrameTime());
 
+            //pause
+            if (input.isKeyReleased(GLFW_KEY_P) || controller1.isButtonJustReleased(XINPUT_GAMEPAD_START)) {
+                gameState = GameStateEnum::PAUSE;
+                timer.stop();
+                audio.pauseMusic();
+
+            }
+
+            while (gameState == GameStateEnum::PAUSE) {
+                input.poll();
+                controller1.Update();
+                window.clear();
+                bool resumeGame = pause.displayPauseScreen();
+
+                if (resumeGame) {
+                    gameState = GameStateEnum::PLAYING;
+                    timer.resume();
+                    audio.resumePauseSounds();
+                }
+                else {
+                    //back to main menu
+                    gameState = GameStateEnum::RESET;
+                    //break; //might need this...
+                }
+            }
+
             // Update physics
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
                 physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
@@ -214,6 +245,7 @@ int main() {
 
         //reset
         if (gameState == GameStateEnum::RESET) {
+            //pauseResult = PauseResult::RESUME;
             gameState = GameStateEnum::MENU;
             gState.dynamicEntities.clear();
             gState.staticEntities.clear();

@@ -248,9 +248,6 @@ private:
             else if (currentSelection == 1) { // Controls
                 ControlsMenu controlsMenu(window, textRenderer, controller, shader);
                 controlsMenu.display();
-
-
-
             }
             else if (currentSelection == 2) { // Exit
                 glfwSetWindowShouldClose(window.getGLFWwindow(), true);

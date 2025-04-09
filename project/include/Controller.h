@@ -31,6 +31,9 @@ public:
     bool isButtonPressed(UINT button) const;
 	bool isButtonReleased(UINT button) const;
     UINT buttodID();
+    UINT prevButtonState = 0;
+
+    bool isButtonJustReleased(UINT button);
 
     float leftStickX, leftStickY, rightStickX, rightStickY;
     float leftTrigger, rightTrigger;
