@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Windowing.h"
 #include "TTF.h"
 #include "Controller.h"
