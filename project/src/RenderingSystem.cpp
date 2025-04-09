@@ -186,16 +186,19 @@ void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam, i
     glViewport(minimapX, minimapY, minimapWidth, minimapHeight);
 
     //background
-    glEnable(GL_SCISSOR_TEST);
-	if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) glScissor(minimapX + 106, minimapY, minimapWidth / 2 + 30, minimapHeight);
-	if (gState.splitScreenEnabled) glScissor(minimapX + 172, minimapY, minimapWidth / 4 + 15, minimapHeight);
-    if (gState.splitScreenEnabled4) glScissor(minimapX + 53, minimapY, minimapWidth / 2 + 15, minimapHeight);
-    GLfloat oldClearColor[4];
-    glGetFloatv(GL_COLOR_CLEAR_VALUE, oldClearColor);
-    glClearColor(0.82f, 0.82f, 0.82f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(oldClearColor[0], oldClearColor[1], oldClearColor[2], oldClearColor[3]);
-    glDisable(GL_SCISSOR_TEST);
+	bool background = true;
+    if (background) {
+        glEnable(GL_SCISSOR_TEST);
+        if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) glScissor(minimapX + 106, minimapY, minimapWidth / 2 + 30, minimapHeight);
+        if (gState.splitScreenEnabled) glScissor(minimapX + 172, minimapY, minimapWidth / 4 + 15, minimapHeight);
+        if (gState.splitScreenEnabled4) glScissor(minimapX + 53, minimapY, minimapWidth / 2 + 15, minimapHeight);
+        GLfloat oldClearColor[4];
+        glGetFloatv(GL_COLOR_CLEAR_VALUE, oldClearColor);
+        glClearColor(0.82f, 0.82f, 0.82f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(oldClearColor[0], oldClearColor[1], oldClearColor[2], oldClearColor[3]);
+        glDisable(GL_SCISSOR_TEST);
+    }
     // -----------------------------------------------------
 
     // Compute the minimap's aspect ratio.
