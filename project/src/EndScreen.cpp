@@ -2,8 +2,8 @@
 #include "MainMenu.h"
 
 //ctsr
-EndScreen::EndScreen(Windowing& window, TTF& textRenderer, Controller& controller)
-    : window(window), textRenderer(textRenderer), controller(controller),
+EndScreen::EndScreen(Windowing& window, TTF& textRenderer, Controller& controller, AudioSystem& audio)
+    : window(window), textRenderer(textRenderer), controller(controller), audio(audio),
     startButton(0, 0, 0, 0, glm::vec3(0, 0, 0)) {
     compileShaders();
     initializeUIText();
@@ -18,12 +18,6 @@ EndScreen::~EndScreen() {
 
 //main function to display menu
 void EndScreen::displayMenu() {
-    if (!audioInitialized) {
-        audio.init();
-        audio.startMenuMusic();
-        audioInitialized = true;
-    }
-
     glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     bool inMenu = true;
     backgroundRenderer = new BackgroundRenderer("project/assets/background/backgroundEndScreen.jpg", shader);

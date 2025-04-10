@@ -15,7 +15,7 @@
 
 class EndScreen {
 public:
-    EndScreen(Windowing& window, TTF& textRenderer, Controller& controller);
+    EndScreen(Windowing& window, TTF& textRenderer, Controller& controller, AudioSystem& audio);
     ~EndScreen();
     void displayMenu();
 
@@ -41,6 +41,6 @@ private:
 
     Button startButton;
 
-    AudioSystem audio;
+    AudioSystem& audio;
     bool audioInitialized = false;
 };

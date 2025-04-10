@@ -99,7 +99,7 @@ int main() {
     MainMenu menu(window, arial, controller1);
     LevelSelectMenu levelSelectMenu(window, arial, controller1, gState);
     PauseScreen pause(window, arial, controller1, audio);
-    EndScreen endMenu(window, arial, controller1);
+    EndScreen endMenu(window, arial, controller1, audio);
 
     std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
 
@@ -248,7 +248,7 @@ int main() {
 
         //reset
         if (gameState == GameStateEnum::RESET) {
-            
+            endMenu.displayMenu();
             //pauseResult = PauseResult::RESUME;
             //command.fuel = 75; //should this be a thing to reset?
             gameState = GameStateEnum::MENU;
