@@ -21,7 +21,7 @@ void EndScreen::displayMenu() {
     glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     bool inMenu = true;
     backgroundRenderer = new BackgroundRenderer("project/assets/background/backgroundEndScreen.jpg", shader);
-
+   
     while (inMenu && !window.shouldClose()) {
         window.clear();
         renderMenu();
@@ -47,6 +47,7 @@ void EndScreen::displayMenu() {
 void EndScreen::renderMenu() {
     glDisable(GL_DEPTH_TEST);
     backgroundRenderer->draw();
+    boxRenderer.draw(-0.6f, -0.6f, 1.2f, 1.2f, 0.5f);
     glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
     startButton = Button(0.4f * windowWidth, 0.5f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));

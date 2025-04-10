@@ -11,6 +11,7 @@
 #include <vector>
 #include <string>
 #include <Text.h>
+#include "TransparentBoxRenderer.h"
 #include <AudioSystem.h>
 
 class EndScreen {
@@ -40,7 +41,7 @@ private:
     int currentSelection = 0;
 
     Button startButton;
-
+    TransparentBoxRenderer boxRenderer;
     AudioSystem& audio;
     bool audioInitialized = false;
 };
