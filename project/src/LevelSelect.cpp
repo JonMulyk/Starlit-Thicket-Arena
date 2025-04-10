@@ -16,7 +16,7 @@ LevelSelectMenu::LevelSelectMenu(Windowing& window, TTF& textRenderer, Controlle
 LevelSelectMenu::~LevelSelectMenu() {
     delete backgroundRenderer;
     uiText.clear();
-    //delete shader;
+    delete shader;
 }
 
 int LevelSelectMenu::displayMenuLevel() {
