@@ -48,8 +48,8 @@ int main() {
     //Windowing window(1200, 1000, "", false);
     Windowing window(1920, 1080);
     Input input(window, camera, timer, command);
-    Controller controller1(1, camera, controllerCommand1);
-	Controller controller2(2, camera2, controllerCommand2);
+    Controller controller1(2, camera, controllerCommand1);
+	Controller controller2(1, camera2, controllerCommand2);
 	Controller controller3(3, camera3, controllerCommand3);
 	Controller controller4(4, camera4, controllerCommand4);
     if (!controller1.isConnected()) {
@@ -106,7 +106,7 @@ int main() {
     RenderingSystem renderer2(shader, camera2, window, arial, gState);
     RenderingSystem renderer3(shader, camera3, window, arial, gState);
     RenderingSystem renderer4(shader, camera4, window, arial, gState);
-    const double roundDuration = 5;
+    const double roundDuration = 30;
 
     bool isAudioInitialized = false;
 

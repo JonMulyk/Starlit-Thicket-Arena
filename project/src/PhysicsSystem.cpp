@@ -591,7 +591,7 @@ void PhysicsSystem::updateCollisions() {
 			}
 		}
 		else if (gState.splitScreenEnabled) { // 2-player mode
-			if (playerDied && player2Died) {
+			if ((playerDied && player2Died) || ((playerDied + player2Died + player3Died + player4Died) >= 3)) { //if both players die or there is only one car left
 				pendingReinit = true;
 				reinitTime = 0.0;
 			}
@@ -713,14 +713,10 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 		if (isPlayerControlled) {
 			Command cmd;
 			bool playerIsDead = false;
-			if (playerIndex == 0)
-				playerIsDead = playerDied;
-			else if (playerIndex == 1)
-				playerIsDead = player2Died;
-			else if (playerIndex == 2)
-				playerIsDead = player3Died;
-			else if (playerIndex == 3)
-				playerIsDead = player4Died;
+			if (playerIndex == 0) playerIsDead = playerDied;
+			else if (playerIndex == 1) playerIsDead = player2Died;
+			else if (playerIndex == 2) playerIsDead = player3Died;
+			else if (playerIndex == 3) playerIsDead = player4Died;
 
 			if (playerIsDead) {
 				cmd.brake = 1.0f;
