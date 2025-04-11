@@ -42,7 +42,6 @@ public:
 
 	void resumePauseSounds();
 
-
 	void startCarSounds();
 	void startAISounds();
 

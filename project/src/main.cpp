@@ -109,7 +109,7 @@ int main() {
     RenderingSystem renderer2(shader, camera2, window, arial, gState);
     RenderingSystem renderer3(shader, camera3, window, arial, gState);
     RenderingSystem renderer4(shader, camera4, window, arial, gState);
-    const double roundDuration = 30;
+    const double roundDuration = 90;
 
     bool isAudioInitialized = false;
 
@@ -273,12 +273,14 @@ int main() {
             }
 
             while (gameState == GameStateEnum::PAUSE) {
+                glViewport(0, 0, window.getWidth(), window.getHeight());
                 input.poll();
                 controller1.Update();
                 window.clear();
                 bool resumeGame = pause.displayPauseScreen();
 
                 if (resumeGame) {
+                    glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                     gameState = GameStateEnum::PLAYING;
                     timer.resume();
                     audio.resumePauseSounds();
