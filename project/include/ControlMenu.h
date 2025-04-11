@@ -13,7 +13,7 @@
 /*
 TODO:
 
-look at mainmenu and level select to do
+put in seperate .h and .cpp file
 */
 class ControlsMenu {
 public:
