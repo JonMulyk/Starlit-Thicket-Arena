@@ -553,15 +553,20 @@ void PhysicsSystem::updateCollisions() {
 			player4Died = true;
 		}
 
-		for (int i = 0; i < gState.dynamicEntities.size(); i++) {
+		for (int i = gState.dynamicEntities.size() - 1; i >= 0; i--) {
 			auto& entity = gState.dynamicEntities[i];
 			if ((entity.name != "aiCar1" && entity.name != "aiCar2" && entity.name != "aiCar3") && entity.name != "playerCar") continue;
 			if (entity.vehicle->name == colliding1) {
 				shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 				entity.vehicle->vehicle.destroy();
 
-				rigidDynamicList.erase(rigidDynamicList.begin() + i);
-				transformList.erase(transformList.begin() + i);
+				for (int x = 0; x <= transformList.size(); x++) {
+					if (entity.transform == transformList[x]) {
+						rigidDynamicList.erase(rigidDynamicList.begin() + x);
+						transformList.erase(transformList.begin() + x);
+						break;
+					}
+				}
 				gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
 
 				PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC);
