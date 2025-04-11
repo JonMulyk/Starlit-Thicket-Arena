@@ -2,11 +2,10 @@
 #include "MainMenu.h"
 
 //ctsr
-EndScreen::EndScreen(Windowing& window, TTF& textRenderer, Controller& controller, AudioSystem& audio)
-    : window(window), textRenderer(textRenderer), controller(controller), audio(audio),
+EndScreen::EndScreen(Windowing& window, TTF& textRenderer, Controller& controller, AudioSystem& audio, GameState& gameState)
+    : window(window), textRenderer(textRenderer), controller(controller), audio(audio),  gameState(gameState),
     startButton(0, 0, 0, 0, glm::vec3(0, 0, 0)) {
     compileShaders();
-    initializeUIText();
 }
 
 //dctsr
@@ -19,9 +18,35 @@ EndScreen::~EndScreen() {
 //main function to display menu
 void EndScreen::displayMenu() {
     glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    uiText.clear();
+    initializeUIText();
     bool inMenu = true;
     backgroundRenderer = new BackgroundRenderer("project/assets/background/backgroundEndScreen.jpg", shader);
-   
+
+
+    //float scoreHeight = 1300.0f;
+    float scoreHeight = static_cast<float>(windowHeight) * 0.8085f;
+
+    float heightIncrementOffset = static_cast<float>(windowHeight) * 0.0417f;
+
+    float farLeftX = static_cast<float>(windowWidth) * 0.055f;
+
+    for (const auto& score : gameState.getSortedScores())
+    {
+        // Formatting for the string using string stream (to handle alignment)
+        std::ostringstream oss;
+        oss << std::left << std::setw(20) << score.first + ":" << "  " << score.second;
+        std::string scoreText = oss.str();
+
+        // Left alignment on the screen based on the window size
+        float farLeftX = static_cast<float>(windowWidth) * 0.0055f;
+
+        // Create the Text object and push it into the vector
+        uiText.push_back(Text(scoreText, farLeftX, scoreHeight, this->textScale * 0.8f, glm::vec3(0.5f, 0.8f, 0.2f), TTF::TEXT_POSITION::LEFT));
+
+        // Decrease height to space out the text vertically
+        scoreHeight -= heightIncrementOffset;
+    }
     while (inMenu && !window.shouldClose()) {
         window.clear();
         renderMenu();
@@ -67,6 +92,8 @@ void EndScreen::initializeUIText() {
 
     uiText.push_back(Text("Game Over", windowWidth * 0.5f, windowHeight * 0.4f, baseScale, glm::vec3(1, 1, 1)));
     uiText.push_back(Text("Main Menu", windowWidth * 0.5f, windowHeight * 0.5f, baseScale * 0.7f, glm::vec3(1, 1, 1)));
+
+
 }
 
 

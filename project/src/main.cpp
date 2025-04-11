@@ -99,7 +99,7 @@ int main() {
     MainMenu menu(window, arial, controller1);
     LevelSelectMenu levelSelectMenu(window, arial, controller1, gState);
     PauseScreen pause(window, arial, controller1, audio);
-    EndScreen endMenu(window, arial, controller1, audio);
+    EndScreen endMenu(window, arial, controller1, audio, gState);
 
     std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
 
@@ -194,6 +194,25 @@ int main() {
 
             physicsSystem->update(timer.getFrameTime());
 
+
+            // Update physics
+            while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
+                physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
+                physicsSystem->updatePhysics(timer.dt);
+                timer.advance();
+            }
+
+            // update dynamic UI text
+            uiManager.updateUIText(timer, roundDuration, gState);
+
+            // render everything except minimap
+            renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+
+            // render minimap
+            glDisable(GL_DEPTH_TEST);
+            renderer.renderMinimap(minimapShader, minimapCamera);
+            glEnable(GL_DEPTH_TEST);
+
             //pause
             if (input.isKeyReleased(GLFW_KEY_P) || controller1.isButtonJustReleased(XINPUT_GAMEPAD_START)) {
                 gameState = GameStateEnum::PAUSE;
@@ -220,30 +239,16 @@ int main() {
                 }
             }
 
-            // Update physics
-            while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
-                physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
-                physicsSystem->updatePhysics(timer.dt);
-                timer.advance();
-            }
-
-            // update dynamic UI text
-            uiManager.updateUIText(timer, roundDuration, gState);
-
-            // render everything except minimap
-            renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
-
-            // render minimap
-            glDisable(GL_DEPTH_TEST);
-            renderer.renderMinimap(minimapShader, minimapCamera);
-            glEnable(GL_DEPTH_TEST);
-
             glfwSwapBuffers(window);
+
+
 
             // Check for round end
             if (timer.getElapsedTime() >= roundDuration) {
                 gameState = GameStateEnum::RESET;
             }
+
+
         }
 
         //reset

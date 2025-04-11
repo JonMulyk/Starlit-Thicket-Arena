@@ -13,10 +13,11 @@
 #include <Text.h>
 #include "TransparentBoxRenderer.h"
 #include <AudioSystem.h>
+#include <iomanip>
 
 class EndScreen {
 public:
-    EndScreen(Windowing& window, TTF& textRenderer, Controller& controller, AudioSystem& audio);
+    EndScreen(Windowing& window, TTF& textRenderer, Controller& controller, AudioSystem& audio, GameState& gameState);
     ~EndScreen();
     void displayMenu();
 
@@ -31,11 +32,13 @@ private:
     Controller& controller;
     Windowing& window;
     TTF& textRenderer;
+    GameState& gameState;
 
     Shader* shader;
     BackgroundRenderer* backgroundRenderer;
 
     std::vector<Text> uiText;
+    float textScale = 1.0f;
 
     int windowWidth, windowHeight;
     int currentSelection = 0;
