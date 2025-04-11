@@ -161,6 +161,8 @@
     <None Include="project\assets\shaders\mainMenuShader.vert" />
     <None Include="project\assets\shaders\minimapShader.frag" />
     <None Include="project\assets\shaders\minimapShader.vert" />
+    <None Include="project\assets\shaders\overlayShader.frag" />
+    <None Include="project\assets\shaders\overlayShader.vert" />
     <None Include="project\assets\shaders\skyboxShader.frag" />
     <None Include="project\assets\shaders\skyboxShader.vert" />
     <None Include="project\assets\shaders\text.frag" />
@@ -184,6 +186,7 @@
     <ClCompile Include="lib\physx\include\snippetvehicle2common\SnippetVehicleRender.cpp" />
     <ClCompile Include="project\src\AudioEngine.cpp" />
     <ClCompile Include="project\src\AudioSystem.cpp" />
+    <ClCompile Include="project\src\BackgroundRenderer.cpp" />
     <ClCompile Include="project\src\Camera.cpp" />
     <ClCompile Include="project\src\Controller.cpp" />
     <ClCompile Include="project\src\DynamicCamera.cpp" />
@@ -195,8 +198,10 @@
     <ClCompile Include="project\src\Input.cpp" />
     <ClCompile Include="project\src\LevelSelect.cpp" />
     <ClCompile Include="project\src\main.cpp" />
+    <ClCompile Include="project\src\MainMenu.cpp" />
     <ClCompile Include="project\src\Mesh.cpp" />
     <ClCompile Include="project\src\Model.cpp" />
+    <ClCompile Include="project\src\PauseMenu.cpp" />
     <ClCompile Include="project\src\PhysicsSystem.cpp" />
     <ClCompile Include="project\src\Shader.cpp" />
     <ClCompile Include="project\src\Skybox.cpp" />
@@ -206,6 +211,7 @@
     <ClCompile Include="project\src\TimeSeconds.cpp" />
     <ClCompile Include="project\src\tiny_obj_loader.cc" />
     <ClCompile Include="project\src\Transform.cpp" />
+    <ClCompile Include="project\src\TransparentBoxRenderer.cpp" />
     <ClCompile Include="project\src\UIManager.cpp" />
     <ClCompile Include="project\src\Vehicle.cpp" />
     <ClCompile Include="project\src\Windowing.cpp" />
@@ -639,6 +645,7 @@
     <ClInclude Include="lib\physx\include\vehicle\PxVehicleWheels.h" />
     <ClInclude Include="project\include\AudioEngine.h" />
     <ClInclude Include="project\include\AudioSystem.h" />
+    <ClInclude Include="project\include\BackgroundRenderer.h" />
     <ClInclude Include="project\include\Button.h" />
     <ClInclude Include="project\include\Camera.h" />
     <ClInclude Include="project\include\Command.h" />
@@ -646,7 +653,8 @@
     <ClInclude Include="project\include\GameMap.h" />
     <ClInclude Include="project\include\LevelSelect.h" />
     <ClInclude Include="project\include\MainMenu.h" />
-    <ClInclude Include="project\include\splitScreenSelect.h" />
+    <ClInclude Include="project\include\PauseMenu.h" />
+    <ClInclude Include="project\include\TransparentBoxRenderer.h" />
     <ClInclude Include="project\include\Vehicle.h" />
     <ClInclude Include="project\include\Controller.h" />
     <ClInclude Include="project\include\Entity.h" />

@@ -46,6 +46,10 @@ public:
 	void startCarSounds();
 	void startAISounds();
 
+	void pauseMusic();
+
+	void resumePauseSounds();
+
 	bool carSoundPlaying = false;
 
 	CAudioEngine audioEngine;
@@ -57,7 +61,7 @@ public:
 	float carVolume = -10.0f;
 	float aiVolume = -5.0f;
 	float musicVolume = -30.0f;
-	float explosionVolume = 0.0f;
+	float explosionVolume = -8.0f;
 
 	std::string menuMusic = "project/assets/audio/menuMusic.wav";
 	std::string battleMusic = "project/assets/audio/battleMusic.wav";

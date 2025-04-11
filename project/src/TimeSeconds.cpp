@@ -3,7 +3,7 @@
 #include <sstream>
 
 // Ctor
-TimeSeconds::TimeSeconds() : m_currentTime(glfwGetTime()) {}
+TimeSeconds::TimeSeconds() : m_currentTime(glfwGetTime()), m_stopped(false) {}
 
 void TimeSeconds::tick() {
     // Get the new time.
@@ -68,5 +68,18 @@ void TimeSeconds::reset() {
     m_newTime = m_currentTime;
     m_accumulator = 0.0;
     m_elapsedTime = 0.0;  // Critical: ensure elapsed time starts at 0
+}
+
+//time stop, pause
+void TimeSeconds::stop() {
+    m_stopped = true;
+}
+
+//continue
+void TimeSeconds::resume() {
+    if (!m_stopped) return;
+
+    m_stopped = false;
+    m_currentTime = glfwGetTime(); 
 }
 
