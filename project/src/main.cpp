@@ -253,7 +253,7 @@ int main() {
 
         //reset
         if (gameState == GameStateEnum::RESET) {
-            endMenu.displayMenu();
+
             //pauseResult = PauseResult::RESUME;
             //command.fuel = 75; //should this be a thing to reset?
             gameState = GameStateEnum::MENU;
@@ -265,6 +265,7 @@ int main() {
             command.reset();
             audio.stopMusic(); 
             timer.reset();
+            endMenu.displayMenu();
             delete physicsSystem;
             //delete audio;
         }
