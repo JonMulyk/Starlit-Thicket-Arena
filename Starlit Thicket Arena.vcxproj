@@ -654,6 +654,7 @@
     <ClInclude Include="project\include\LevelSelect.h" />
     <ClInclude Include="project\include\MainMenu.h" />
     <ClInclude Include="project\include\PauseMenu.h" />
+    <ClInclude Include="project\include\splitScreenSelect.h" />
     <ClInclude Include="project\include\TransparentBoxRenderer.h" />
     <ClInclude Include="project\include\Vehicle.h" />
     <ClInclude Include="project\include\Controller.h" />

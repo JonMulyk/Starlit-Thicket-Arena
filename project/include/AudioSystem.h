@@ -46,10 +46,6 @@ public:
 	void startCarSounds();
 	void startAISounds();
 
-	void pauseMusic();
-
-	void resumePauseSounds();
-
 	bool carSoundPlaying = false;
 
 	CAudioEngine audioEngine;
