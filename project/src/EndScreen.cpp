@@ -23,30 +23,6 @@ void EndScreen::displayMenu() {
     bool inMenu = true;
     backgroundRenderer = new BackgroundRenderer("project/assets/background/backgroundEndScreen.jpg", shader);
 
-
-    //float scoreHeight = 1300.0f;
-    float scoreHeight = static_cast<float>(windowHeight) * 0.8085f;
-
-    float heightIncrementOffset = static_cast<float>(windowHeight) * 0.0417f;
-
-    float farLeftX = static_cast<float>(windowWidth) * 0.055f;
-
-    for (const auto& score : gameState.getSortedScores())
-    {
-        // Formatting for the string using string stream (to handle alignment)
-        std::ostringstream oss;
-        oss << std::left << std::setw(20) << score.first + ":" << "  " << score.second;
-        std::string scoreText = oss.str();
-
-        // Left alignment on the screen based on the window size
-        float farLeftX = static_cast<float>(windowWidth) * 0.0055f;
-
-        // Create the Text object and push it into the vector
-        uiText.push_back(Text(scoreText, farLeftX, scoreHeight, this->textScale * 0.8f, glm::vec3(0.5f, 0.8f, 0.2f), TTF::TEXT_POSITION::LEFT));
-
-        // Decrease height to space out the text vertically
-        scoreHeight -= heightIncrementOffset;
-    }
     while (inMenu && !window.shouldClose()) {
         window.clear();
         renderMenu();
@@ -75,7 +51,7 @@ void EndScreen::renderMenu() {
     boxRenderer.draw(-0.6f, -0.6f, 1.2f, 1.2f, 0.5f);
     glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
-    startButton = Button(0.4f * windowWidth, 0.5f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
+    startButton = Button(0.4f * windowWidth, (1-0.15f) * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
 
     if (currentSelection == 0) {
         startButton.setColor(glm::vec3(0, 1, 0));
@@ -90,11 +66,38 @@ void EndScreen::initializeUIText() {
     glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
     float baseScale = std::min(windowWidth, windowHeight) * 0.00085f;
 
-    uiText.push_back(Text("Game Over", windowWidth * 0.5f, windowHeight * 0.4f, baseScale, glm::vec3(1, 1, 1)));
-    uiText.push_back(Text("Main Menu", windowWidth * 0.5f, windowHeight * 0.5f, baseScale * 0.7f, glm::vec3(1, 1, 1)));
+    uiText.push_back(Text("Game Over", windowWidth * 0.5f, windowHeight * 0.90f, baseScale, glm::vec3(1, 1, 1)));
+
+    uiText.push_back(Text("Main Menu", windowWidth * 0.5f, windowHeight * 0.1f, baseScale, glm::vec3(1, 1, 1)));
+
+    uiText.push_back(Text("Scores", windowWidth * 0.5f, windowHeight * 0.75f, baseScale, glm::vec3(1, 1, 1)));
 
 
+    float scoreHeight = static_cast<float>(windowHeight) * 0.6f;
+
+    float heightIncrementOffset = static_cast<float>(windowHeight) * 0.08; 
+
+    float nameXPos = windowWidth * 0.25f; 
+
+    float scoreXPos = windowWidth * 0.75f; 
+
+    for (const auto& score : gameState.getSortedScores()) {
+ 
+        std::ostringstream oss;
+        oss << std::left << std::setw(20) << score.first + ":" << "  " << score.second;
+        std::string scoreText = oss.str();
+
+        float centerX = windowWidth * 0.5f; 
+
+        uiText.push_back(Text(score.first, nameXPos, scoreHeight, this->textScale * 0.8f, glm::vec3(0.5f, 0.8f, 0.2f), TTF::TEXT_POSITION::LEFT));
+
+
+        uiText.push_back(Text(std::to_string(score.second), scoreXPos, scoreHeight, this->textScale * 0.8f, glm::vec3(0.5f, 0.8f, 0.2f), TTF::TEXT_POSITION::RIGHT));
+
+        scoreHeight -= heightIncrementOffset;
+    }
 }
+
 
 
 void EndScreen::renderText(const std::vector<Text>& renderingText) {
