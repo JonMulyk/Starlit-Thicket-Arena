@@ -518,21 +518,21 @@ void PhysicsSystem::updateCollisions() {
 		std::string colliding1 = collisionPair.first->getName();
 		std::string colliding2 = collisionPair.second->getName();
 
-		for (int i = 0; i < gState.dynamicEntities.size(); i++) {
+		for (int i = gState.dynamicEntities.size() - 1; i >= 0; i--) {
 			auto& entity = gState.dynamicEntities[i];
 			if (entity.name != "aiCar" && entity.name != "playerCar") continue;
-			if (entity.name == "aiCar") {
-				aiCounter++;
-			}
-				
 
 			if (entity.vehicle->name == colliding1) {
 				shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 				entity.vehicle->vehicle.destroy();
-
-				// remove Dynamic Object
-				rigidDynamicList.erase(rigidDynamicList.begin() + i);
-				transformList.erase(transformList.begin() + i);
+				
+				for (int x = 0; x <= transformList.size(); x++) {
+					if (entity.transform == transformList[x]) {
+						rigidDynamicList.erase(rigidDynamicList.begin() + x);
+						transformList.erase(transformList.begin() + x);
+						break;
+					}
+				}
 				gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
 
 				// Remove all static physics objects
@@ -554,6 +554,8 @@ void PhysicsSystem::updateCollisions() {
 					}
 				}
 				gState.addScoreToVehicle(colliding2, 1);
+			} else if (entity.name == "aiCar") {
+					aiCounter++;
 			}
 		}
 
@@ -564,13 +566,12 @@ void PhysicsSystem::updateCollisions() {
 			printf("Reset because of Player");
 		}
 
-		if (aiCounter <= 1) {
+		if (aiCounter == 0) {
 			printf("Reset because of AI\n");
 			//printf("%f\n", aiCounter);
-			;                pendingReinit = true;
+			pendingReinit = true;
 			reinitTime = 0.0;
 		}
-
 
 		gContactReportCallback->readNewCollision();
 	}
