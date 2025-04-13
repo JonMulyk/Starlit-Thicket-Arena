@@ -535,7 +535,7 @@ void PhysicsSystem::updateCollisions() {
 	if (gContactReportCallback->checkCollision()) {
 		std::string colliding1 = collisionPair.first->getName();
 		std::string colliding2 = collisionPair.second->getName();
-
+		std::cout << colliding1 << std::endl;
 		if (colliding1 == "playerVehicle") {
 			deadCars[0] = 1;
 			playerDied = true;
@@ -586,8 +586,6 @@ void PhysicsSystem::updateCollisions() {
 					}
 				}
 				gState.addScoreToVehicle(colliding2, 1);
-			} else if (entity.name == "aiCar") {
-					aiCounter++;
 			}
 		}
 
