@@ -586,6 +586,8 @@ void PhysicsSystem::updateCollisions() {
 					}
 				}
 				gState.addScoreToVehicle(colliding2, 1);
+			} else if (entity.name == "aiCar") {
+					aiCounter++;
 			}
 		}
 
