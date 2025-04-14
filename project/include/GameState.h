@@ -55,9 +55,9 @@ class GameState {
 		void addScoreToVehicle(std::string name, uint64_t value);
 		void initializeScores(uint16_t numberOfPlayers, uint16_t numberOfAiCars);
 
-		Transform* FollowTarget1 = nullptr;
-		Transform* FollowTarget2 = nullptr;
-		Transform* FollowTarget3 = nullptr;
+		//Transform* FollowTarget1 = nullptr;
+		//Transform* FollowTarget2 = nullptr;
+		//Transform* FollowTarget3 = nullptr;
 
 		bool resetAudio = false;
 		bool tempTrails = false;
