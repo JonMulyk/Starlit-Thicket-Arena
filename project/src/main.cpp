@@ -359,6 +359,7 @@ int main() {
                 glEnable(GL_DEPTH_TEST);
             }
             else {
+                if (physicsSystem->deadCars[0] == 0) camera.setFollowTarget(physicsSystem->getTransformAt("playerCar"));
                 // update dynamic UI text
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
 
