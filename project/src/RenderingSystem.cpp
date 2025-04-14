@@ -114,19 +114,60 @@ void RenderingSystem::renderText(const std::vector<Text>& renderingText) {
 
 void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 {
-    sceneModels[0].getShader().use();
-    this->camera.updateProjectionView(sceneModels[0].getShader(), window.getWidth(), window.getHeight());
-    shader.setFloat("repeats", 100.f);
+    for (int i = 0; i < sceneModels.size(); i++)
+    {
+        if(i == 0)
+        {
+			sceneModels[0].getShader().use();
+			this->camera.updateProjectionView(sceneModels[0].getShader(), window.getWidth(), window.getHeight());
+			shader.setFloat("repeats", 4.0f);
 
 
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(23.0f, 1.0f, 23.0f)); // Scale the ground
-    model = glm::translate(model, glm::vec3(4.5f, 0.0f, 4.5f)); // translate ground
-    //model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate 180 degrees around X-axis
-    sceneModels[0].getShader().setMat4("model", model);
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::scale(model, glm::vec3(23.0f, 1.0f, 23.0f)); // Scale the ground
+			model = glm::translate(model, glm::vec3(4.5f, 0.0f, 4.5f)); // translate ground
+			//model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate 180 degrees around X-axis
+			sceneModels[0].getShader().setMat4("model", model);
 
-    sceneModels[0].draw();
+			sceneModels[0].draw();
+        }
+        else if (i == 1)
+        {
+			sceneModels[i].getShader().use();
+
+            glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f); // left, right, bottom, top
+            sceneModels[i].getShader().setMat4("projection", projection);
+
+            updateFuelBar(sceneModels[i], gState.playerVehicle.fuel);
+
+			sceneModels[i].draw();
+        }
+    }
 }
+
+void RenderingSystem::updateFuelBar(Model& fuelBar, float fuelLevel)
+{
+    float x = -0.9f;
+    float y = -0.9f;
+    float fullWidth = 0.4;
+    float height = -0.05;
+    //float width = fullWidth;
+    float clamped = std::min(std::max(fuelLevel, 0.0f), 1.0f);
+    float width = fullWidth * clamped;
+
+    std::vector<float> vertices = {
+		x, y, 0.0f,
+		x + width, y, 0.0f,
+		x + width, y + height, 0.0f,
+
+		x, y, 0.0f,
+		x + width, y + height, 0.0f,
+		x, y + height, 0.0f
+    };
+
+    fuelBar.updateVertices(vertices);
+}
+
 
 void RenderingSystem::renderSkybox(Skybox& skybox)
 {
