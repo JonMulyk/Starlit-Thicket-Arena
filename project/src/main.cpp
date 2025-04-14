@@ -53,6 +53,7 @@ int main() {
 
     Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
+    Shader uiShader("uiShader", "project/assets/shaders/uiShader.vert", "project/assets/shaders/uiShader.frag");
     TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Paul-le1V.ttf", window.getWidth(), window.getHeight());
     Texture container("project/assets/textures/container.jpg", true);
     Texture gold("project/assets/textures/gold.jpg", true);
@@ -73,6 +74,8 @@ int main() {
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
     std::vector<Model> sceneModels;
     GameStateEnum gameState = GameStateEnum::MENU;
+
+	Model fuelBar = Model::createRectangleModel(uiShader, gold, -0.9f, -0.95f, 0.4f, 0.05f); 
 
     // Skybox
     Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
@@ -140,6 +143,7 @@ int main() {
         {
             sceneModels.push_back(groundPlaneModel3);
         }
+        sceneModels.push_back(fuelBar);
 
         // Game setup
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);

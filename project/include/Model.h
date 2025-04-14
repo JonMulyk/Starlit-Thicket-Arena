@@ -44,6 +44,10 @@ public:
     std::vector<Mesh> meshes;
     std::string directory;
 
+    static Model createRectangleModel(Shader& shader, Texture& texture, float x, float y, float width, float height);
+    void updateVertices(const std::vector<float>& newVertices);
+
+
 private:
     Shader& m_shader;
     Texture* m_texture; // Changed to a pointer to allow null values

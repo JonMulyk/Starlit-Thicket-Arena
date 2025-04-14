@@ -331,3 +331,57 @@ void Model::draw(std::string entityName) {
         m_texture->unbind();
     }
 }
+
+Model Model::createRectangleModel(Shader& shader, Texture& texture, float x, float y, float width, float height)
+{
+    float left = x;
+    float right = x + width;
+    float top = y + height;
+    float bottom = y;
+
+    std::vector<float> vertices =
+    {
+        // First triangle
+		left,  top,    0.0f,
+		left,  bottom, 0.0f,
+		right, bottom, 0.0f,
+
+		// Second triangle
+		left,  top,    0.0f,
+		right, bottom, 0.0f,
+		right, top,    0.0f
+    };
+
+    std::vector<float> normals = 
+    {
+		0.0f, 0.0f, 1.0f, // All normals point forward
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f
+    };
+
+    std::vector<float> texCoords = 
+    {
+		0.0f, 1.0f, // Top-left
+		0.0f, 0.0f, // Bottom-left
+		1.0f, 0.0f, // Bottom-right
+
+		0.0f, 1.0f, // Top-left
+		1.0f, 0.0f, // Bottom-right
+		1.0f, 1.0f  // Top-right
+    };
+
+    return Model(shader, texture, vertices, normals, texCoords);
+}
+
+void Model::updateVertices(const std::vector<float>& newVertices) 
+{
+    this->m_vertices = newVertices;
+
+    glBindBuffer(GL_ARRAY_BUFFER, *VBO);
+    glBufferData(GL_ARRAY_BUFFER, newVertices.size() * sizeof(float), newVertices.data(), GL_DYNAMIC_DRAW);
+}
+

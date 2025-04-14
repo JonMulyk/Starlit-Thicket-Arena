@@ -38,4 +38,5 @@ private:
     void renderText(const std::vector<Text>& renderingText);
     void renderSkybox(Skybox& skybox);
     void renderScene(std::vector<Model>& sceneModels);
+    void updateFuelBar(Model& fuelBar, float fuelLevel);
 };
