@@ -97,6 +97,8 @@ int main() {
     std::vector<Model> sceneModels;
     GameStateEnum gameState = GameStateEnum::MENU;
 
+    // Fuel Bars
+    std::vector<Model> fuelBars;
 	Model fuelBar = Model::createRectangleModel(uiShader, gold, -0.9f, -0.95f, 0.4f, 0.05f); 
 
     // Skybox
@@ -178,7 +180,8 @@ int main() {
         {
             sceneModels.push_back(groundPlaneModel3);
         }
-        sceneModels.push_back(fuelBar);
+        fuelBars.push_back(fuelBar);
+        //sceneModels.push_back(fuelBar);
 
         // Game setup
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -313,7 +316,7 @@ int main() {
                 // Left half
                 glViewport(0, window.getHeight() / 2, window.getWidth(), window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
-                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera1 (a Camera instance)
+                renderer.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);  // Using camera1 (a Camera instance)
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);
                 glEnable(GL_DEPTH_TEST);
@@ -322,7 +325,7 @@ int main() {
                 //print camera2 position
                 glViewport(0, 0, window.getWidth(), window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 1);
-                renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera2 (a Camera instance)
+                renderer2.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);  // Using camera2 (a Camera instance)
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 1);
                 glEnable(GL_DEPTH_TEST);
@@ -336,7 +339,7 @@ int main() {
                 // top left
                 glViewport(0, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
-                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                renderer.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);
                 glEnable(GL_DEPTH_TEST);
@@ -344,7 +347,7 @@ int main() {
                 // top right
                 glViewport(window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 1);
-                renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                renderer2.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 1);
                 glEnable(GL_DEPTH_TEST);
@@ -352,7 +355,7 @@ int main() {
                 // bottom left
                 glViewport(0, 0, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 2);
-                renderer3.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                renderer3.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 2);
                 glEnable(GL_DEPTH_TEST);
@@ -360,7 +363,7 @@ int main() {
                 // bottom right
                 glViewport(window.getWidth() / 2, 0, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 3);
-                renderer4.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                renderer4.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 3);
                 glEnable(GL_DEPTH_TEST);
@@ -371,7 +374,7 @@ int main() {
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
 
                 // render everything except minimap
-                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                renderer.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);
                 // render minimap
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);

@@ -8,6 +8,7 @@ RenderingSystem::RenderingSystem(Shader& shader, Camera& camera, Windowing& wind
 
 void RenderingSystem::updateRenderer(
     std::vector<Model>& sceneModels,
+    std::vector<Model>& fuelBars,
     const std::vector<Text>& uiText,
     Skybox& skybox
 )
@@ -19,6 +20,7 @@ void RenderingSystem::updateRenderer(
     this->renderEntities(gState.dynamicEntities, this->camera);
     this->renderEntities(gState.staticEntities, this->camera);
     this->renderScene(sceneModels); // needs to be before any texture binds, otherwise it will take on those
+    this->renderFuelBar(fuelBars);
     this->renderText(uiText);
 	//this->renderText(textToDisplay, 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
 
@@ -139,7 +141,6 @@ glm::mat4 RenderingSystem::createModelWithTransformations(const Entity* entity, 
 void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 {
     renderGroundPlane(sceneModels[0]);
-    renderFuelBar(sceneModels[1]);
 }
 
 void RenderingSystem::renderGroundPlane(Model& groundPlane)
@@ -156,8 +157,10 @@ void RenderingSystem::renderGroundPlane(Model& groundPlane)
 	groundPlane.draw();
 }
 
-void RenderingSystem::renderFuelBar(Model& fuelBar)
+void RenderingSystem::renderFuelBar(std::vector<Model>& fuelBars)
 {
+    Model& fuelBar = fuelBars[0];
+
 	fuelBar.getShader().use();
 
 	glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f);
