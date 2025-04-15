@@ -151,7 +151,6 @@ void RenderingSystem::updateFuelBar(Model& fuelBar, float fuelLevel)
     float y = -0.9f;
     float fullWidth = 0.4;
     float height = -0.05;
-    //float width = fullWidth;
     float clamped = std::min(std::max(fuelLevel, 0.0f), 1.0f);
     float width = fullWidth * clamped;
 
@@ -164,6 +163,32 @@ void RenderingSystem::updateFuelBar(Model& fuelBar, float fuelLevel)
 		x + width, y + height, 0.0f,
 		x, y + height, 0.0f
     };
+
+    glm::vec4 color;
+
+    float fuelLevelGreenMin = 0.999f;
+    float fuelLevelYellowMin = 0.375f;
+    float fuelLevelRedMin = 0.0f;
+
+    glm::vec4 green = { 32.0f / 255.0f, 237.0f / 255.0f, 34.0f / 255.0f, 1.0f };
+    glm::vec4 yellow = {226.0f / 255.0f, 182.0f / 255.0f, 26.0f / 255.0f, 1.0f};
+    glm::vec4 red = { 255.0f / 255.0f, 21.0f / 255.0f, 15.0f / 255.0f, 1.0f };
+
+    if (fuelLevel > fuelLevelGreenMin)
+    {
+        color = green;
+    }
+    else if (fuelLevel > fuelLevelYellowMin)
+    {
+        color = yellow;
+    }
+    else
+    {
+        color = red;
+    }
+
+    fuelBar.getShader().use();
+    fuelBar.getShader().setVec4("barColor", color);
 
     fuelBar.updateVertices(vertices);
 }

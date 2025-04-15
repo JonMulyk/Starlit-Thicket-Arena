@@ -379,6 +379,11 @@ Model Model::createRectangleModel(Shader& shader, Texture& texture, float x, flo
 
 void Model::updateVertices(const std::vector<float>& newVertices) 
 {
+    if (*VBO == 0)
+    {
+        glGenBuffers(1, VBO);
+    }
+
     this->m_vertices = newVertices;
 
     glBindBuffer(GL_ARRAY_BUFFER, *VBO);
