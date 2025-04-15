@@ -590,7 +590,7 @@ void PhysicsSystem::updateCollisions() {
 		}
 
 		if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
-			if (playerDied) {
+			if (playerDied || ((playerDied + player2Died + player3Died + player4Died) >= 3)) {
 				pendingReinit = true;
 				reinitTime = 0.0;
 			}
