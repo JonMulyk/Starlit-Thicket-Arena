@@ -28,6 +28,11 @@ public:
         std::vector<float> textCoords
     );
 
+    Model(
+        Shader& shader,
+        std::vector<float> vertices,
+        std::vector<float> normals
+    );
 
 
     // Constructor for loading an OBJ file with a texture
@@ -44,7 +49,7 @@ public:
     std::vector<Mesh> meshes;
     std::string directory;
 
-    static Model createRectangleModel(Shader& shader, Texture& texture, float x, float y, float width, float height);
+    static Model createRectangleModel(Shader& shader, float x, float y, float width, float height);
     void updateVertices(const std::vector<float>& newVertices);
 
 

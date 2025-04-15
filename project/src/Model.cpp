@@ -290,6 +290,14 @@ Model::Model(
     createBuffer();
 }
 
+Model::Model(
+    Shader& shader,
+    std::vector<float> vertices,
+    std::vector<float> normals
+) : m_shader(shader), m_texture(nullptr), m_vertices(vertices), m_normals(normals), hasTexture(false) {
+    createBuffer();
+}
+
 //OBJ file with a texture //tinyobj
 Model::Model(Shader& shader, Texture& texture, const std::string& model_path)
     : m_shader(shader), m_texture(&texture), hasTexture(true) {
@@ -332,7 +340,7 @@ void Model::draw(std::string entityName) {
     }
 }
 
-Model Model::createRectangleModel(Shader& shader, Texture& texture, float x, float y, float width, float height)
+Model Model::createRectangleModel(Shader& shader, float x, float y, float width, float height)
 {
     float left = x;
     float right = x + width;
@@ -363,6 +371,7 @@ Model Model::createRectangleModel(Shader& shader, Texture& texture, float x, flo
 		0.0f, 0.0f, 1.0f
     };
 
+    /*
     std::vector<float> texCoords = 
     {
 		0.0f, 1.0f, // Top-left
@@ -373,8 +382,10 @@ Model Model::createRectangleModel(Shader& shader, Texture& texture, float x, flo
 		1.0f, 0.0f, // Bottom-right
 		1.0f, 1.0f  // Top-right
     };
+    */
 
-    return Model(shader, texture, vertices, normals, texCoords);
+    return Model(shader, vertices, normals);
+    //return Model(shader, texture, vertices, normals, texCoords);
 }
 
 void Model::updateVertices(const std::vector<float>& newVertices) 
