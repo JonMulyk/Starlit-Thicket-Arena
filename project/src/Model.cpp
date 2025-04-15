@@ -1,6 +1,37 @@
 #include "Model.h"
 #include <stb_image.h>
 
+//manually provided data
+Model::Model(
+    Shader& shader,
+    Texture& texture,
+    std::vector<float> vertices,
+    std::vector<float> normals,
+    std::vector<float> textCoords
+) : m_shader(shader), m_texture(&texture), m_vertices(vertices), m_normals(normals), m_textCoords(textCoords), hasTexture(true) {
+    createBuffer();
+}
+
+Model::Model(
+    Shader& shader,
+    std::vector<float> vertices,
+    std::vector<float> normals
+) : m_shader(shader), m_texture(nullptr), m_vertices(vertices), m_normals(normals), hasTexture(false) {
+    createBuffer();
+}
+
+//OBJ file with a texture //tinyobj
+Model::Model(Shader& shader, Texture& texture, const std::string& model_path)
+    : m_shader(shader), m_texture(&texture), hasTexture(true) {
+    loadOBJ(model_path);
+    createBuffer();
+}
+
+//without a texture, // assimp
+Model::Model(Shader& shader, const std::string& model_path)
+    : m_shader(shader), m_texture(nullptr), hasTexture(false) {
+    loadModel(model_path);
+}
 
 std::vector<TextureOBJ> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
@@ -32,7 +63,6 @@ std::vector<TextureOBJ> Model::loadMaterialTextures(aiMaterial* mat, aiTextureTy
     }
     return textures;
 }
-
 
 unsigned int TextureFromFile(const char* path, const std::string& directory)
 {
@@ -279,37 +309,6 @@ void Model::createBuffer() {
     glBindVertexArray(0);
 }
 
-//manually provided data
-Model::Model(
-    Shader& shader,
-    Texture& texture,
-    std::vector<float> vertices,
-    std::vector<float> normals,
-    std::vector<float> textCoords
-) : m_shader(shader), m_texture(&texture), m_vertices(vertices), m_normals(normals), m_textCoords(textCoords), hasTexture(true) {
-    createBuffer();
-}
-
-Model::Model(
-    Shader& shader,
-    std::vector<float> vertices,
-    std::vector<float> normals
-) : m_shader(shader), m_texture(nullptr), m_vertices(vertices), m_normals(normals), hasTexture(false) {
-    createBuffer();
-}
-
-//OBJ file with a texture //tinyobj
-Model::Model(Shader& shader, Texture& texture, const std::string& model_path)
-    : m_shader(shader), m_texture(&texture), hasTexture(true) {
-    loadOBJ(model_path);
-    createBuffer();
-}
-
-//without a texture, // assimp
-Model::Model(Shader& shader, const std::string& model_path)
-    : m_shader(shader), m_texture(nullptr), hasTexture(false) {
-    loadModel(model_path);
-}
 
 Shader& Model::getShader()
 {
@@ -371,21 +370,7 @@ Model Model::createRectangleModel(Shader& shader, float x, float y, float width,
 		0.0f, 0.0f, 1.0f
     };
 
-    /*
-    std::vector<float> texCoords = 
-    {
-		0.0f, 1.0f, // Top-left
-		0.0f, 0.0f, // Bottom-left
-		1.0f, 0.0f, // Bottom-right
-
-		0.0f, 1.0f, // Top-left
-		1.0f, 0.0f, // Bottom-right
-		1.0f, 1.0f  // Top-right
-    };
-    */
-
     return Model(shader, vertices, normals);
-    //return Model(shader, texture, vertices, normals, texCoords);
 }
 
 void Model::updateVertices(const std::vector<float>& newVertices) 
