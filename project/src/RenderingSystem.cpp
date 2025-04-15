@@ -114,38 +114,43 @@ void RenderingSystem::renderText(const std::vector<Text>& renderingText) {
 
 void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 {
-    for (int i = 0; i < sceneModels.size(); i++)
-    {
-        if(i == 0)
-        {
-			sceneModels[0].getShader().use();
-			this->camera.updateProjectionView(sceneModels[0].getShader(), window.getWidth(), window.getHeight());
-			shader.setFloat("repeats", 4.0f);
+    renderGroundPlane(sceneModels[0]);
+    renderFuelBar(sceneModels[1]);
+}
 
+void RenderingSystem::renderGroundPlane(Model& groundPlane)
+{
+	groundPlane.getShader().use();
+	this->camera.updateProjectionView(groundPlane.getShader(), window.getWidth(), window.getHeight());
+	shader.setFloat("repeats", 100.0f);
 
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::scale(model, glm::vec3(23.0f, 1.0f, 23.0f)); // Scale the ground
-			model = glm::translate(model, glm::vec3(4.5f, 0.0f, 4.5f)); // translate ground
-			//model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate 180 degrees around X-axis
-			sceneModels[0].getShader().setMat4("model", model);
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::scale(model, glm::vec3(23.0f, 1.0f, 23.0f)); // Scale the ground
+	model = glm::translate(model, glm::vec3(4.5f, 0.0f, 4.5f)); // translate ground
+	groundPlane.getShader().setMat4("model", model);
 
-			sceneModels[0].draw();
-        }
-        else if (i == 1)
-        {
-			sceneModels[i].getShader().use();
+	groundPlane.draw();
+}
 
-            glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f); // left, right, bottom, top
-            sceneModels[i].getShader().setMat4("projection", projection);
+void RenderingSystem::renderFuelBar(Model& fuelBar)
+{
+	fuelBar.getShader().use();
 
-            updateFuelBar(sceneModels[i], gState.playerVehicle.fuel);
+	glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f);
+	fuelBar.getShader().setMat4("projection", projection);
 
-			sceneModels[i].draw();
-        }
-    }
+	updateFuelBar(fuelBar, gState.playerVehicle.fuel);
+
+	fuelBar.draw();
 }
 
 void RenderingSystem::updateFuelBar(Model& fuelBar, float fuelLevel)
+{
+    updateFuelBarSize(fuelBar, fuelLevel);
+    updateFuelBarColor(fuelBar, fuelLevel);
+}
+
+void RenderingSystem::updateFuelBarSize(Model& fuelBar, float fuelLevel)
 {
     float x = -0.9f;
     float y = -0.9f;
@@ -164,6 +169,11 @@ void RenderingSystem::updateFuelBar(Model& fuelBar, float fuelLevel)
 		x, y + height, 0.0f
     };
 
+    fuelBar.updateVertices(vertices);
+}
+
+void RenderingSystem::updateFuelBarColor(Model& fuelBar, float fuelLevel)
+{
     glm::vec4 color;
 
     float fuelLevelGreenMin = 0.999f;
@@ -187,10 +197,8 @@ void RenderingSystem::updateFuelBar(Model& fuelBar, float fuelLevel)
         color = red;
     }
 
-    fuelBar.getShader().use();
+	fuelBar.getShader().use();
     fuelBar.getShader().setVec4("barColor", color);
-
-    fuelBar.updateVertices(vertices);
 }
 
 
