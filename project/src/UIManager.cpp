@@ -21,7 +21,7 @@ void UIManager::initializeUIText()
 
     Text uiFPS = Text("", farLeftX, topOfScreenY, 0.5f, textColor, TTF::TEXT_POSITION::LEFT);
     Text roundTimeLeft = Text("roundTimeLeft", "0:0", width / 2.0f, topOfScreenY, this->textScale, textColor, TTF::TEXT_POSITION::CENTER);
-    Text fuel = Text("fuel", "100", farLeftX, height*0.01f, this->textScale, textColor, TTF::TEXT_POSITION::LEFT);
+    Text fuel = Text("fuel", "Fuel:", farLeftX, height*0.01f, this->textScale, textColor, TTF::TEXT_POSITION::LEFT);
     Text score = Text("SCORE", farLeftX, height * 0.858f, this->textScale, textColor, TTF::TEXT_POSITION::LEFT);
 
     uiText.push_back(uiFPS);
@@ -68,18 +68,18 @@ void UIManager::updateUIText(TimeSeconds& timer, double roundDuration, GameState
 {
 	uiText[0].setTextToRender("FPS: " + std::to_string(timer.getFPS()));
 	uiText[1].setTextToRender(timer.formatTimeToHumanReadable(timer.getRemainingTime(roundDuration)));
-    if(player == 0) uiText[2].setTextToRender("Fuel:" + std::to_string(int(gameState.playerVehicle.fuel * 100)));
-	if (player == 1) uiText[2].setTextToRender("Fuel:" + std::to_string(int(gameState.playerVehicle2.fuel * 100)));
-	if (player == 2) uiText[2].setTextToRender("Fuel:" + std::to_string(int(gameState.playerVehicle3.fuel * 100)));
-	if (player == 3) uiText[2].setTextToRender("Fuel:" + std::to_string(int(gameState.playerVehicle4.fuel * 100)));
+    if (fuelTextEnabled)
+    {
+        if (player == 0) uiText[2].setTextToRender("Fuel:" + std::to_string(int(gameState.playerVehicle.fuel * 100)));
+        else if (player == 1) uiText[2].setTextToRender("Fuel:" + std::to_string(int(gameState.playerVehicle2.fuel * 100)));
+        else if (player == 2) uiText[2].setTextToRender("Fuel:" + std::to_string(int(gameState.playerVehicle3.fuel * 100)));
+        else if (player == 3) uiText[2].setTextToRender("Fuel:" + std::to_string(int(gameState.playerVehicle4.fuel * 100)));
+    }
 
-
-    //uiText[2].setTextToRender(gameState.getSortedScoresString());
-    //uiText[2].setTextToRender("score: " + std::to_string(score));
     addScoreText(gameState);
 }
 
-void UIManager::initializeFuelBars(int numberOfBars, Shader& shader)
+void UIManager::initializeFuelBars(int numberOfBars, Shader& shader, GameState& gameState)
 {
     fuelBars.clear();
 
@@ -87,10 +87,20 @@ void UIManager::initializeFuelBars(int numberOfBars, Shader& shader)
     {
         this->fuelBars.emplace_back(shader, -0.9f, -0.95f, 0.4f, 0.05f);
     }
+
+    this->resetFuel(gameState);
 }
 
 std::vector<FuelBar>& UIManager::getFuelBars()
 {
     return this->fuelBars;
+}
+
+void UIManager::resetFuel(GameState& gameState)
+{
+    gameState.playerVehicle.fuel  = 100;
+    gameState.playerVehicle2.fuel = 100;
+    gameState.playerVehicle3.fuel = 100;
+    gameState.playerVehicle4.fuel = 100;
 }
 
