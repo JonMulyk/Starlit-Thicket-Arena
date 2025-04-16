@@ -28,7 +28,7 @@ void UIManager::initializeUIText()
 
     Text uiFPS = Text("", farLeftX, topOfScreenY, 0.5f, textColor, TTF::TEXT_POSITION::LEFT);
     Text roundTimeLeft = Text("roundTimeLeft", "0:0", width / 2.0f, topOfScreenY, this->textScale, textColor, TTF::TEXT_POSITION::CENTER);
-    Text fuel = Text("fuel", "Fuel:", farLeftX, height*0.01f, this->textScale, textColor, TTF::TEXT_POSITION::LEFT);
+    Text fuel = Text("fuel", "Fuel:", farLeftX, height*0.026f, this->textScale, textColor, TTF::TEXT_POSITION::LEFT);
     Text score = Text("SCORE", farLeftX, height * 0.858f, this->textScale, textColor, TTF::TEXT_POSITION::LEFT);
 
     uiText.push_back(uiFPS);
@@ -105,9 +105,9 @@ std::vector<FuelBar>& UIManager::getFuelBars()
 
 void UIManager::resetFuel(GameState& gameState)
 {
-    gameState.playerVehicle.fuel  = 100;
-    gameState.playerVehicle2.fuel = 100;
-    gameState.playerVehicle3.fuel = 100;
-    gameState.playerVehicle4.fuel = 100;
+    gameState.playerVehicle.fuel  = 1.0f;
+    gameState.playerVehicle2.fuel = 1.0f;
+    gameState.playerVehicle3.fuel = 1.0f;
+    gameState.playerVehicle4.fuel = 1.0f;
 }
 
