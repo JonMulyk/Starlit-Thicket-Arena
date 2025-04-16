@@ -116,7 +116,7 @@ void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 {
     sceneModels[0].getShader().use();
     this->camera.updateProjectionView(sceneModels[0].getShader(), window.getWidth(), window.getHeight());
-    shader.setFloat("repeats", 100.f);
+    shader.setFloat("repeats", 4);
 
 
     glm::mat4 model = glm::mat4(1.0f);
@@ -125,7 +125,7 @@ void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
     //model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate 180 degrees around X-axis
     sceneModels[0].getShader().setMat4("model", model);
 
-    sceneModels[0].draw();
+    //sceneModels[0].draw();
 }
 
 void RenderingSystem::renderSkybox(Skybox& skybox)

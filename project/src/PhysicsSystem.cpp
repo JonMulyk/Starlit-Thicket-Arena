@@ -91,6 +91,15 @@ void PhysicsSystem::initGroundPlane() {
 
 	// add ground to scene
 	gScene->addActor(*gGroundPlane);
+	/*
+	for (int x = -100; x < 110; x += 10) {
+		for (int z = -100; z < 110; z += 10) {
+			gState.staticEntities.push_back(Entity("floor", &pModels[6], new Transform()));
+			gState.staticEntities.back().transform->pos = glm::vec3(x,0,z);
+			gState.staticEntities.back().transform->scale = glm::vec3(1.13, 0, 1.13);
+		}
+	}
+	*/
 }
 
 // Release ground
@@ -130,7 +139,7 @@ void PhysicsSystem::initBoarder() {
 		{{length, height, 0}, physx::PxPi / 2, 2},               // Right wall
 		{{-length, height, 0}, physx::PxPi / 2, 3}               // Left wall
 	};
-
+		
 	for (const auto& wall : walls) {
 		// Transform
 		physx::PxTransform wallTransform(
@@ -614,7 +623,7 @@ void PhysicsSystem::reintialize() {
 
 	// Remove all static entity objects
 	for (int g = gState.staticEntities.size()-1; g >= 0; g--) {
-		if (gState.staticEntities[g].name != "boarder") {
+		if (gState.staticEntities[g].name != "boarder" && gState.staticEntities[g].name != "floor") {
 			gState.staticEntities.erase(gState.staticEntities.begin() + g);
 		}
 	}
@@ -870,7 +879,7 @@ void PhysicsSystem::updateTrailLifetime(float dt) {
 			// remove trail based on position now instead of a unique name
 			for (auto it = gState.staticEntities.begin(); it != gState.staticEntities.end(); ) {
 				glm::vec3 entityPos = it->transform->pos;
-				if (fabs(entityPos.x - pose.p.x) < 0.5f && fabs(entityPos.z - pose.p.z) < 0.5f) {
+				if (fabs(entityPos.x - pose.p.x) < 0.5f && fabs(entityPos.z - pose.p.z) < 0.5f && it->name != "floor") {
 					it = gState.staticEntities.erase(it);
 				}
 				else {

@@ -83,6 +83,7 @@ int main() {
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
     Model groundPlaneModel2(sceneShader, grass, "project/assets/models/reallySquareArena.obj");
     Model groundPlaneModel3(sceneShader, blueGrass, "project/assets/models/reallySquareArena.obj");
+    Model *groundType[] = { &groundPlaneModel , &groundPlaneModel2, &groundPlaneModel3 };
     UIManager uiManager(window.getWidth(), window.getHeight());
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
@@ -98,7 +99,7 @@ int main() {
     LevelSelectMenu levelSelectMenu(window, arial, controller1, gState);
     PauseScreen pause(window, arial, controller1, audio);
 
-    std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
+    std::vector<Model> pModels = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube};
 
     // Minimap 
     Shader minimapShader("minimapShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
@@ -140,6 +141,14 @@ int main() {
         {
             sceneModels.push_back(groundPlaneModel3);
         }
+        std::cout << selectedLevel << "\n";
+        for (int x = -100; x < 110; x += 10) {
+            for (int z = -100; z < 110; z += 10) {
+                gState.staticEntities.push_back(Entity("floor", groundType[selectedLevel-1], new Transform()));
+                gState.staticEntities.back().transform->pos = glm::vec3(x, 0, z);
+                gState.staticEntities.back().transform->scale = glm::vec3(1.13, 0, 1.13);
+            }
+        }
 
         // Game setup
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -151,7 +160,7 @@ int main() {
             controllerCommand.steer = 0.0f;
         }
 
-        PhysicsSystem* physicsSystem = new PhysicsSystem(gState, models);
+        PhysicsSystem* physicsSystem = new PhysicsSystem(gState, pModels);
 
         audio.init(physicsSystem, &camera);
 
