@@ -380,7 +380,7 @@ int main() {
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
 
                 // render everything except minimap
-                renderer.updateRenderer(sceneModels, uiManager, skybox, 4);
+                renderer.updateRenderer(sceneModels, uiManager, skybox, 0);
                 // render minimap
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);
