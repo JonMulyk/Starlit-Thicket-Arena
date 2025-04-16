@@ -8,9 +8,9 @@ RenderingSystem::RenderingSystem(Shader& shader, Camera& camera, Windowing& wind
 
 void RenderingSystem::updateRenderer(
     std::vector<Model>& sceneModels,
-    std::vector<Model>& fuelBars,
-    const std::vector<Text>& uiText,
-    Skybox& skybox
+    UIManager& uiManager,
+    Skybox& skybox,
+    uint16_t playerID
 )
 {
     //glViewport(0, 0, window.getWidth(), window.getHeight());
@@ -20,8 +20,8 @@ void RenderingSystem::updateRenderer(
     this->renderEntities(gState.dynamicEntities, this->camera);
     this->renderEntities(gState.staticEntities, this->camera);
     this->renderScene(sceneModels); // needs to be before any texture binds, otherwise it will take on those
-    this->renderFuelBar(fuelBars);
-    this->renderText(uiText);
+    this->renderFuelBar(uiManager.getFuelBars(), playerID);
+    this->renderText(uiManager.getUIText());
 	//this->renderText(textToDisplay, 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
 
 }
@@ -157,18 +157,44 @@ void RenderingSystem::renderGroundPlane(Model& groundPlane)
 	groundPlane.draw();
 }
 
-void RenderingSystem::renderFuelBar(std::vector<Model>& fuelBars)
+void RenderingSystem::renderFuelBar(std::vector<FuelBar>& fuelBars, uint16_t playerID)
 {
-    Model& fuelBar = fuelBars[0];
+    FuelBar& fuelBar = fuelBars[playerID];
 
-	fuelBar.getShader().use();
+	Model& fuelBarModel = fuelBar.getFuelBarModel();
+	fuelBarModel.getShader().use();
 
 	glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f);
-	fuelBar.getShader().setMat4("projection", projection);
+	fuelBarModel.getShader().setMat4("projection", projection);
 
-	updateFuelBar(fuelBar, gState.playerVehicle.fuel);
+	if (playerID == 0) fuelBar.updateFuelBar(gState.playerVehicle.fuel);
+	else if (playerID == 1) fuelBar.updateFuelBar(gState.playerVehicle2.fuel);
+	else if (playerID == 2) fuelBar.updateFuelBar(gState.playerVehicle3.fuel);
+	else if (playerID == 3) fuelBar.updateFuelBar(gState.playerVehicle4.fuel);
 
-	fuelBar.draw();
+	fuelBarModel.draw();
+    /*
+    int i = 0;
+    for (FuelBar& fuelBar : fuelBars)
+    {
+        if (i == 0) glViewport(0, window.getHeight() / 2, window.getWidth(), window.getHeight() / 2);
+        else if(i == 1) glViewport(0, 0, window.getWidth(), window.getHeight() / 2);
+
+        Model& fuelBarModel = fuelBar.getFuelBarModel();
+        fuelBarModel.getShader().use();
+
+        glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f);
+        fuelBarModel.getShader().setMat4("projection", projection);
+
+        if(i == 0) fuelBar.updateFuelBar(gState.playerVehicle.fuel);
+        else if(i == 1) fuelBar.updateFuelBar(gState.playerVehicle2.fuel);
+        else if(i == 2) fuelBar.updateFuelBar(gState.playerVehicle3.fuel);
+        else if(i == 3) fuelBar.updateFuelBar(gState.playerVehicle4.fuel);
+
+        fuelBarModel.draw();
+        i++;
+    }
+    */
 }
 
 void RenderingSystem::updateFuelBar(Model& fuelBar, float fuelLevel)

@@ -194,6 +194,7 @@
     <ClCompile Include="project\src\DynamicCamera.cpp" />
     <ClCompile Include="project\src\EndScreen.cpp" />
     <ClCompile Include="project\src\Entity.cpp" />
+    <ClCompile Include="project\src\FuelBar.cpp" />
     <ClCompile Include="project\src\GameMap.cpp" />
     <ClCompile Include="project\src\GameState.cpp" />
     <ClCompile Include="project\src\glad.c" />
@@ -653,6 +654,7 @@
     <ClInclude Include="project\include\Camera.h" />
     <ClInclude Include="project\include\Command.h" />
     <ClInclude Include="project\include\ControlMenu.h" />
+    <ClInclude Include="project\include\FuelBar.h" />
     <ClInclude Include="project\include\EndScreen.h" />
     <ClInclude Include="project\include\GameMap.h" />
     <ClInclude Include="project\include\LevelSelect.h" />

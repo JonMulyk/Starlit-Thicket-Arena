@@ -97,10 +97,6 @@ int main() {
     std::vector<Model> sceneModels;
     GameStateEnum gameState = GameStateEnum::MENU;
 
-    // Fuel Bars
-    std::vector<Model> fuelBars;
-	Model fuelBar = Model::createRectangleModel(uiShader, gold, -0.9f, -0.95f, 0.4f, 0.05f); 
-
     // Skybox
     Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
     Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
@@ -180,8 +176,6 @@ int main() {
         {
             sceneModels.push_back(groundPlaneModel3);
         }
-        fuelBars.push_back(fuelBar);
-        //sceneModels.push_back(fuelBar);
 
         // Game setup
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -218,9 +212,21 @@ int main() {
 
         // reset scoreboard
         //gState.initializeScores(numberOfPlayers, numberOfAiCars);
-        if (gState.splitScreenEnabled) gState.initializeScores(2, 2);
-		else if (gState.splitScreenEnabled4) gState.initializeScores(4, 0);
-		else gState.initializeScores(1, 3);
+        if (gState.splitScreenEnabled)
+        {
+			uiManager.initializeFuelBars(2, uiShader);
+            gState.initializeScores(2, 2);
+        }
+		else if(gState.splitScreenEnabled4)
+        {
+			uiManager.initializeFuelBars(4, uiShader);
+			gState.initializeScores(4, 0);
+        }
+        else
+        {
+			uiManager.initializeFuelBars(1, uiShader);
+            gState.initializeScores(1, 3);
+        }
         uiManager.addScoreText(gState);
 
 
@@ -316,7 +322,7 @@ int main() {
                 // Left half
                 glViewport(0, window.getHeight() / 2, window.getWidth(), window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
-                renderer.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);  // Using camera1 (a Camera instance)
+                renderer.updateRenderer(sceneModels, uiManager, skybox, 0);  // Using camera1 (a Camera instance)
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);
                 glEnable(GL_DEPTH_TEST);
@@ -325,7 +331,7 @@ int main() {
                 //print camera2 position
                 glViewport(0, 0, window.getWidth(), window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 1);
-                renderer2.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);  // Using camera2 (a Camera instance)
+                renderer2.updateRenderer(sceneModels, uiManager, skybox, 1);  // Using camera2 (a Camera instance)
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 1);
                 glEnable(GL_DEPTH_TEST);
@@ -339,7 +345,7 @@ int main() {
                 // top left
                 glViewport(0, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
-                renderer.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);
+                renderer.updateRenderer(sceneModels, uiManager, skybox, 0);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);
                 glEnable(GL_DEPTH_TEST);
@@ -347,7 +353,7 @@ int main() {
                 // top right
                 glViewport(window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 1);
-                renderer2.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);
+                renderer2.updateRenderer(sceneModels, uiManager, skybox, 1);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 1);
                 glEnable(GL_DEPTH_TEST);
@@ -355,7 +361,7 @@ int main() {
                 // bottom left
                 glViewport(0, 0, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 2);
-                renderer3.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);
+                renderer3.updateRenderer(sceneModels, uiManager, skybox, 2);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 2);
                 glEnable(GL_DEPTH_TEST);
@@ -363,7 +369,7 @@ int main() {
                 // bottom right
                 glViewport(window.getWidth() / 2, 0, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 3);
-                renderer4.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);
+                renderer4.updateRenderer(sceneModels, uiManager, skybox, 3);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 3);
                 glEnable(GL_DEPTH_TEST);
@@ -374,7 +380,7 @@ int main() {
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
 
                 // render everything except minimap
-                renderer.updateRenderer(sceneModels, fuelBars, uiManager.getUIText(), skybox);
+                renderer.updateRenderer(sceneModels, uiManager, skybox, 4);
                 // render minimap
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);

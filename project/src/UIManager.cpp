@@ -79,3 +79,18 @@ void UIManager::updateUIText(TimeSeconds& timer, double roundDuration, GameState
     addScoreText(gameState);
 }
 
+void UIManager::initializeFuelBars(int numberOfBars, Shader& shader)
+{
+    fuelBars.clear();
+
+    for (int i = 0; i < numberOfBars; i++)
+    {
+        this->fuelBars.emplace_back(shader, -0.9f, -0.95f, 0.4f, 0.05f);
+    }
+}
+
+std::vector<FuelBar>& UIManager::getFuelBars()
+{
+    return this->fuelBars;
+}
+
