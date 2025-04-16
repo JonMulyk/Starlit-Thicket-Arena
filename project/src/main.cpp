@@ -106,7 +106,7 @@ int main() {
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
     Model groundPlaneModel2(sceneShader, grass, "project/assets/models/reallySquareArena.obj");
     Model groundPlaneModel3(sceneShader, blueGrass, "project/assets/models/reallySquareArena.obj");
-    UIManager uiManager(window.getWidth(), window.getHeight());
+    UIManager uiManager(window.getWidth(), window.getHeight(), uiShader);
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
     RenderingSystem renderer2(shader, camera2, window, arial, gState);
@@ -211,7 +211,7 @@ int main() {
         physicsSystem->updateTransforms(gState.dynamicEntities);
 
         // reset UI
-        uiManager.initializeUIElements(gState, uiShader);
+        uiManager.initializeUIElements(gState);
 
 
         // Main Loop

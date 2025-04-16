@@ -2,18 +2,18 @@
 #include <sstream>
 #include <iomanip>
 
-UIManager::UIManager(int windowWidth, int windowHeight)
-	: windowWidth(windowWidth), windowHeight(windowHeight)
+UIManager::UIManager(int windowWidth, int windowHeight, Shader& fuelBarShader)
+	: windowWidth(windowWidth), windowHeight(windowHeight), fuelBarShader(fuelBarShader)
 {
     this->textScale = std::min(windowWidth, windowHeight) * 0.0010f;
     initializeUIText();
 }
 
-void UIManager::initializeUIElements(GameState& gameState, Shader& fuelBarShader)
+void UIManager::initializeUIElements(GameState& gameState)
 {
     gameState.initializeScores();
 	this->addScoreText(gameState);
-	this->initializeFuelBars(gameState.getNumberOfPlayers(), fuelBarShader, gameState);
+	this->initializeFuelBars(gameState.getNumberOfPlayers(), gameState);
 }
 
 void UIManager::initializeUIText()
@@ -86,13 +86,13 @@ void UIManager::updateUIText(TimeSeconds& timer, double roundDuration, GameState
     addScoreText(gameState);
 }
 
-void UIManager::initializeFuelBars(int numberOfBars, Shader& shader, GameState& gameState)
+void UIManager::initializeFuelBars(int numberOfBars, GameState& gameState)
 {
     fuelBars.clear();
 
     for (int i = 0; i < numberOfBars; i++)
     {
-        this->fuelBars.emplace_back(shader, -0.9f, -0.95f, 0.4f, 0.05f);
+        this->fuelBars.emplace_back(this->fuelBarShader, -0.9f, -0.95f, 0.4f, 0.05f);
     }
 
     this->resetFuel(gameState);
