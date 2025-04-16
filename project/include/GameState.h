@@ -25,7 +25,6 @@ enum class GameStateEnum {
 
 class GameState {
 	private:
-
 		std::unordered_map<std::string, uint64_t> scores;
 		std::vector<std::pair<std::string, uint64_t>> sortedScores;
 
@@ -53,11 +52,14 @@ class GameState {
 		void sortScores();
 		std::string physicsToUiNameConversion(std::string physicsName);
 		void addScoreToVehicle(std::string name, uint64_t value);
-		void initializeScores(uint16_t numberOfPlayers, uint16_t numberOfAiCars);
+		void initializeScores();
 
 		bool resetAudio = false;
 		bool tempTrails = false;
 		bool splitScreenEnabled = false;
 		bool splitScreenEnabled4 = false;
+
+		uint16_t getNumberOfPlayers();
+		uint16_t getNumberOfAI();
 };
 

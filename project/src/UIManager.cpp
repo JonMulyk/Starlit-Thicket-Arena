@@ -9,6 +9,13 @@ UIManager::UIManager(int windowWidth, int windowHeight)
     initializeUIText();
 }
 
+void UIManager::initializeUIElements(GameState& gameState, Shader& fuelBarShader)
+{
+    gameState.initializeScores();
+	this->addScoreText(gameState);
+	this->initializeFuelBars(gameState.getNumberOfPlayers(), fuelBarShader, gameState);
+}
+
 void UIManager::initializeUIText()
 {
 

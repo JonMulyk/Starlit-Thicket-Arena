@@ -22,6 +22,8 @@ class UIManager
 
 	public:
 		UIManager(int windowWidth, int windowHeight);
+
+		void initializeUIElements(GameState& gameState, Shader& fuelBarShader);
 		
 		void addScoreText(GameState& gameState);
 		const std::vector<Text>& getUIText() const;

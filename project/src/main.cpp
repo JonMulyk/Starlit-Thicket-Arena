@@ -210,24 +210,8 @@ int main() {
 
         physicsSystem->updateTransforms(gState.dynamicEntities);
 
-        // reset scoreboard
-        //gState.initializeScores(numberOfPlayers, numberOfAiCars);
-        if (gState.splitScreenEnabled)
-        {
-			uiManager.initializeFuelBars(2, uiShader, gState);
-            gState.initializeScores(2, 2);
-        }
-		else if(gState.splitScreenEnabled4)
-        {
-			uiManager.initializeFuelBars(4, uiShader, gState);
-			gState.initializeScores(4, 0);
-        }
-        else
-        {
-			uiManager.initializeFuelBars(1, uiShader, gState);
-            gState.initializeScores(1, 3);
-        }
-        uiManager.addScoreText(gState);
+        // reset UI
+        uiManager.initializeUIElements(gState, uiShader);
 
 
         // Main Loop
