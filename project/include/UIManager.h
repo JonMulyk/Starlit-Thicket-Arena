@@ -17,19 +17,18 @@ class UIManager
 		float textScale = 1.0f;
 		bool fuelTextEnabled = false;
 
-
 		void initializeUIText();
+		void addScoreText(GameState& gameState);
+		void initializeFuelBars(int numberOfBars, Shader& fuelBarShader, GameState& gameState);
 
 	public:
 		UIManager(int windowWidth, int windowHeight);
 
 		void initializeUIElements(GameState& gameState, Shader& fuelBarShader);
 		
-		void addScoreText(GameState& gameState);
 		const std::vector<Text>& getUIText() const;
 		void updateUIText(TimeSeconds& timer, double roundDuration, GameState& gameState, int player);
 
-		void initializeFuelBars(int numberOfBars, Shader& fuelBarShader, GameState& gameState);
 		std::vector<FuelBar>& getFuelBars();
 		void resetFuel(GameState& gameState);
 };
