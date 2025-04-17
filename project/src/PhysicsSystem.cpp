@@ -858,7 +858,8 @@ void PhysicsSystem::updateTrailLifetime(float dt) {
 				if (trailSegments[i].actor->getScene() == gScene) {
 					gScene->removeActor(*trailSegments[i].actor);
 				}
-				trailSegments[i].actor->release();			}
+				trailSegments[i].actor->release();
+			}
 
 			// Update map
 			physx::PxVec3 dir = pose.q.getBasisVector0();
@@ -882,12 +883,13 @@ void PhysicsSystem::updateTrailLifetime(float dt) {
 			trailSegments.erase(trailSegments.begin() + i);
 
 		}
-
-
 	}
 }
 
 void PhysicsSystem::updateTrailSize() {
+	float minSize = 0.5f;
+	float maxSize = 1.0f;
+	float rate = 0.5f;
 	float scale;
 	for (int i = trailSegments.size() - 1; i >= 0; i--) {
 		physx::PxTransform pose;
@@ -895,7 +897,7 @@ void PhysicsSystem::updateTrailSize() {
 		for (auto& entity : gState.staticEntities) {
 			glm::vec3 entityPos = entity.transform->pos;
 			if (fabs(entityPos.x - pose.p.x) < 0.5f && fabs(entityPos.z - pose.p.z) < 0.5f) {
-				scale = std::max(std::min((simulationTime - trailSegments[i].creationTime)/2, 1.0f),0.2f);
+				scale = std::max(std::min((simulationTime - trailSegments[i].creationTime)* rate, maxSize), minSize);
 				entity.transform->scale = glm::vec3(scale);
 			}
 		}
