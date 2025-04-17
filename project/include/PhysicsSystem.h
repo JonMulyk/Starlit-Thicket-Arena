@@ -116,6 +116,7 @@ private:
 	float simulationTime = 0.0f; // running simulation time
 	void updateTrailLifetime(float dt);
 	void removeAllTrailSegmentsByOwner(const std::string& owner);
+	void updateTrailSize();
 	void updateWinCondition(float dt);
 
 	// Initialize PhysX and vehicles
