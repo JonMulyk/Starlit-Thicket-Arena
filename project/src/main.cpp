@@ -29,41 +29,59 @@
 #include "TransparentBoxRenderer.h"
 #include <PauseMenu.h>
 
-
-
 int main() {
-    GameState gState;
     InitManager::initGLFW();
-    Command command;
-    Command controllerCommand;
-    TimeSeconds timer;
-    DynamicCamera camera(gState, timer);
-    //Camera camera(gState, timer, true, glm::vec3(0.0f, 250.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), -90.0f, -90.0f);
+    GameState gState;       // tracks game updates and state
+    TimeSeconds timer;      // tracks the game time
 
-    //Windowing window(1200, 1000, "", false);
-    Windowing window(1920, 1080);
+    // Cameras
+    DynamicCamera camera(gState, timer);
+    StaticCamera minimapCamera(
+        timer,
+        glm::vec3(0.0f, 250.0f, 0.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f)
+    );
+
+    Windowing window(1920, 1080);   // full screen window using glfw
+
+    // Inputs
+    Command command;
     Input input(window, camera, timer, command);
-    Controller controller1(1, camera, controllerCommand);
+    Controller controller1(1, camera, command);
     if (!controller1.isConnected()) {
         std::cout << "Controller one not connected" << std::endl;
-        controllerCommand.brake = 0.0f;
-        controllerCommand.throttle = 0.0f;
-        controllerCommand.steer = 0.0f;
     }
 
+    // True Text Fonts
+    TTF arial(
+        "project/assets/shaders/textShader.vert",
+        "project/assets/shaders/textShader.frag",
+        "project/assets/fonts/Arial.ttf",
+        window.getWidth(), window.getHeight()
+    );
+    
+    // Shaders
     Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
-    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf", window.getWidth(), window.getHeight());
+    Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
+    Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
+    Shader minimapShader("minimapShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
+
+    // Textures
     Texture container("project/assets/textures/container.jpg", true);
     Texture gold("project/assets/textures/gold.jpg", true);
     Texture neon("project/assets/textures/neon.jpg", true);
     Texture fire("project/assets/textures/fire.jpg", true);
     Texture grass("project/assets/textures/green-grass.jpg", true);
     Texture blueGrass("project/assets/textures/696.jpg", true);
-    // Model Setup
+
+    // Models - manual entries
     std::vector<float> verts, coord;
     InitManager::getCube(verts, coord);
     Model cube(lightingShader, container, verts, verts, coord);
+
+    // Models - obj
     Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
     Model Gtrail(lightingShader, "project/assets/models/Gtree/GTree.obj");
     Model Btrail(lightingShader, "project/assets/models/Btree/BTree.obj");
@@ -71,46 +89,39 @@ int main() {
     Model Ytrail(lightingShader, "project/assets/models/Ytree/YTree.obj");
     Model tireModel(lightingShader, "project/assets/models/tire1/tire1.obj");
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
-    std::vector<Model> sceneModels;
-    GameStateEnum gameState = GameStateEnum::MENU;
-
-    // Skybox
-    Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
-    Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
-    Skybox skybox("project/assets/textures/skybox/", skyboxShader);
-    TransparentBoxRenderer boxRenderer;
-
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
     Model groundPlaneModel2(sceneShader, grass, "project/assets/models/reallySquareArena.obj");
     Model groundPlaneModel3(sceneShader, blueGrass, "project/assets/models/reallySquareArena.obj");
-    UIManager uiManager(window.getWidth(), window.getHeight());
-    int selectedLevel = -1;
-    RenderingSystem renderer(shader, camera, window, arial, gState);
-    const double roundDuration = 200;
-    //PauseResult pauseResult = PauseResult::RESUME;
 
+    // Model Arrays
+    std::vector<Model> sceneModels;
+    std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
 
+    // Skybox
+    Skybox skybox("project/assets/textures/skybox/water/", skyboxShader);
+    TransparentBoxRenderer boxRenderer;
+
+    // Audio setup
     bool isAudioInitialized = false;
-
     AudioSystem audio;
 
+    // UI
+    UIManager uiManager(window.getWidth(), window.getHeight());
     MainMenu menu(window, arial, controller1);
     LevelSelectMenu levelSelectMenu(window, arial, controller1, gState);
     PauseScreen pause(window, arial, controller1, audio);
 
-    std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
+    // Rendering Pipeline
+    RenderingSystem renderer(shader, camera, window, arial, gState);
 
-    // Minimap 
-    Shader minimapShader("minimapShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
-    StaticCamera minimapCamera(timer, glm::vec3(0.0f, 250.0f, 0.0f),
-        glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-    // Number of players playing for scoreboard 
+    // Set game parameters
+    int selectedLevel = -1;
+    const double roundDuration = 200;
+    GameStateEnum gameState = GameStateEnum::MENU;
     uint16_t numberOfPlayers = 1;
     uint16_t numberOfAiCars = 3;
 
     // Main Loop
-    //timer.advance();
     while (!window.shouldClose()) {
         if (gameState == GameStateEnum::MENU) {
             bool startGame = false;
@@ -131,56 +142,41 @@ int main() {
         if (selectedLevel == 1)
         {
             sceneModels.push_back(groundPlaneModel);
-        }
-        if (selectedLevel == 2)
+        } else if (selectedLevel == 2)
         {
             sceneModels.push_back(groundPlaneModel2);
-        }
-        if (selectedLevel == 3)
+        } else if (selectedLevel == 3)
         {
             sceneModels.push_back(groundPlaneModel3);
         }
 
         // Game setup
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-        if (!controller1.isConnected()) {
-            std::cout << "Controller one not connected" << std::endl;
-            controllerCommand.brake = 0.0f;
-            controllerCommand.throttle = 0.0f;
-            controllerCommand.steer = 0.0f;
-        }
-
         PhysicsSystem* physicsSystem = new PhysicsSystem(gState, models);
-
-        audio.init(physicsSystem, &camera);
-
-        // Static scene data
-        //sceneModels.push_back(groundPlaneModel);
-
         physicsSystem->updateTransforms(gState.dynamicEntities);
+        audio.init(physicsSystem, &camera);
 
         // reset scoreboard
         gState.initializeScores(numberOfPlayers, numberOfAiCars);
         uiManager.addScoreText(gState);
 
-
-        // Main Loop
+        // -- Main Loop
+        // Reset time
         timer.reset();
         timer.advance();
+// ----------------------------------------------------------------------
+        // Start loop
         while (!window.shouldClose() && gameState == GameStateEnum::PLAYING) {
-            window.clear();
-            timer.tick();
-            input.poll();
-            controller1.Update();
-            // Update camera zoom based on car speed:
-            //float carSpeed = physicsSystem->getCarSpeed(0);
+            window.clear(); // clear window
+            timer.tick(); // increment timer
+            input.poll(); // check inputs
+            controller1.Update(); // check controller
 
+            // update camera
             camera.updateZoom(physicsSystem->getCarSpeed(0));
             camera.updateYawWithDelay(glm::degrees(atan2(gState.playerVehicle.curDir.z, gState.playerVehicle.curDir.x)), timer.dt);
 
-            physicsSystem->update(timer.getFrameTime());
-
+            // update the audio
             if (physicsSystem->playerDied) {
                 audio.stopCarSounds(); 
             }
@@ -189,16 +185,20 @@ int main() {
                 audio.update();
             }
 
+            // check for reinitialization
+            if (physicsSystem->playerDied) {
+                command.fuel = 1;
+            }
             physicsSystem->update(timer.getFrameTime());
 
-            //pause
+            // trigger pause
             if (input.isKeyReleased(GLFW_KEY_P) || controller1.isButtonJustReleased(XINPUT_GAMEPAD_START)) {
                 gameState = GameStateEnum::PAUSE;
                 timer.stop();
                 audio.pauseMusic();
-
             }
 
+            // pause state
             while (gameState == GameStateEnum::PAUSE) {
                 input.poll();
                 controller1.Update();
@@ -211,15 +211,13 @@ int main() {
                     audio.resumePauseSounds();
                 }
                 else {
-                    //back to main menu
                     gameState = GameStateEnum::RESET;
-                    //break; //might need this...
                 }
             }
 
-            // Update physics
+            // run game simulation
             while (timer.getAccumultor() > 5 && timer.getAccumultor() >= timer.dt) {
-                physicsSystem->stepPhysics(timer.dt, command, controllerCommand);
+                physicsSystem->stepPhysics(timer.dt, command);
                 physicsSystem->updatePhysics(timer.dt);
                 timer.advance();
             }
@@ -246,7 +244,7 @@ int main() {
         //reset
         if (gameState == GameStateEnum::RESET) {
             //pauseResult = PauseResult::RESUME;
-            //command.fuel = 75; //should this be a thing to reset?
+            command.fuel = 1;
             gameState = GameStateEnum::MENU;
             gState.dynamicEntities.clear();
             gState.staticEntities.clear();
@@ -257,7 +255,7 @@ int main() {
             audio.stopMusic(); 
             timer.reset();
             delete physicsSystem;
-            //delete audio;
+            //TODO: free audio;
         }
 
     }

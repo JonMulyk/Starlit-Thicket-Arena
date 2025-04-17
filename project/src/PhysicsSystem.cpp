@@ -632,7 +632,7 @@ void PhysicsSystem::updatePhysics(double dt) {
 	if (gState.tempTrails) updateTrailLifetime(dt);
 }
 
-void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
+void PhysicsSystem::stepPhysics(float timestep, Command& command) {
 	// namespaces
 	using namespace physx; using namespace snippetvehicle2;
 
@@ -641,22 +641,22 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			Command cmd;
 
 			if (playerDied) {
-				cmd.brake = 1.0f;        // Apply full brake to stop movement
-				cmd.throttle = 0.0f;     // Set throttle to 0
-				cmd.steer = 0.0f;        // Set steer to 0 to stop turning
-				command.fuel = 1;
-				controllerCommand.fuel = 1;
+				cmd.brake = 1.0f;		// Apply full brake to stop movement
+				cmd.throttle = 0.0f;	// Set throttle to 0
+				cmd.steer = 0.0f;		// Set steer to 0 to stop turning
+				cmd.fuel = 1;			// Reset the fuel 
+				cmd.boost = false;		// stop the boost
 				entity.vehicle->setPhysxCommand(cmd);
+				command = cmd;
 			}
 			else {
-				cmd.brake = physx::PxMax(command.brake, controllerCommand.brake);
-				cmd.throttle = 0.5 + physx::PxMax(command.throttle, controllerCommand.throttle) / 2.f;
-				cmd.steer = (abs(command.steer) > abs(controllerCommand.steer)) ? command.steer : controllerCommand.steer;
-				cmd.fuel = min(command.fuel, controllerCommand.fuel);
-				cmd.boost = (controllerCommand.boost == false) ? command.boost : controllerCommand.boost;
+				cmd.brake = command.brake;
+				cmd.throttle = 0.5 + command.throttle / 2.f;
+				cmd.steer = command.steer;
+				cmd.fuel = command.fuel;
+				cmd.boost = command.boost;
 				entity.vehicle->setPhysxCommand(cmd);
 			}
-
 
 			// Step the vehicle
 			entity.vehicle->forward = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
@@ -677,17 +677,14 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 				// brake
 				if (cmd.brake != 0) {
 					rigidBody->setMaxLinearVelocity(10.f - 4.f * cmd.brake);
-				}
-
-				else {
+				} else {
 					rigidBody->setMaxLinearVelocity(curr_max);
 				}
 			}
 
 			// update fuel
-			gState.playerVehicle.fuel = cmd.fuel;
-			controllerCommand.updateBoost(timestep);
 			command.updateBoost(timestep);
+			gState.playerVehicle.fuel = command.fuel;
 
 			// run physx simulation
 			entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
@@ -883,7 +880,6 @@ void PhysicsSystem::updateTrailLifetime(float dt) {
 		}
 	}
 }
-
 
 void PhysicsSystem::removeAllTrailSegmentsByOwner(const std::string& owner)
 {
