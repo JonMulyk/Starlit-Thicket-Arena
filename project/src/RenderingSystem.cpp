@@ -116,13 +116,10 @@ void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 {
     sceneModels[0].getShader().use();
     this->camera.updateProjectionView(sceneModels[0].getShader(), window.getWidth(), window.getHeight());
-    shader.setFloat("repeats", 100.f);
-
+    sceneModels[0].getShader().setFloat("repeats", 15.f);
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(23.0f, 1.0f, 23.0f)); // Scale the ground
-    model = glm::translate(model, glm::vec3(4.5f, 0.0f, 4.5f)); // translate ground
-    //model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate 180 degrees around X-axis
+    model = glm::scale(model, glm::vec3(110.0f, 1.0f, 110.0f)); // Scale the ground
     sceneModels[0].getShader().setMat4("model", model);
 
     sceneModels[0].draw();
@@ -130,6 +127,7 @@ void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 
 void RenderingSystem::renderSkybox(Skybox& skybox)
 {
+    glDepthMask(GL_FALSE);
 	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
     skybox.getSkyboxShader().use();
 	glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
@@ -145,8 +143,8 @@ void RenderingSystem::renderSkybox(Skybox& skybox)
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS); // set depth function back to default
+    glDepthMask(GL_TRUE);
 }
-
 
 void RenderingSystem::updateRenderer(
     std::vector<Model>& sceneModels,
@@ -163,7 +161,6 @@ void RenderingSystem::updateRenderer(
     this->renderScene(sceneModels); // needs to be before any texture binds, otherwise it will take on those
     this->renderText(uiText);
 	//this->renderText(textToDisplay, 10.f, 1390.f, 1.f, glm::vec3(0.5f, 0.8f, 0.2f));
-
 }
 
 void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam)

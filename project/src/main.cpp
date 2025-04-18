@@ -77,9 +77,14 @@ int main() {
     Texture blueGrass("project/assets/textures/696.jpg", true);
 
     // Models - manual entries
-    std::vector<float> verts, coord;
+    std::vector<float> verts, coord, norms;
     InitManager::getCube(verts, coord);
     Model cube(lightingShader, container, verts, verts, coord);
+
+    InitManager::getGround(verts, norms, coord);
+    Model groundPlaneModel(sceneShader, neon, verts, norms, coord);
+    Model groundPlaneModel2(sceneShader, grass, verts, norms, coord);
+    Model groundPlaneModel3(sceneShader, blueGrass, verts, norms, coord);
 
     // Models - obj
     Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
@@ -89,9 +94,6 @@ int main() {
     Model Ytrail(lightingShader, "project/assets/models/Ytree/YTree.obj");
     Model tireModel(lightingShader, "project/assets/models/tire1/tire1.obj");
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
-    Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
-    Model groundPlaneModel2(sceneShader, grass, "project/assets/models/reallySquareArena.obj");
-    Model groundPlaneModel3(sceneShader, blueGrass, "project/assets/models/reallySquareArena.obj");
 
     // Model Arrays
     std::vector<Model> sceneModels;
@@ -139,8 +141,7 @@ int main() {
             gameState = GameStateEnum::PLAYING;
         }
 
-        if (selectedLevel == 1)
-        {
+        if (selectedLevel == 1) {
             sceneModels.push_back(groundPlaneModel);
         } else if (selectedLevel == 2)
         {

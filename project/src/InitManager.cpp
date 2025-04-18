@@ -1,4 +1,4 @@
-#include "InitManager.h"
+﻿#include "InitManager.h"
 
 void InitManager::initGLFW() {
 	glfwInit();
@@ -96,5 +96,40 @@ void InitManager::getCube(std::vector<float>& vert, std::vector<float>& coord) {
 		1.0f, 0.0f,
 		0.0f, 0.0f,
 		0.0f, 1.0f
+	};
+}
+
+void InitManager::getGround(std::vector<float>& vert, std::vector<float>& norms, std::vector<float>& coord) {
+	vert = {
+		// bottom corner
+		-1.f, 0.f, -1.f,
+		 1.f, 0.f, -1.f,
+		 1.f, 0.f,  1.f,
+		 // top corner
+		 1.f, 0.f,  1.f,
+		-1.f, 0.f,  1.f,
+		-1.f, 0.f, -1.f
+	};
+
+	norms = {
+		// bottom corner
+		0.f, 1.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 1.f, 0.f,
+		
+		// top corner
+		0.f, 1.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 1.f, 0.f,
+	};
+
+	// Texture coords, tiled 'tiles' times across each axis
+	coord = {
+		0.f,	0.f,
+		1.f,	0.f,
+		1.f,	1.f,
+		1.f,	1.f,
+		0.f,	1.f,
+		0.f,	0.f
 	};
 }
