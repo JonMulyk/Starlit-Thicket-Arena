@@ -897,7 +897,7 @@ void PhysicsSystem::updateTrailSize() {
 		for (auto& entity : gState.staticEntities) {
 			glm::vec3 entityPos = entity.transform->pos;
 			if (fabs(entityPos.x - pose.p.x) < 0.5f && fabs(entityPos.z - pose.p.z) < 0.5f) {
-				scale = std::max(std::min((simulationTime - trailSegments[i].creationTime)* rate, maxSize), minSize);
+				scale = std::min((simulationTime - trailSegments[i].creationTime)* rate + minSize, maxSize);
 				entity.transform->scale = glm::vec3(scale);
 			}
 		}
