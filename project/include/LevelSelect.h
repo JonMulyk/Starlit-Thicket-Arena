@@ -39,5 +39,5 @@ private:
     AudioSystem audio;
     bool audioInitialized;
     GameState& gameState;
-    int currentSelection = 0; 
+    int currentSelection = 0; //change into enum later
 };
