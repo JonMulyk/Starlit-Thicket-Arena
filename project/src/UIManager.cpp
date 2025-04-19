@@ -105,9 +105,9 @@ std::vector<FuelBar>& UIManager::getFuelBars()
 
 void UIManager::resetFuel(GameState& gameState)
 {
-    gameState.playerVehicle.fuel  = 1.0f;
-    gameState.playerVehicle2.fuel = 1.0f;
-    gameState.playerVehicle3.fuel = 1.0f;
-    gameState.playerVehicle4.fuel = 1.0f;
+    gameState.playerVehicle.fuel  = -1;
+    gameState.playerVehicle2.fuel = -1;
+    gameState.playerVehicle3.fuel = -1;
+    gameState.playerVehicle4.fuel = -1;
 }
 
