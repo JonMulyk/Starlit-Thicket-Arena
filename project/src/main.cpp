@@ -118,11 +118,13 @@ int main() {
 
     AudioSystem audio;
 
+    //menus
     MainMenu menu(window, arial, controller1);
     LevelSelectMenu levelSelectMenu(window, arial, controller1, gState);
     splitScreenSelect splitScreenSelectMenu(window, arial, controller1);
     PauseScreen pause(window, arial, controller1, audio);
     EndScreen endMenu(window, arial, controller1, audio, gState);
+    splitScreenSelect splitMenu(window, arial, controller1);
 
     std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
 
@@ -153,7 +155,6 @@ int main() {
                 return 0;
 
             // Now display the split screen selection menu.
-            splitScreenSelect splitMenu(window, arial, controller1);
             int splitChoice = splitMenu.displayMenuLevel();
             if (splitChoice == -1) { continue; }
             else if (splitChoice == 1) { gState.splitScreenEnabled = false; gState.splitScreenEnabled4 = false; }
@@ -166,11 +167,13 @@ int main() {
 
         if (selectedLevel == 1)
         {
+            gState.tempTrails = false;
             sceneModels.push_back(groundPlaneModel);
         }
         if (selectedLevel == 2)
         {
             sceneModels.push_back(groundPlaneModel2);
+            gState.tempTrails = true;
         }
         if (selectedLevel == 3)
         {

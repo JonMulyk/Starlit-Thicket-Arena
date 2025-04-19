@@ -143,21 +143,20 @@ private:
     void initializeUIText() {
         glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
-        float buttonX = 0.5f * windowWidth;
-        float buttonY = 0.5f * windowHeight;
+        float buttonHeight = 0.1 * windowHeight;
+        float buttonWidth = 0.2f * windowWidth;
+        float spacing = 0.05f * windowWidth;
+        float totalWidth = 4 * buttonWidth + 3 * spacing;
+        float shiftRight = 0.1f * windowWidth;
+        float startX = (windowWidth - totalWidth) / 2 + shiftRight;
+        float baseScale = std::min(windowWidth, windowHeight) * 0.00085f;
+        float tempTrailsScale = std::min(windowWidth, windowHeight) * 0.00065f;
 
-        /*
-        hard cocded text, text and button is initilized different and trying to find the right conversion npm, is hard to calculate
-        probably more milsetone 5 stuff...
-
-        essentially, for the buttons the middle of the screen os the (0,0) -> (1,1) is like the top right coordinates, however for the text the top
-        left is like the (0,0) -> (windowWidth, windowHeight) is the bottom left?
-        */
-        uiText.push_back(Text("Single Player", buttonX - 550, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Two Player", buttonX - 190, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Four Player", buttonX + 170, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Back", buttonX + 550, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-
+        uiText.push_back(Text("1 Player", startX, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("2 Players", startX + buttonWidth + spacing, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("4 Players", startX + 2 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("Back", startX + 3 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        //uiText.push_back(Text("Y - Temp Trails", (0.5f) * windowWidth, 0.31f * windowHeight, tempTrailsScale, glm::vec3(1, 1, 1)));
     }
 
     void compileShaders() {

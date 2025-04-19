@@ -92,20 +92,20 @@ void LevelSelectMenu::renderMenu() {
     level3Button = Button(startX + 2 * (buttonWidth + spacing), buttonY, buttonWidth, buttonHeight, glm::vec3(1, 0, 0));
     backButton = Button(startX + 3 * (buttonWidth + spacing), buttonY, buttonWidth, buttonHeight, glm::vec3(1, 0, 0));
 
-    trailsButton = Button(0.4f * windowWidth, 0.65f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
+    //trailsButton = Button(0.4f * windowWidth, 0.65f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
 
     // green if currentSelected, otherwise red, somewhat different from mainMenu
     level1Button.setColor(currentSelection == 0 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
     level2Button.setColor(currentSelection == 1 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
     level3Button.setColor(currentSelection == 2 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
     backButton.setColor(currentSelection == 3 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
-    trailsButton.setColor(gameState.tempTrails ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
+    //trailsButton.setColor(gameState.tempTrails ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
 
     level1Button.draw(shader, windowWidth, windowHeight);
     level2Button.draw(shader, windowWidth, windowHeight);
     level3Button.draw(shader, windowWidth, windowHeight);
     backButton.draw(shader, windowWidth, windowHeight);
-    trailsButton.draw(shader, windowWidth, windowHeight);
+    //trailsButton.draw(shader, windowWidth, windowHeight);
 
     // render text
     renderText(uiText);
@@ -127,7 +127,7 @@ void LevelSelectMenu::initializeUIText() {
     uiText.push_back(Text("Stage 2", startX + buttonWidth + spacing, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
     uiText.push_back(Text("Stage 3", startX + 2 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
     uiText.push_back(Text("Back", startX + 3 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
-    uiText.push_back(Text("Y - Temp Trails", (0.5f) * windowWidth, 0.31f * windowHeight, tempTrailsScale, glm::vec3(1, 1, 1)));
+    //uiText.push_back(Text("Y - Temp Trails", (0.5f) * windowWidth, 0.31f * windowHeight, tempTrailsScale, glm::vec3(1, 1, 1)));
 }
 
 void LevelSelectMenu::compileShaders() {
@@ -177,6 +177,7 @@ void LevelSelectMenu::handleKeyboardInput(int& selectedLevel) {
         keyEnterReleased = true;
     }
 
+    /*
     if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_Y) == GLFW_PRESS) {
         if (!trailsButtonClicked) {
             gameState.tempTrails = !gameState.tempTrails;
@@ -186,6 +187,7 @@ void LevelSelectMenu::handleKeyboardInput(int& selectedLevel) {
     else {
         trailsButtonClicked = false;
     }
+    */
 }
 
 void LevelSelectMenu::handleControllerInput(int& selectedLevel) {
@@ -227,6 +229,7 @@ void LevelSelectMenu::handleControllerInput(int& selectedLevel) {
         aButtonReleased = true;
     }
 
+    /*
     if (controller.isButtonPressed(XINPUT_GAMEPAD_Y)) {
         if (!trailsButtonClicked) {
             gameState.tempTrails = !gameState.tempTrails;
@@ -236,4 +239,5 @@ void LevelSelectMenu::handleControllerInput(int& selectedLevel) {
     else {
         trailsButtonClicked = false;
     }
+    */
 }
