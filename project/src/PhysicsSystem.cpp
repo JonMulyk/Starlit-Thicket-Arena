@@ -638,6 +638,13 @@ void PhysicsSystem::reintialize() {
 		}
 	}
 
+	// reset fuel
+	gState.playerVehicle.fuel =  -1;
+	gState.playerVehicle2.fuel = -1;
+	gState.playerVehicle3.fuel = -1;
+	gState.playerVehicle4.fuel = -1;
+
+
 	PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC);
 	std::vector<PxActor*> actors(gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC));
 	gScene->getActors(PxActorTypeFlag::eRIGID_STATIC, actors.data(), actorCount);
@@ -722,6 +729,17 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 			else if (playerIndex == 1) playerIsDead = player2Died;
 			else if (playerIndex == 2) playerIsDead = player3Died;
 			else if (playerIndex == 3) playerIsDead = player4Died;
+
+			// reset fuel
+			if (playerIndex == 0 && gState.playerVehicle.fuel == -1) {
+				playerCommands[playerIndex]->reset();
+			} else if (playerIndex == 1 && gState.playerVehicle2.fuel == -1) {
+				playerCommands[playerIndex]->reset();
+			} else if (playerIndex == 2 && gState.playerVehicle3.fuel == -1) {
+				playerCommands[playerIndex]->reset();
+			} else if (playerIndex == 3 && gState.playerVehicle4.fuel == -1) {
+				playerCommands[playerIndex]->reset();
+			}
 
 			if (playerIsDead) {
 				cmd.brake = 1.0f;
