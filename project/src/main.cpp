@@ -119,12 +119,16 @@ int main() {
     bool isAudioInitialized = false;
 
     AudioSystem audio;
+    AudioSystem menuAudio;
+    bool menuAudioInitialized = false;
 
+    //menus
     MainMenu menu(window, arial, controller1);
     LevelSelectMenu levelSelectMenu(window, arial, controller1, gState);
     splitScreenSelect splitScreenSelectMenu(window, arial, controller1);
     PauseScreen pause(window, arial, controller1, audio);
     EndScreen endMenu(window, arial, controller1, audio, gState);
+    splitScreenSelect splitMenu(window, arial, controller1);
 
     std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
 
@@ -141,6 +145,12 @@ int main() {
     //timer.advance();
     while (!window.shouldClose()) {
         if (gameState == GameStateEnum::MENU) {
+            if (!menuAudioInitialized) {
+                audio.init();
+                //audio.startMenuMusic();
+                menuAudioInitialized = true;
+            }
+            menuAudio.startMenuMusic();
             bool startGame = false;
             // Display main menu and level select until a valid level is chosen.
             while (!window.shouldClose() && !startGame) {
@@ -155,7 +165,6 @@ int main() {
                 return 0;
 
             // Now display the split screen selection menu.
-            splitScreenSelect splitMenu(window, arial, controller1);
             int splitChoice = splitMenu.displayMenuLevel();
             if (splitChoice == -1) { continue; }
             else if (splitChoice == 1) { gState.splitScreenEnabled = false; gState.splitScreenEnabled4 = false; }
@@ -166,18 +175,23 @@ int main() {
             gameState = GameStateEnum::PLAYING;
         }
 
-        if (selectedLevel == 1)
+        menuAudio.stopMusic();
+        if (selectedLevel == 1) //permanent trails
         {
+            gState.tempTrails = false;
             sceneModels.push_back(groundPlaneModel);
         }
-        if (selectedLevel == 2)
+        if (selectedLevel == 2) //temporary trails
         {
+            gState.tempTrails = true;
             sceneModels.push_back(groundPlaneModel2);
         }
+        /*
         if (selectedLevel == 3)
         {
             sceneModels.push_back(groundPlaneModel3);
         }
+        */
 
         // Game setup
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);

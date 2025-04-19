@@ -45,6 +45,7 @@ public:
     */
     int displayMenuLevel() {
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        /*
         if (!audioInitialized) {
             audio.init();
             audio.startLevelMusic();
@@ -52,6 +53,7 @@ public:
         }
 
         audio.startLevelMusic();
+        */
         int selectedSplitScreen = 0; //0 means no selection yet
         while (selectedSplitScreen == 0 && !window.shouldClose()) {
             window.clear();
@@ -67,19 +69,19 @@ public:
 
                 if (singlePlayerButton.isClicked(xpos, ypos)) {
                     selectedSplitScreen = 1;
-                    audio.stopMusic();
+                    //audio.stopMusic();
                 }
                 else if (splitScreen2Button.isClicked(xpos, ypos)) {
                     selectedSplitScreen = 2;
-                    audio.stopMusic();
+                    //audio.stopMusic();
                 }
                 else if (splitScreen4Button.isClicked(xpos, ypos)) {
                     selectedSplitScreen = 3;
-                    audio.stopMusic();
+                    //audio.stopMusic();
                 }
                 else if (backButton.isClicked(xpos, ypos)) {
                     selectedSplitScreen = -1;
-                    audio.stopMusic();
+                    //audio.stopMusic();
                 }
             }
 
@@ -143,21 +145,20 @@ private:
     void initializeUIText() {
         glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
-        float buttonX = 0.5f * windowWidth;
-        float buttonY = 0.5f * windowHeight;
+        float buttonHeight = 0.1 * windowHeight;
+        float buttonWidth = 0.2f * windowWidth;
+        float spacing = 0.05f * windowWidth;
+        float totalWidth = 4 * buttonWidth + 3 * spacing;
+        float shiftRight = 0.1f * windowWidth;
+        float startX = (windowWidth - totalWidth) / 2 + shiftRight;
+        float baseScale = std::min(windowWidth, windowHeight) * 0.00085f;
+        float tempTrailsScale = std::min(windowWidth, windowHeight) * 0.00065f;
 
-        /*
-        hard cocded text, text and button is initilized different and trying to find the right conversion npm, is hard to calculate
-        probably more milsetone 5 stuff...
-
-        essentially, for the buttons the middle of the screen os the (0,0) -> (1,1) is like the top right coordinates, however for the text the top
-        left is like the (0,0) -> (windowWidth, windowHeight) is the bottom left?
-        */
-        uiText.push_back(Text("Single Player", buttonX - 550, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Two Player", buttonX - 190, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Four Player", buttonX + 170, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-        uiText.push_back(Text("Back", buttonX + 550, buttonY - 345.0f, 1.0f, glm::vec3(1, 1, 1)));
-
+        uiText.push_back(Text("1 Player", startX, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("2 Players", startX + buttonWidth + spacing, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("4 Players", startX + 2 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        uiText.push_back(Text("Back", startX + 3 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+        //uiText.push_back(Text("Y - Temp Trails", (0.5f) * windowWidth, 0.31f * windowHeight, tempTrailsScale, glm::vec3(1, 1, 1)));
     }
 
     void compileShaders() {
@@ -173,7 +174,7 @@ private:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         int width, height, nrChannels;
         stbi_set_flip_vertically_on_load(true);
-        unsigned char* data = stbi_load("project/assets/background/backgrounMainMenu.jpg", &width, &height, &nrChannels, 0);
+        unsigned char* data = stbi_load("project/assets/background/playerCount.jpg", &width, &height, &nrChannels, 0);
         if (data) {
             GLenum format = (nrChannels == 3) ? GL_RGB : GL_RGBA;
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -249,11 +250,11 @@ private:
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_RELEASE && keyEnterReleased) {
             if (currentSelection == 3) {
                 selectedLevel = -1;
-                audio.stopMusic();
+                //audio.stopMusic();
             }
             else if (currentSelection != 3) {
                 selectedLevel = currentSelection + 1;
-                audio.stopMusic();
+                //audio.stopMusic();
             }
             keyEnterReleased = false;
         }
@@ -288,11 +289,11 @@ private:
         if (controller.isButtonReleased(XINPUT_GAMEPAD_A) && aButtonReleased) {
             if (currentSelection == 3) {
                 selectedLevel = -1;
-                audio.stopMusic();
+                //audio.stopMusic();
             }
             else if (currentSelection != 3) {
                 selectedLevel = currentSelection + 1;
-                audio.stopMusic();
+                //audio.stopMusic();
             }
             aButtonReleased = false;
         }
