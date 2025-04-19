@@ -106,6 +106,8 @@ glm::mat4 RenderingSystem::createModelWithTransformations(const Entity* entity, 
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, entity->transform->pos);
 	model *= glm::mat4_cast(entity->transform->rot);
+
+    (&entity->model->getShader())->setBool("useOverrideColor", false);
     
     // minimap
 	if (minimapRender)
