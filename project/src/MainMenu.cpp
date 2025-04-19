@@ -43,7 +43,7 @@ void MainMenu::displayMenu() {
         if (glfwGetMouseButton(window.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) { //onclick with mous, remove later
             double xpos, ypos;
             glfwGetCursorPos(window.getGLFWwindow(), &xpos, &ypos);
-            glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
+            //glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
             if (startButton.isClicked(xpos, ypos)) {
                 inMenu = false;
@@ -65,7 +65,7 @@ void MainMenu::displayMenu() {
 void MainMenu::renderMenu() {
     glDisable(GL_DEPTH_TEST);
     backgroundRenderer->draw();
-    glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
+    //glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
     startButton = Button(0.4f * windowWidth, 0.4f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));
     controlsButton = Button(0.4f * windowWidth, 0.5f * windowHeight, 0.2f * windowWidth, 0.0625f * windowHeight, glm::vec3(1, 0, 0));

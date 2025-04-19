@@ -28,6 +28,10 @@ private:
     void handleKeyboardInput(int& selectedLevel);
     void handleControllerInput(int& selectedLevel);
 
+    GLuint loadTexture(const char* filepath);
+
+    void renderImage(GLuint textureID, float x, float y, float width, float height);
+
     Controller& controller;
     std::vector<Text> uiText;
     Windowing& window;
@@ -44,4 +48,5 @@ private:
     GameState& gameState;
     int currentSelection = 0; //change into enum later
     TransparentBoxRenderer boxRenderer;
+    GLuint backgroundImageTexture;
 };

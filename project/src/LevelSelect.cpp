@@ -7,12 +7,21 @@ LevelSelectMenu::LevelSelectMenu(Windowing& window, TTF& textRenderer, Controlle
     backButton(0, 0, 0, 0, glm::vec3(0, 0, 0)) {
     initializeUIText();
     compileShaders();
+    backgroundImageTexture = loadTexture("project/assets/background/download.png");
 }
 
 LevelSelectMenu::~LevelSelectMenu() {
+    if (backgroundImageTexture != 0) {
+        glDeleteTextures(1, &backgroundImageTexture);  // Free texture memory
+    }
+
     delete backgroundRenderer;
+    backgroundRenderer = nullptr;
     uiText.clear();
     delete shader;
+    shader = nullptr;
+
+    //delete boxRenderer;
 }
 
 int LevelSelectMenu::displayMenuLevel() {
@@ -96,10 +105,13 @@ void LevelSelectMenu::renderMenu() {
     float rightX = leftX + boxWidth + spacingB;
 
     float normalAlpha = 0.4f;
-    float highlightAlpha = 0.8f;
+    float highlightAlpha = 0.6f;
 
     bool isPermanentSelected = currentSelection == 0;
     bool isNormalSelected = currentSelection == 2;
+
+    renderImage(backgroundImageTexture, leftX, y, boxWidth, boxHeight);
+    renderImage(backgroundImageTexture, rightX, y, boxWidth, boxHeight);
 
     boxRenderer.draw(leftX, y, boxWidth, boxHeight, isPermanentSelected ? highlightAlpha : normalAlpha);
     boxRenderer.draw(rightX, y, boxWidth, boxHeight, isNormalSelected ? highlightAlpha : normalAlpha);
@@ -222,4 +234,66 @@ void LevelSelectMenu::handleControllerInput(int& selectedLevel) {
     if (controller.isButtonPressed(XINPUT_GAMEPAD_A)) {
         aButtonReleased = true;
     }
+}
+
+GLuint LevelSelectMenu::loadTexture(const char* filepath) {
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load(filepath, &width, &height, &nrChannels, 0);
+    if (!data) {
+        std::cerr << "Failed to load texture" << std::endl;
+        return 0;
+    }
+
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    GLenum format = (nrChannels == 3) ? GL_RGB : GL_RGBA;
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(data);
+    return textureID;
+}
+
+void LevelSelectMenu::renderImage(GLuint textureID, float x, float y, float width, float height) {
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    shader->use();
+    shader->setBool("useTexture", true); 
+    shader->setBool("useSolidColor", false);
+
+    float vertices[] = {
+        x, y, 0.0f, 0.0f, 1.0f,
+        x + width, y, 1.0f, 0.0f, 1.0f,
+        x + width, y + height, 1.0f, 1.0f, 1.0f,
+
+        x, y, 0.0f, 0.0f, 1.0f,
+        x + width, y + height, 1.0f, 1.0f, 1.0f,
+        x, y + height, 0.0f, 1.0f, 1.0f,
+    };
+
+    GLuint VBO, VAO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    glBindVertexArray(0);
+    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO);
 }
