@@ -70,6 +70,14 @@ void RenderingSystem::renderEntities(const std::vector<Entity>& entities, Camera
 		{
             glm::mat4 model = createModelWithTransformations(entity, minimapRender);
 
+            std::string entityName = entity->name;
+            /*
+            if(entityName == "playerVehicle" || entityName == "vehicle1" || entityName == "vehicle2" || entityName == "vehicle3")
+            { 
+                colorVehicle(shaderPtr, entityName);
+            }
+            */
+
 			shaderPtr->setMat4("model", model);
             entity->model->draw(entity->name);
 		}
@@ -108,6 +116,8 @@ glm::mat4 RenderingSystem::createModelWithTransformations(const Entity* entity, 
 			model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 			model = glm::scale(model, entity->transform->scale * glm::vec3(1.9f, 1.0f, 1.9f));
 
+			colorVehicle(&entity->model->getShader(), entity->name);
+
             return model;
 		}
 
@@ -129,6 +139,8 @@ glm::mat4 RenderingSystem::createModelWithTransformations(const Entity* entity, 
 		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, entity->transform->scale * glm::vec3(0.5f, 1.0f, 0.4f));
 
+        colorVehicle(&entity->model->getShader(), entity->name);
+
         return model;
 	}
 
@@ -137,6 +149,36 @@ glm::mat4 RenderingSystem::createModelWithTransformations(const Entity* entity, 
 
     return model;
 }
+
+void RenderingSystem::colorVehicle(Shader* shader, const std::string name)
+{
+    glm::vec3 color;
+	if(name == "playerCar") 
+    { 
+	    color = { 32.0f / 255.0f, 237.0f / 255.0f, 34.0f / 255.0f}; // green
+    }
+    else if(name == "aiCar1")
+    { 
+        color = { 49.0f / 255.0f, 57.0f / 255.0f, 209.0f / 255.0f}; // blue
+    }
+    else if(name == "aiCar2")
+    { 
+		color = { 255.0f / 255.0f, 21.0f / 255.0f, 15.0f / 255.0f}; // red
+    }
+    else if(name == "aiCar3")
+    { 
+		color = { 226.0f / 255.0f, 182.0f / 255.0f, 26.0f / 255.0f}; // yellow
+    }
+    else
+    {
+		shader->setBool("useOverrideColor", false);
+        return;
+    }
+
+	shader->setVec3("overrideColor", color);
+	shader->setBool("useOverrideColor", true);
+}
+
 
 void RenderingSystem::renderScene(std::vector<Model>& sceneModels)
 {
