@@ -117,6 +117,8 @@ int main() {
     bool isAudioInitialized = false;
 
     AudioSystem audio;
+    AudioSystem menuAudio;
+    bool menuAudioInitialized = false;
 
     //menus
     MainMenu menu(window, arial, controller1);
@@ -141,6 +143,12 @@ int main() {
     //timer.advance();
     while (!window.shouldClose()) {
         if (gameState == GameStateEnum::MENU) {
+            if (!menuAudioInitialized) {
+                audio.init();
+                //audio.startMenuMusic();
+                menuAudioInitialized = true;
+            }
+            menuAudio.startMenuMusic();
             bool startGame = false;
             // Display main menu and level select until a valid level is chosen.
             while (!window.shouldClose() && !startGame) {
@@ -165,6 +173,7 @@ int main() {
             gameState = GameStateEnum::PLAYING;
         }
 
+        menuAudio.stopMusic();
         if (selectedLevel == 1) //permanent trails
         {
             gState.tempTrails = false;

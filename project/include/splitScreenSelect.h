@@ -45,6 +45,7 @@ public:
     */
     int displayMenuLevel() {
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        /*
         if (!audioInitialized) {
             audio.init();
             audio.startLevelMusic();
@@ -52,6 +53,7 @@ public:
         }
 
         audio.startLevelMusic();
+        */
         int selectedSplitScreen = 0; //0 means no selection yet
         while (selectedSplitScreen == 0 && !window.shouldClose()) {
             window.clear();
@@ -67,19 +69,19 @@ public:
 
                 if (singlePlayerButton.isClicked(xpos, ypos)) {
                     selectedSplitScreen = 1;
-                    audio.stopMusic();
+                    //audio.stopMusic();
                 }
                 else if (splitScreen2Button.isClicked(xpos, ypos)) {
                     selectedSplitScreen = 2;
-                    audio.stopMusic();
+                    //audio.stopMusic();
                 }
                 else if (splitScreen4Button.isClicked(xpos, ypos)) {
                     selectedSplitScreen = 3;
-                    audio.stopMusic();
+                    //audio.stopMusic();
                 }
                 else if (backButton.isClicked(xpos, ypos)) {
                     selectedSplitScreen = -1;
-                    audio.stopMusic();
+                    //audio.stopMusic();
                 }
             }
 
@@ -248,11 +250,11 @@ private:
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_RELEASE && keyEnterReleased) {
             if (currentSelection == 3) {
                 selectedLevel = -1;
-                audio.stopMusic();
+                //audio.stopMusic();
             }
             else if (currentSelection != 3) {
                 selectedLevel = currentSelection + 1;
-                audio.stopMusic();
+                //audio.stopMusic();
             }
             keyEnterReleased = false;
         }
@@ -287,11 +289,11 @@ private:
         if (controller.isButtonReleased(XINPUT_GAMEPAD_A) && aButtonReleased) {
             if (currentSelection == 3) {
                 selectedLevel = -1;
-                audio.stopMusic();
+                //audio.stopMusic();
             }
             else if (currentSelection != 3) {
                 selectedLevel = currentSelection + 1;
-                audio.stopMusic();
+                //audio.stopMusic();
             }
             aButtonReleased = false;
         }

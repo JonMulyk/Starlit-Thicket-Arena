@@ -19,17 +19,19 @@ MainMenu::~MainMenu() {
 
 //main function to display menu
 void MainMenu::displayMenu() {
+    /*
     if (!audioInitialized) {
         audio.init();
         audio.startMenuMusic();
         audioInitialized = true;
     }
+    */
 
     glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     bool inMenu = true;
     backgroundRenderer = new BackgroundRenderer("project/assets/background/backgrounMainMenu.jpg", shader); //load background here
 
-    audio.startMenuMusic();
+    //audio.startMenuMusic();
     while (inMenu && !window.shouldClose()) {
         window.clear();
         renderMenu();
@@ -45,7 +47,7 @@ void MainMenu::displayMenu() {
 
             if (startButton.isClicked(xpos, ypos)) {
                 inMenu = false;
-                audio.stopMusic();
+                //audio.stopMusic();
             }
             if (controlsButton.isClicked(xpos, ypos)) {
                 ControlsMenu controlsMenu(window, textRenderer, controller, shader);
@@ -53,7 +55,7 @@ void MainMenu::displayMenu() {
             }
             if (exitButton.isClicked(xpos, ypos)) {
                 glfwSetWindowShouldClose(window.getGLFWwindow(), true);
-                audio.stopMusic();
+                //audio.stopMusic();
             }
         }
     }
@@ -138,7 +140,7 @@ void MainMenu::handleKeyboardInput(bool& inMenu) {
     if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_RELEASE && enterPressed) {
         if (currentSelection == 0) {
             inMenu = false;
-            audio.stopMusic();
+            //audio.stopMusic();
         }
         else if (currentSelection == 1) {
             ControlsMenu controlsMenu(window, textRenderer, controller, shader);
@@ -146,7 +148,7 @@ void MainMenu::handleKeyboardInput(bool& inMenu) {
         }
         else if (currentSelection == 2) {
             glfwSetWindowShouldClose(window.getGLFWwindow(), true);
-            audio.stopMusic();
+            //audio.stopMusic();
         }
         enterPressed = false;
     }
@@ -182,7 +184,7 @@ void MainMenu::handleControllerInput(bool& inMenu) {
     if (!controller.isButtonPressed(XINPUT_GAMEPAD_A) && aButtonPressed) {
         if (currentSelection == 0) {
             inMenu = false;
-            audio.stopMusic();
+            //audio.stopMusic();
         }
         else if (currentSelection == 1) {
             ControlsMenu controlsMenu(window, textRenderer, controller, shader);
@@ -190,7 +192,7 @@ void MainMenu::handleControllerInput(bool& inMenu) {
         }
         else if (currentSelection == 2) {
             glfwSetWindowShouldClose(window.getGLFWwindow(), true);
-            audio.stopMusic();
+            //audio.stopMusic();
         }
         aButtonPressed = false;
     }

@@ -38,8 +38,8 @@ private:
     Button permanentButton;
     Button normalButton;
     Button backButton;
-    AudioSystem audio;
-    bool audioInitialized;
+    //AudioSystem audio;
+    //bool audioInitialized;
     GameState& gameState;
     int currentSelection = 0; //change into enum later
 };

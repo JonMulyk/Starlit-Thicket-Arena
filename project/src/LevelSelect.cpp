@@ -4,8 +4,7 @@ LevelSelectMenu::LevelSelectMenu(Windowing& window, TTF& textRenderer, Controlle
     : window(window), textRenderer(textRenderer), controller(controller), gameState(gameState),
     permanentButton(0, 0, 0, 0, glm::vec3(0, 0, 0)),
     normalButton(0, 0, 0, 0, glm::vec3(0, 0, 0)),
-    backButton(0, 0, 0, 0, glm::vec3(0, 0, 0)),
-    audioInitialized(false) {
+    backButton(0, 0, 0, 0, glm::vec3(0, 0, 0)) {
     initializeUIText();
     compileShaders();
 }
@@ -18,13 +17,13 @@ LevelSelectMenu::~LevelSelectMenu() {
 
 int LevelSelectMenu::displayMenuLevel() {
     glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    if (!audioInitialized) {
+    /*if (!audioInitialized) {
         audio.init();
         audio.startLevelMusic();
         audioInitialized = true;
     }
     audio.startLevelMusic();
-
+    */
     int selectedLevel = 0;
     backgroundRenderer = new BackgroundRenderer("project/assets/background/selectGameMode.jpg", shader);
 
@@ -43,15 +42,15 @@ int LevelSelectMenu::displayMenuLevel() {
 
             if (permanentButton.isClicked(xpos, ypos)) {
                 selectedLevel = 1; // Permanent
-                audio.stopMusic();
+                //audio.stopMusic();
             }
             else if (normalButton.isClicked(xpos, ypos)) {
                 selectedLevel = 2; // Normal
-                audio.stopMusic();
+                //audio.stopMusic();
             }
             else if (backButton.isClicked(xpos, ypos)) {
                 selectedLevel = -1;
-                audio.stopMusic();
+                //audio.stopMusic();
             }
         }
     }
@@ -141,7 +140,7 @@ void LevelSelectMenu::handleKeyboardInput(int& selectedLevel) {
         else {
             selectedLevel = currentSelection + 1;
         }
-        audio.stopMusic();
+        //audio.stopMusic();
         keyEnterReleased = false;
     }
     if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
@@ -179,7 +178,7 @@ void LevelSelectMenu::handleControllerInput(int& selectedLevel) {
         else {
             selectedLevel = currentSelection + 1;
         }
-        audio.stopMusic();
+        //audio.stopMusic();
         aButtonReleased = false;
     }
     if (controller.isButtonPressed(XINPUT_GAMEPAD_A)) {
