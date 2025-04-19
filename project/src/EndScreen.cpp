@@ -90,10 +90,12 @@ void EndScreen::initializeUIText() {
 
         float centerX = windowWidth * 0.5f; 
 
-        uiText.push_back(Text(score.first, nameXPos, scoreHeight, this->textScale * 0.8f, glm::vec3(0.5f, 0.8f, 0.2f), TTF::TEXT_POSITION::LEFT));
+        glm::vec3 color = gameState.getColorForScoreName(score.first);
+
+        uiText.push_back(Text(score.first, nameXPos, scoreHeight, this->textScale * 0.8f, color, TTF::TEXT_POSITION::LEFT));
 
 
-        uiText.push_back(Text(std::to_string(score.second), scoreXPos, scoreHeight, this->textScale * 0.8f, glm::vec3(0.5f, 0.8f, 0.2f), TTF::TEXT_POSITION::RIGHT));
+        uiText.push_back(Text(std::to_string(score.second), scoreXPos, scoreHeight, this->textScale * 0.8f, color, TTF::TEXT_POSITION::RIGHT));
 
         scoreHeight -= heightIncrementOffset;
     }
