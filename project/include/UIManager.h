@@ -22,7 +22,7 @@ class UIManager
 		
 		void addScoreText(GameState& gameState);
 		const std::vector<Text>& getUIText() const;
-		void updateUIText(TimeSeconds& timer, double roundDuration, GameState& gameState);
+		void updateUIText(TimeSeconds& timer, double roundDuration, GameState& gameState, int player);
 
 
 };

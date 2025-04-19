@@ -2,6 +2,9 @@
 #include "GameMap.h"
 #include "Entity.h"
 #include "PxPhysicsAPI.h"
+#include <vector>
+#include <iostream>
+#include "Transform.h"
 
 #include <unordered_map>
 
@@ -31,6 +34,9 @@ class GameState {
 
 		GameMap gMap;
 		PlayerVehicle playerVehicle;
+		PlayerVehicle playerVehicle2;
+		PlayerVehicle playerVehicle3;
+		PlayerVehicle playerVehicle4;
 		std::vector<Entity> dynamicEntities;
 		std::vector<Entity> staticEntities;
 		
@@ -50,6 +56,8 @@ class GameState {
 		void initializeScores(uint16_t numberOfPlayers, uint16_t numberOfAiCars);
 
 		bool resetAudio = false;
-		bool tempTrails = true;
+		bool tempTrails = false;
+		bool splitScreenEnabled = false;
+		bool splitScreenEnabled4 = false;
 };
 

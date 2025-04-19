@@ -64,11 +64,16 @@ const std::vector<Text>& UIManager::getUIText() const
     return this->uiText;
 }
 
-void UIManager::updateUIText(TimeSeconds& timer, double roundDuration, GameState& gameState)
+void UIManager::updateUIText(TimeSeconds& timer, double roundDuration, GameState& gameState, int player)
 {
 	uiText[0].setTextToRender("FPS: " + std::to_string(timer.getFPS()));
 	uiText[1].setTextToRender(timer.formatTimeToHumanReadable(timer.getRemainingTime(roundDuration)));
-    uiText[2].setTextToRender("Fuel:" + std::to_string(int(gameState.playerVehicle.fuel*100)));
+    if(player == 0) uiText[2].setTextToRender("Fuel:" + std::to_string(int(gameState.playerVehicle.fuel * 100)));
+	if (player == 1) uiText[2].setTextToRender("Fuel:" + std::to_string(int(gameState.playerVehicle2.fuel * 100)));
+	if (player == 2) uiText[2].setTextToRender("Fuel:" + std::to_string(int(gameState.playerVehicle3.fuel * 100)));
+	if (player == 3) uiText[2].setTextToRender("Fuel:" + std::to_string(int(gameState.playerVehicle4.fuel * 100)));
+
+
     //uiText[2].setTextToRender(gameState.getSortedScoresString());
     //uiText[2].setTextToRender("score: " + std::to_string(score));
     addScoreText(gameState);

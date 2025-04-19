@@ -128,19 +128,15 @@ void Vehicle::findPathToPlayer(GameState& gState, PxVec3 dst) {
 }
 
 bool Vehicle::commandFromPath() {
-	// if path is empty dont compute
 	if (path.empty()) return false;
 
-	std::shared_ptr<Node> node;
+	std::shared_ptr<Node> node = nullptr;
 	PxVec2 aiPos(prevPos.x, prevPos.z);
 
-	// select node to target
-	for (int i = 0; i < path.size() - 1; i++) {
-		PxVec2 nodePos(path[i]->xActual, path[i]->yActual);
-
-		// check if node is farther than speed
+	while (!path.empty()) {
+		PxVec2 nodePos(path.front()->xActual, path.front()->yActual);
 		if ((nodePos - aiPos).magnitude() > velocity.magnitude()) {
-			node = path[i];
+			node = path.front();
 			break;
 		}
 		else {
@@ -148,9 +144,8 @@ bool Vehicle::commandFromPath() {
 		}
 	}
 
-	// if node is null set to farthest
 	if (!node) {
-		node = path.back();
+		return false;
 	}
 
 	float angle = steerToPoint(node->xActual, node->yActual);
@@ -161,6 +156,7 @@ bool Vehicle::commandFromPath() {
 	path.erase(path.begin());
 	return true;
 }
+
 
 // avoid obstacle
 void Vehicle::avoid(GameState& state) {

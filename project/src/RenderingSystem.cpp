@@ -33,7 +33,7 @@ glm::mat4 RenderingSystem::createModelWithTransformations(const Entity* entity, 
 	if (minimapRender)
 	{
         // cars
-		if (entity->name == "playerCar" || entity->name == "aiCar")
+		if (entity->name == "playerCar" || (entity->name == "aiCar1" || entity->name == "aiCar2" || entity->name == "aiCar3"))
 		{
 			model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 			model = glm::scale(model, entity->transform->scale * glm::vec3(1.9f, 1.0f, 1.9f));
@@ -55,7 +55,7 @@ glm::mat4 RenderingSystem::createModelWithTransformations(const Entity* entity, 
     
     // non-minimap 
     // cars
-	if (entity->name == "playerCar" || entity->name == "aiCar") {
+	if (entity->name == "playerCar" || (entity->name == "aiCar1" || entity->name == "aiCar2" || entity->name == "aiCar3")) {
 		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, entity->transform->scale * glm::vec3(0.5f, 1.0f, 0.4f));
 
@@ -154,7 +154,7 @@ void RenderingSystem::updateRenderer(
     Skybox& skybox
 )
 {
-    glViewport(0, 0, window.getWidth(), window.getHeight());
+    //glViewport(0, 0, window.getWidth(), window.getHeight());
 
 	// Render Entities & Text
     this->renderSkybox(skybox);
@@ -166,25 +166,78 @@ void RenderingSystem::updateRenderer(
 
 }
 
-void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam)
+void RenderingSystem::renderMinimap(Shader& minimapShader, Camera& minimapCam, int player)
 {
-    minimapShader.use();
+    // Retrieve current viewport dimensions.
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);  // viewport: [x, y, width, height]
+    int vpX = viewport[0], vpY = viewport[1];
+    int vpWidth = viewport[2], vpHeight = viewport[3];
 
-    int minimapWidth = window.getWidth() / 4.5;
-    int minimapHeight = window.getHeight() / 4.5;
-    int xOffset = -10;
-    int yOffsetY = -10;
-    
-    glViewport(
-        (window.getWidth() - minimapWidth) + xOffset,         // x position
-		(window.getHeight() - minimapHeight) + yOffsetY,      // y position
-        minimapWidth,                                         // width
-        minimapHeight                                         // height
+    // Define minimap size (1/4 of viewport) and position (top-right with an offset).
+    int minimapWidth = vpWidth / 4;
+    int minimapHeight = vpHeight / 4;
+    int offset = 10;  // offset in pixels
+    int minimapX = vpX + vpWidth - minimapWidth - offset;
+    int minimapY = vpY + vpHeight - minimapHeight - offset;
+
+    // Set the shader and the minimap viewport.
+    minimapShader.use();
+    glViewport(minimapX, minimapY, minimapWidth, minimapHeight);
+
+    //background
+	bool background = true;
+    if (background) {
+        glEnable(GL_SCISSOR_TEST);
+        if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) glScissor(minimapX + 106, minimapY, minimapWidth / 2 + 30, minimapHeight);
+        if (gState.splitScreenEnabled) glScissor(minimapX + 172, minimapY, minimapWidth / 4 + 15, minimapHeight);
+        if (gState.splitScreenEnabled4) glScissor(minimapX + 53, minimapY, minimapWidth / 2 + 15, minimapHeight);
+        GLfloat oldClearColor[4];
+        glGetFloatv(GL_COLOR_CLEAR_VALUE, oldClearColor);
+        glClearColor(0.82f, 0.82f, 0.82f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(oldClearColor[0], oldClearColor[1], oldClearColor[2], oldClearColor[3]);
+        glDisable(GL_SCISSOR_TEST);
+    }
+    // -----------------------------------------------------
+
+    // Compute the minimap's aspect ratio.
+    float minimapAspect = static_cast<float>(minimapWidth) / static_cast<float>(minimapHeight);
+    float scale = 100.0f;
+    glm::mat4 projection = glm::ortho(
+        -scale * minimapAspect, scale * minimapAspect,
+        -scale, scale,
+        -1000.0f, 1000.0f
     );
-    
-    this->renderEntities(gState.dynamicEntities, minimapCam, true);
-    this->renderEntities(gState.staticEntities, minimapCam, true);
-    
-    // reset viewport
-    glViewport(0, 0, window.getWidth(), window.getHeight());
+    minimapShader.setMat4("projection", projection);
+
+    // Get the original view matrix and then rotate it.
+    glm::mat4 view = minimapCam.GetViewMatrix();
+    float angle = glm::radians(90.0f * player);
+    if (player == 1) angle = glm::radians(180.f);
+    if (player == 3) angle = glm::radians(0.f);
+    view = glm::rotate(view, angle, glm::vec3(0.0f, 1.0f, 0.0f));
+    minimapShader.setMat4("view", view);
+
+    // Batch and render both dynamic and static entities using our custom matrices.
+    std::unordered_map<Shader*, std::vector<const Entity*>> shaderBatches;
+    for (const auto& entity : gState.dynamicEntities)
+        shaderBatches[&entity.model->getShader()].push_back(&entity);
+    for (const auto& entity : gState.staticEntities)
+        shaderBatches[&entity.model->getShader()].push_back(&entity);
+
+    for (auto it = shaderBatches.begin(); it != shaderBatches.end(); ++it) {
+        Shader* shaderPtr = it->first;
+        shaderPtr->use();
+        shaderPtr->setMat4("projection", projection);
+        shaderPtr->setMat4("view", view);
+        setShaderUniforms(shaderPtr);
+        for (const Entity* entity : it->second) {
+            glm::mat4 model = createModelWithTransformations(entity, true);
+            shaderPtr->setMat4("model", model);
+            entity->model->draw(entity->name);
+        }
+    }
+
+    glViewport(vpX, vpY, vpWidth, vpHeight);
 }

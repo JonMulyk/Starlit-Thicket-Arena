@@ -157,7 +157,7 @@ void PhysicsSystem::initBoarder() {
 					wallTransform.p.y - 1,
 					wallTransform.p.z
 				);
-			} 
+			}
 			else {
 				gState.staticEntities.back().transform->pos = glm::vec3(
 					wallTransform.p.x,
@@ -181,13 +181,13 @@ void PhysicsSystem::initBoarder() {
 
 // Set the default game friction and material properties
 void PhysicsSystem::initMaterialFrictionTable() {
-/*
-DESCRIPTION:
-	Each physx material can be mapped to a tire friction value on a per tire basis.
-	If a material is encountered that is not mapped to a friction value, the friction value used is the specified default value.
-	In this snippet there is only a single material so there can only be a single mapping between material and friction.
-	In this snippet the same mapping is used by all tires.	
-*/
+	/*
+	DESCRIPTION:
+		Each physx material can be mapped to a tire friction value on a per tire basis.
+		If a material is encountered that is not mapped to a friction value, the friction value used is the specified default value.
+		In this snippet there is only a single material so there can only be a single mapping between material and friction.
+		In this snippet the same mapping is used by all tires.
+	*/
 
 	// set material parameters
 	gPhysXMaterialFrictions[0].friction = 1.0f;
@@ -238,16 +238,16 @@ bool PhysicsSystem::initVehicles(int numAI) {
 
 		// Set the vehicle position, rotation and model
 		PxTransform pose;
-		
+
 		if (i == 0) {
 			pose = PxTransform(PxVec3(80.f, 0.f, -80.f), PxQuat(0, PxVec3(0, 1, 0))); // bottom right
 		}
 		else if (i == 1) {
-			pose = PxTransform(PxVec3(80.f, 0.f, 80.f), PxQuat(3.1415, PxVec3(0,1,0))); // top right
+			pose = PxTransform(PxVec3(80.f, 0.f, 80.f), PxQuat(3.1415, PxVec3(0, 1, 0))); // top right
 		}
 		else if (i == 2) {
 			pose = PxTransform(PxVec3(-80.f, 0.f, 80.f), PxQuat(3.1415, PxVec3(0, 1, 0))); // top left
-		} 
+		}
 		else {
 			pose = PxTransform(PxVec3(-80.f, 0.f, -80.f), PxQuat(0, PxVec3(0, 1, 0))); // bottom left
 		}
@@ -307,7 +307,9 @@ bool PhysicsSystem::initVehicles(int numAI) {
 			gState.dynamicEntities.back().vehicle = vehicle;
 		}
 		else {
-			gState.dynamicEntities.emplace_back("aiCar", &pModels[4], transformList.back());
+			if (i == 1) gState.dynamicEntities.emplace_back("aiCar1", &pModels[4], transformList.back());
+			if (i == 2) gState.dynamicEntities.emplace_back("aiCar2", &pModels[4], transformList.back());
+			if (i == 3) gState.dynamicEntities.emplace_back("aiCar3", &pModels[4], transformList.back());
 			gState.dynamicEntities.back().vehicle = vehicle;
 		}
 	}
@@ -423,14 +425,32 @@ void PhysicsSystem::addTrail(float x, float z, float rot, const char* name) {
 
 }
 
-
-
 physx::PxVec3 PhysicsSystem::getPos(int i) {
 	physx::PxVec3 position = rigidDynamicList[i]->getGlobalPose().p;
 	return position;
 }
 
 Transform* PhysicsSystem::getTransformAt(int i) { return transformList[i]; }
+
+Transform* PhysicsSystem::getTransformAt(std::string name) {
+	Transform* c_name = nullptr;
+	for (int i = 0; i < gState.dynamicEntities.size(); i++) {
+		//std::cout << gState.dynamicEntities[i].name << std::endl;
+		if (gState.dynamicEntities[i].name == name) {
+			c_name = gState.dynamicEntities[i].transform;
+		}
+	}
+	return c_name;
+}
+
+glm::vec3 PhysicsSystem::getCarPos(std::string name) {
+	for (int i = 0; i < gState.dynamicEntities.size(); i++) {
+		if (gState.dynamicEntities[i].name == name) {
+			return gState.dynamicEntities[i].transform->pos;
+		}
+	}
+	return glm::vec3(0, 0, 0);
+}
 
 void PhysicsSystem::updateTransforms(std::vector<Entity>& entityList) {
 	for (int i = 0; i < entityList.size(); i++) {
@@ -511,21 +531,35 @@ void PhysicsSystem::shatter(physx::PxVec3 location, physx::PxVec3 direction) {
 }
 
 void PhysicsSystem::updateCollisions() {
-	// Detect collisions
 	auto collisionPair = gContactReportCallback->getCollisionPair();
 	if (gContactReportCallback->checkCollision()) {
-		int aiCounter = 0;
 		std::string colliding1 = collisionPair.first->getName();
 		std::string colliding2 = collisionPair.second->getName();
+		std::cout << colliding1 << std::endl;
+		if (colliding1 == "playerVehicle") {
+			deadCars[0] = 1;
+			playerDied = true;
+		}
+		if (colliding1 == "vehicle1") {
+			deadCars[1] = 1;
+		    player2Died = true;
+		}
+		if (colliding1 == "vehicle2") {
+			deadCars[2] = 1;
+			player3Died = true;
+		}
+		if (colliding1 == "vehicle3") {
+			deadCars[3] = 1;
+			player4Died = true;
+		}
 
 		for (int i = gState.dynamicEntities.size() - 1; i >= 0; i--) {
 			auto& entity = gState.dynamicEntities[i];
-			if (entity.name != "aiCar" && entity.name != "playerCar") continue;
-
+			if ((entity.name != "aiCar1" && entity.name != "aiCar2" && entity.name != "aiCar3") && entity.name != "playerCar") continue;
 			if (entity.vehicle->name == colliding1) {
 				shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 				entity.vehicle->vehicle.destroy();
-				
+
 				for (int x = 0; x <= transformList.size(); x++) {
 					if (entity.transform == transformList[x]) {
 						rigidDynamicList.erase(rigidDynamicList.begin() + x);
@@ -535,7 +569,6 @@ void PhysicsSystem::updateCollisions() {
 				}
 				gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
 
-				// Remove all static physics objects
 				PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC);
 				std::vector<PxActor*> actors(gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC));
 				gScene->getActors(PxActorTypeFlag::eRIGID_STATIC, actors.data(), actorCount);
@@ -547,40 +580,43 @@ void PhysicsSystem::updateCollisions() {
 						}
 					}
 				}
-				// Remove all static entity objects
 				for (int g = gState.staticEntities.size() - 1; g >= 0; g--) {
 					if (gState.staticEntities[g].name == colliding1) {
 						gState.staticEntities.erase(gState.staticEntities.begin() + g);
 					}
 				}
 				gState.addScoreToVehicle(colliding2, 1);
-			} else if (entity.name == "aiCar") {
-					aiCounter++;
 			}
 		}
 
-		if (colliding1 == "playerVehicle") {
-			pendingReinit = true;
-			reinitTime = 0.0;
-			playerDied = true;
-			printf("Reset because of Player");
+		if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
+			if (playerDied || ((playerDied + player2Died + player3Died + player4Died) >= 3)) {
+				pendingReinit = true;
+				reinitTime = 0.0;
+			}
 		}
-
-		if (aiCounter == 0) {
-			printf("Reset because of AI\n");
-			//printf("%f\n", aiCounter);
-			pendingReinit = true;
-			reinitTime = 0.0;
+		else if (gState.splitScreenEnabled) { // 2-player mode
+			if ((playerDied && player2Died) || ((playerDied + player2Died + player3Died + player4Died) >= 3)) { //if both players die or there is only one car left
+				pendingReinit = true;
+				reinitTime = 0.0;
+			}
+		}
+		else if (gState.splitScreenEnabled4) { // 4-player mode
+			if ((playerDied + player2Died + player3Died + player4Died) >= 3) { //if 3 people have died then reset
+				pendingReinit = true;
+				reinitTime = 0.0;
+			}
 		}
 
 		gContactReportCallback->readNewCollision();
 	}
 }
 
+
 void PhysicsSystem::reintialize() {
-	for (int i = gState.dynamicEntities.size()-1; i >= 0; i--) {
+	for (int i = gState.dynamicEntities.size() - 1; i >= 0; i--) {
 		auto& entity = gState.dynamicEntities[i];
-		if (entity.name == "playerCar" || entity.name == "aiCar") {
+		if (entity.name == "playerCar" || (entity.name == "aiCar1" || entity.name == "aiCar2" || entity.name == "aiCar3")) {
 			entity.vehicle->vehicle.destroy();
 		}
 
@@ -605,7 +641,7 @@ void PhysicsSystem::reintialize() {
 	PxU32 actorCount = gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC);
 	std::vector<PxActor*> actors(gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC));
 	gScene->getActors(PxActorTypeFlag::eRIGID_STATIC, actors.data(), actorCount);
-	for (int f = actors.size()-1; f >= 5; f--) {
+	for (int f = actors.size() - 1; f >= 5; f--) {
 		const char* actorName = actors[f]->getName();
 		if (actorName) {
 			gScene->removeActor(*actors[f]);
@@ -613,7 +649,7 @@ void PhysicsSystem::reintialize() {
 	}
 
 	// Remove all static entity objects
-	for (int g = gState.staticEntities.size()-1; g >= 0; g--) {
+	for (int g = gState.staticEntities.size() - 1; g >= 0; g--) {
 		if (gState.staticEntities[g].name != "boarder") {
 			gState.staticEntities.erase(gState.staticEntities.begin() + g);
 		}
@@ -632,32 +668,90 @@ void PhysicsSystem::updatePhysics(double dt) {
 	if (gState.tempTrails) updateTrailLifetime(dt);
 }
 
-void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& controllerCommand) {
-	// namespaces
-	using namespace physx; using namespace snippetvehicle2;
+void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const std::vector<Command*>& playerCommands) {
+	using namespace physx;
+	using namespace snippetvehicle2;
 
 	for (auto& entity : gState.dynamicEntities) {
-		if (entity.name == "playerCar") {
-			Command cmd;
+		bool isPlayerControlled = false;
+		int playerIndex = -1;
+		std::string name = entity.name;
 
-			if (playerDied) {
-				cmd.brake = 1.0f;        // Apply full brake to stop movement
-				cmd.throttle = 0.0f;     // Set throttle to 0
-				cmd.steer = 0.0f;        // Set steer to 0 to stop turning
-				command.fuel = 1;
-				controllerCommand.fuel = 1;
+		if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
+			// 1-player mode:
+			if (name == "playerCar") {
+				isPlayerControlled = true;
+				playerIndex = 0;
+			}
+		}
+		else if (gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
+			// 2-player mode
+			if (name == "playerCar") {
+				isPlayerControlled = true;
+				playerIndex = 0;
+			}
+			else if (name == "aiCar1") {
+				isPlayerControlled = true;
+				playerIndex = 1;
+			}
+		}
+		else if (gState.splitScreenEnabled4) {
+			// 4-player mode:
+			if (name == "playerCar") {
+				isPlayerControlled = true;
+				playerIndex = 0;
+			}
+			else if (name == "aiCar1") {
+				isPlayerControlled = true;
+				playerIndex = 1;
+			}
+			else if (name == "aiCar2") {
+				isPlayerControlled = true;
+				playerIndex = 2;
+			}
+			else if (name == "aiCar3") {
+				isPlayerControlled = true;
+				playerIndex = 3;
+			}
+		}
+
+		if (isPlayerControlled) {
+			Command cmd;
+			bool playerIsDead = false;
+			if (playerIndex == 0) playerIsDead = playerDied;
+			else if (playerIndex == 1) playerIsDead = player2Died;
+			else if (playerIndex == 2) playerIsDead = player3Died;
+			else if (playerIndex == 3) playerIsDead = player4Died;
+
+			if (playerIsDead) {
+				cmd.brake = 1.0f;
+				cmd.throttle = 0.0f;
+				cmd.steer = 0.0f;
+				cmd.fuel = 1;
+				cmd.boost = false;
+				playerCommands[playerIndex]->fuel = 1;
+				if (playerIndex == 0) keyboardCommand.fuel = 1;
 				entity.vehicle->setPhysxCommand(cmd);
 			}
 			else {
-				cmd.brake = physx::PxMax(command.brake, controllerCommand.brake);
-				cmd.throttle = 0.5 + physx::PxMax(command.throttle, controllerCommand.throttle) / 2.f;
-				cmd.steer = (abs(command.steer) > abs(controllerCommand.steer)) ? command.steer : controllerCommand.steer;
-				cmd.fuel = min(command.fuel, controllerCommand.fuel);
-				cmd.boost = (controllerCommand.boost == false) ? command.boost : controllerCommand.boost;
-				entity.vehicle->setPhysxCommand(cmd);
+				//keyboard only works for player 1
+				if (playerIndex == 0) {
+					cmd.brake = PxMax(keyboardCommand.brake, playerCommands[0]->brake);
+					cmd.throttle = 0.5f + PxMax(keyboardCommand.throttle, playerCommands[0]->throttle) / 2.f;
+					cmd.steer = (fabs(keyboardCommand.steer) > fabs(playerCommands[0]->steer)) ? keyboardCommand.steer : playerCommands[0]->steer;
+					cmd.fuel = std::min(keyboardCommand.fuel, playerCommands[0]->fuel);
+					cmd.boost = (playerCommands[0]->boost == false) ? keyboardCommand.boost : playerCommands[0]->boost;
+					entity.vehicle->setPhysxCommand(cmd);
+				}
+				else {
+					cmd.brake = playerCommands[playerIndex]->brake;
+					cmd.throttle = 0.5f + playerCommands[playerIndex]->throttle / 2.f;
+					cmd.steer = playerCommands[playerIndex]->steer;
+					cmd.fuel = playerCommands[playerIndex]->fuel;
+					cmd.boost = playerCommands[playerIndex]->boost;
+					entity.vehicle->setPhysxCommand(cmd);
+				}
 			}
-
-
 			// Step the vehicle
 			entity.vehicle->forward = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
 			entity.vehicle->velocity = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
@@ -683,11 +777,13 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 					rigidBody->setMaxLinearVelocity(curr_max);
 				}
 			}
-
 			// update fuel
-			gState.playerVehicle.fuel = cmd.fuel;
-			controllerCommand.updateBoost(timestep);
-			command.updateBoost(timestep);
+			if (playerIndex == 0) gState.playerVehicle.fuel = cmd.fuel;
+			if (playerIndex == 1) gState.playerVehicle2.fuel = cmd.fuel;
+			if (playerIndex == 2) gState.playerVehicle3.fuel = cmd.fuel;
+			if (playerIndex == 3) gState.playerVehicle4.fuel = cmd.fuel;
+			playerCommands[playerIndex]->updateBoost(timestep);
+			if (playerIndex == 0) keyboardCommand.updateBoost(timestep);
 
 			// run physx simulation
 			entity.vehicle->vehicle.mComponentSequence.setSubsteps(entity.vehicle->vehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
@@ -713,10 +809,24 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			}
 
 			// Update player vehicle state
-			gState.playerVehicle.curPos = currPos;
-			gState.playerVehicle.curDir = entity.vehicle->forward.getNormalized();
+			if (playerIndex == 0) {
+				gState.playerVehicle.curPos = currPos;
+				gState.playerVehicle.curDir = entity.vehicle->forward.getNormalized();
+			}
+			if (playerIndex == 1) {
+				gState.playerVehicle2.curPos = currPos;
+				gState.playerVehicle2.curDir = entity.vehicle->forward.getNormalized();
+			}
+			if (playerIndex == 2) {
+				gState.playerVehicle3.curPos = currPos;
+				gState.playerVehicle3.curDir = entity.vehicle->forward.getNormalized();
+			}
+			if (playerIndex == 3) {
+				gState.playerVehicle4.curPos = currPos;
+				gState.playerVehicle4.curDir = entity.vehicle->forward.getNormalized();
+			}
 		}
-		else if (entity.name == "aiCar") {
+		if (!isPlayerControlled && (entity.name == "aiCar1" || entity.name == "aiCar2" || entity.name == "aiCar3")) {
 			entity.vehicle->update(gState);
 
 			// Step the vehicle
@@ -768,6 +878,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& command, Command& contr
 			}
 		}
 	}
+
 	updateCollisions();
 
 	// Simulate the entire PhysX scene
@@ -784,7 +895,7 @@ bool PhysicsSystem::getExplosion() {
 
 glm::vec3 PhysicsSystem::getExplosionLocation() {
 	for (const auto& entity : gState.dynamicEntities) {
-		if (entity.name == "playerCar" || entity.name == "aiCar") {
+		if (entity.name == "playerCar" || (entity.name == "aiCar1" || entity.name == "aiCar2" || entity.name == "aiCar3")) {
 			if (entity.vehicle->name == gContactReportCallback->getCollisionPair().first->getName()) {
 				physx::PxVec3 pos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
 				return glm::vec3(pos.x, pos.y, pos.z);
@@ -802,7 +913,6 @@ float PhysicsSystem::getCarSpeed(int i) {
 		return 0.0f;
 	}
 
-	
 	// Retrieve the player's vehicle rigid body.
 	PxRigidBody* playerRigidBody = gState.dynamicEntities[i].vehicle->vehicle.mPhysXState.physxActor.rigidBody;
 
@@ -838,7 +948,7 @@ std::vector<physx::PxVec3> PhysicsSystem::getAIPositions() {
 	// Loop through all dynamic entities
 	for (const auto& entity : gState.dynamicEntities) {
 		// Only process AI vehicles (skip the player)
-		if (entity.name == "aiCar" && entity.vehicle != nullptr) {
+		if ((entity.name == "aiCar1" || entity.name == "aiCar2" || entity.name == "aiCar3") && entity.vehicle != nullptr) {
 			// Retrieve the global position from the vehicle's rigid body
 			physx::PxVec3 pos = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
 			aiPositions.push_back(pos);
@@ -957,6 +1067,11 @@ void PhysicsSystem::update(double deltaTime) {
 			pendingReinit = false;
 			reinitTime = 0.0;
 			playerDied = false;
+			player2Died = false;
+			player3Died = false;
+			player4Died = false;
+			// Reset the deadCars array
+			std::fill(std::begin(deadCars), std::end(deadCars), 0);
 		}
 		return;  // Skip further updates while waiting for reinit
 	}

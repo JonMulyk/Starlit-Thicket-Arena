@@ -1,4 +1,8 @@
 #include "DynamicCamera.h"
+#include "GameState.h"
+#include "TimeSeconds.h"
+#include "Shader.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -17,8 +21,21 @@ glm::vec3 vec3(physx::PxVec3 v)
 
 glm::mat4 DynamicCamera::GetViewMatrix()
 {
-    glm::vec3 pos = vec3(gameState.playerVehicle.curPos);
-    glm::vec3 dir = vec3(gameState.playerVehicle.curDir);
+    glm::vec3 pos, dir;
+
+    if (this->getFollowTarget()) {
+        // Follow target exists: use its transform.
+        pos = this->getFollowTarget()->pos;
+        // Compute forward direction from the target's rotation.
+        glm::mat4 rotMat = glm::mat4_cast(this->getFollowTarget()->rot);
+        // Assuming the model faces -Z.
+        dir = glm::normalize(glm::vec3(rotMat * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)));
+        dir = -dir;
+    }
+    else {
+        pos = vec3(gameState.playerVehicle.curPos);
+        dir = vec3(gameState.playerVehicle.curDir);
+    }
 
     if (timer.getCurrentTime() - time > 1.f) {
         double threshold = 0.1f;
@@ -46,6 +63,25 @@ glm::mat4 DynamicCamera::GetViewMatrix()
 void DynamicCamera::updateProjectionView(Shader& viewShader, int windowWidth, int windowHeight)
 {
     viewShader.use();
+
+    if (gameState.splitScreenEnabled == true) {
+        GLint viewport[4];
+        glGetIntegerv(GL_VIEWPORT, viewport);  // viewport: [x, y, width, height]
+        int vpWidth = viewport[2];
+        int vpHeight = viewport[3];
+
+        glm::mat4 projection = glm::perspective(
+            glm::radians(this->getZoom()),
+            static_cast<float>(vpWidth) / static_cast<float>(vpHeight),
+            0.1f, 1000.0f
+        );
+        viewShader.setMat4("projection", projection);
+
+        glm::mat4 view = this->GetViewMatrix();
+        viewShader.setMat4("view", view);
+        return;
+    }
+
 
     glm::mat4 projection = glm::perspective(
         glm::radians(this->getZoom()),

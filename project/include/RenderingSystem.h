@@ -21,7 +21,7 @@ public:
         Skybox& skybox
     );
 
-    void renderMinimap(Shader& minimapShader, Camera& minimapCam);
+    void renderMinimap(Shader& minimapShader, Camera& minimapCam, int player);
 
 private:
     Shader& shader;
