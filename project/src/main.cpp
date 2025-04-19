@@ -29,6 +29,8 @@
 #include "splitScreenSelect.h"
 #include "TransparentBoxRenderer.h"
 #include <PauseMenu.h>
+#include <ControlMenu.h>
+#include <EndScreen.h>
 
 
 
@@ -119,6 +121,7 @@ int main() {
     LevelSelectMenu levelSelectMenu(window, arial, controller1, gState);
     splitScreenSelect splitScreenSelectMenu(window, arial, controller1);
     PauseScreen pause(window, arial, controller1, audio);
+    EndScreen endMenu(window, arial, controller1, audio, gState);
 
     std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
 
@@ -370,8 +373,9 @@ int main() {
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);
                 glEnable(GL_DEPTH_TEST);
             }
-
             glfwSwapBuffers(window);
+
+
 
             // Check for round end
             if (timer.getElapsedTime() >= roundDuration) {
@@ -381,6 +385,7 @@ int main() {
 
         //reset
         if (gameState == GameStateEnum::RESET) {
+
             //pauseResult = PauseResult::RESUME;
             //command.fuel = 75; //should this be a thing to reset?
             gameState = GameStateEnum::MENU;
@@ -392,6 +397,7 @@ int main() {
             command.reset();
             audio.stopMusic(); 
             timer.reset();
+            endMenu.displayMenu();
             delete physicsSystem;
             //delete audio;
         }

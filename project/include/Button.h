@@ -41,6 +41,7 @@ public:
 
         shader->use();
         shader->setInt("useTexture", 0);
+        shader->setBool("useSolidColor", true);
         shader->setVec3("solidColor", color);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);

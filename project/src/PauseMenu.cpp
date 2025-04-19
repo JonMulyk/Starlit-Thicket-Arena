@@ -88,7 +88,7 @@ void PauseScreen::setupText() {
     float scale = std::min(w, h) * 0.001f;
 
     uiText.emplace_back("Resume", w * 0.5f, h * 0.43f, scale, glm::vec3(1, 1, 1));
-    uiText.emplace_back("Quit", w * 0.5f, h * 0.55f, scale, glm::vec3(1, 1, 1));
+    uiText.emplace_back("Main Menu", w * 0.5f, h * 0.55f, scale, glm::vec3(1, 1, 1));
     uiText.emplace_back("Paused", w * 0.5f, h * 0.2f, scale * 1.5f, glm::vec3(1, 1, 0));
 }
 

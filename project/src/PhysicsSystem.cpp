@@ -880,9 +880,13 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 	}
 
 	updateCollisions();
+
+	// Simulate the entire PhysX scene
+	simulationTime += timestep;
 	gScene->simulate(timestep);
 	gScene->fetchResults(true);
-	if (gState.tempTrails) updateTrailLifetime(timestep);
+	if(gState.tempTrails) updateTrailLifetime(timestep);
+	updateTrailSize();
 }
 
 bool PhysicsSystem::getExplosion() {
@@ -955,7 +959,6 @@ std::vector<physx::PxVec3> PhysicsSystem::getAIPositions() {
 
 void PhysicsSystem::updateTrailLifetime(float dt) {
 	// Update the running simulation time.
-	simulationTime += dt;
 	// Iterate backward through the trail segments.
 	for (int i = trailSegments.size() - 1; i >= 0; i--) {
 		if (simulationTime - trailSegments[i].creationTime >= trailLifetime) {
@@ -988,10 +991,29 @@ void PhysicsSystem::updateTrailLifetime(float dt) {
 
 			// Erase segment
 			trailSegments.erase(trailSegments.begin() + i);
+
 		}
 	}
 }
 
+void PhysicsSystem::updateTrailSize() {
+	float minSize = 0.5f;
+	float maxSize = 1.0f;
+	float rate = 0.5f;
+	float scale;
+	for (int i = trailSegments.size() - 1; i >= 0; i--) {
+		physx::PxTransform pose;
+		pose = trailSegments[i].actor->getGlobalPose();
+		for (auto& entity : gState.staticEntities) {
+			glm::vec3 entityPos = entity.transform->pos;
+			if (fabs(entityPos.x - pose.p.x) < 0.5f && fabs(entityPos.z - pose.p.z) < 0.5f) {
+				scale = std::min((simulationTime - trailSegments[i].creationTime)* rate + minSize, maxSize);
+				entity.transform->scale = glm::vec3(scale);
+			}
+		}
+
+	}
+}
 
 void PhysicsSystem::removeAllTrailSegmentsByOwner(const std::string& owner)
 {

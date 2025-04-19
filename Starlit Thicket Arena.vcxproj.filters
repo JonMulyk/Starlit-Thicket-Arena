@@ -153,6 +153,9 @@
     <ClCompile Include="project\src\PauseMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="project\src\EndScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="project\assets\shaders\FragShader.frag" />
@@ -1551,6 +1554,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\BackgroundRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\EndScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

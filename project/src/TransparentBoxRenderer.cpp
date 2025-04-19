@@ -11,6 +11,8 @@ TransparentBoxRenderer::~TransparentBoxRenderer() {
 
 void TransparentBoxRenderer::draw(float x, float y, float width, float height, float alpha) {
     boxShader->use();
+    boxShader->setBool("useTexture", false);
+    boxShader->setBool("useSolidColor", false);
     boxShader->setVec4("boxColor", glm::vec4(0.0f, 0.0f, 0.0f, alpha));
 
     float vertices[] = {
