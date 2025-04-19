@@ -17,16 +17,59 @@ void Vehicle::setPhysxCommand() {
 	vehicle.mTransmissionCommandState.targetGear = snippetvehicle2::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
 }
 
+void Vehicle::nearestPlayer(GameState& gState, PhysicsSystem& physSys, physx::PxVec3& loc, float& dist) {
+	// two player mode
+	if (gState.getNumberOfPlayers() == 2) {
+		// is player 1 dead
+		if (physSys.playerDied) {
+			loc = gState.playerVehicle2.curPos + gState.playerVehicle2.curDir.getNormalized() * 20.f;
+			dist = (loc - prevPos).magnitude();
+			return;
+		}
+		// is player 2 dead
+		else if (physSys.player2Died) {
+			loc = gState.playerVehicle.curPos + gState.playerVehicle.curDir.getNormalized() * 20.f;
+			dist = (loc - prevPos).magnitude();
+			return;
+		}
+		// both alive - compare
+		physx::PxVec3 l1 = gState.playerVehicle.curPos + gState.playerVehicle.curDir.getNormalized() * 20.f;
+		physx::PxVec3 l2 = gState.playerVehicle2.curPos + gState.playerVehicle2.curDir.getNormalized() * 20.f;
+
+		physx::PxF32 d1 = (l1 - prevPos).magnitude();
+		physx::PxF32 d2 = (l2 - prevPos).magnitude();
+
+		// return player 1
+		if (d1 < d2) {
+			loc = l1;
+			dist = d1;
+		}
+		// return player 2
+		else {
+			loc = l2;
+			dist = d2;
+		}
+		return;
+	}
+
+	// default
+	loc = gState.playerVehicle.curPos + gState.playerVehicle.curDir.getNormalized() * 20.f;
+	dist = (loc - prevPos).magnitude();
+	return;
+}
+
 // The finite state machine loop
-void Vehicle::update(GameState& gState) {
+void Vehicle::update(GameState& gState, PhysicsSystem& physSys) {
 	// reset the command
 	command.steer = 0;
 	command.throttle = 1;
 	command.brake = 0;
 	command.boost = false;
 
-	physx::PxVec3 targetLocaton = gState.playerVehicle.curPos + gState.playerVehicle.curDir.getNormalized() * 20.f;
-	float targetDist = (targetLocaton - prevPos).magnitude();
+	physx::PxVec3 targetLocaton;
+	float targetDist;
+	nearestPlayer(gState, physSys, targetLocaton, targetDist);
+
 	float bufferDist = forwardSearch(gState);
 
 	if (bufferDist < 40) {
@@ -50,7 +93,7 @@ void Vehicle::update(GameState& gState) {
 // check if there is collision up ahead
 float Vehicle::forwardSearch(GameState& gState) {
 	// initial size very large
-	float obstacleDist = 999999999.f;
+	float obstacleDist = FLT_MAX;
 	float baseAngle = atan2(prevDir.z, prevDir.x);
 
 	// go through all the angles
