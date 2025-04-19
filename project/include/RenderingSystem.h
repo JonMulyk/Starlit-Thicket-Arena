@@ -44,5 +44,6 @@ private:
     void updateFuelBarColor(Model& fuelBar, float fuelLevel);
 
     void setShaderUniforms(Shader* shader);
+    void colorVehicle(Shader* shader, const std::string name);
     glm::mat4 createModelWithTransformations(const Entity* entity, const bool minimapRender);
 };
