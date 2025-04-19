@@ -72,12 +72,14 @@ void LevelSelectMenu::renderMenu() {
     float startX = (windowWidth - totalWidth) / 2;
 
     permanentButton = Button(startX, buttonY, buttonWidth, buttonHeight, glm::vec3(1, 0, 0));
-    normalButton = Button(startX + buttonWidth + spacing, buttonY, buttonWidth, buttonHeight, glm::vec3(1, 0, 0));
-    backButton = Button(startX + 2 * (buttonWidth + spacing), buttonY, buttonWidth, buttonHeight, glm::vec3(1, 0, 0));
+    backButton = Button(startX + buttonWidth + spacing, buttonY, buttonWidth, buttonHeight, glm::vec3(1, 0, 0));
+    normalButton = Button(startX + 2 * (buttonWidth + spacing), buttonY, buttonWidth, buttonHeight, glm::vec3(1, 0, 0));
+
 
     permanentButton.setColor(currentSelection == 0 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
-    normalButton.setColor(currentSelection == 1 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
-    backButton.setColor(currentSelection == 2 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
+    backButton.setColor(currentSelection == 1 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
+    normalButton.setColor(currentSelection == 2 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
+
 
     permanentButton.draw(shader, windowWidth, windowHeight);
     normalButton.draw(shader, windowWidth, windowHeight);
@@ -87,7 +89,7 @@ void LevelSelectMenu::renderMenu() {
     float boxWidth = 0.6f;
     float boxHeight = 1.2f;
     float y = -0.6f;
-    float spacingB = 0.4f; // space between boxes
+    float spacingB = 0.4f; //space between boxes
 
     float totalWidthB = 2 * boxWidth + spacingB;
     float leftX = -totalWidthB / 2.0f;
@@ -111,8 +113,8 @@ void LevelSelectMenu::initializeUIText() {
 
     uiText.clear();
     uiText.push_back(Text("Permanent", startX, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
-    uiText.push_back(Text("Normal", startX + buttonWidth + spacing, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
-    uiText.push_back(Text("Back", startX + 2 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+    uiText.push_back(Text("Back", startX + buttonWidth + spacing, buttonHeight, baseScale, glm::vec3(1, 1, 1))); // Swapped here
+    uiText.push_back(Text("Normal", startX + 2 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1))); // Swapped here
 }
 
 void LevelSelectMenu::compileShaders() {
@@ -147,15 +149,18 @@ void LevelSelectMenu::handleKeyboardInput(int& selectedLevel) {
     }
 
     if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_RELEASE && keyEnterReleased) {
-        if (currentSelection == 2) {
+        if (currentSelection == 1) { // BACK is now index 1
             selectedLevel = -1;
         }
-        else {
-            selectedLevel = currentSelection + 1;
+        else if (currentSelection == 2) { // NORMAL is now index 2
+            selectedLevel = 2;
         }
-        //audio.stopMusic();
+        else if (currentSelection == 0) { // PERMANENT
+            selectedLevel = 1;
+        }
         keyEnterReleased = false;
     }
+
     if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) {
         keyEnterReleased = true;
     }
@@ -185,15 +190,18 @@ void LevelSelectMenu::handleControllerInput(int& selectedLevel) {
     }
 
     if (controller.isButtonReleased(XINPUT_GAMEPAD_A) && aButtonReleased) {
-        if (currentSelection == 2) {
+        if (currentSelection == 1) { // BACK is now index 1
             selectedLevel = -1;
         }
-        else {
-            selectedLevel = currentSelection + 1;
+        else if (currentSelection == 2) { // NORMAL is now index 2
+            selectedLevel = 2;
         }
-        //audio.stopMusic();
+        else if (currentSelection == 0) { // PERMANENT
+            selectedLevel = 1;
+        }
         aButtonReleased = false;
     }
+
     if (controller.isButtonPressed(XINPUT_GAMEPAD_A)) {
         aButtonReleased = true;
     }
