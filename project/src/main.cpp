@@ -94,6 +94,7 @@ int main() {
     Model Ytrail(lightingShader, "project/assets/models/Ytree/YTree.obj");
     Model tireModel(lightingShader, "project/assets/models/tire1/tire1.obj");
     Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
+    Model hedge(lightingShader, "project/assets/models/hedge/hedgeTextured.obj");
     std::vector<Model> sceneModels;
     GameStateEnum gameState = GameStateEnum::MENU;
 
@@ -130,7 +131,7 @@ int main() {
     EndScreen endMenu(window, arial, controller1, audio, gState);
     splitScreenSelect splitMenu(window, arial, controller1);
 
-    std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
+    std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube, hedge };
 
     // Minimap 
     Shader minimapShader("minimapShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
