@@ -1537,9 +1537,6 @@
     <ClInclude Include="project\src\StaticCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="project\include\DynamicCamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="project\include\Button.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1568,6 +1565,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\EndScreen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\src\DynamicCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
