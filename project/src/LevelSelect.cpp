@@ -99,24 +99,31 @@ void LevelSelectMenu::renderMenu() {
     float boxWidth = 0.6f;
     float boxHeight = 1.2f;
     float y = -0.6f;
-    float spacingB = 0.4f; //space between boxes
+    float spacingB = 0.4f;
 
     float totalWidthB = 2 * boxWidth + spacingB;
     float leftX = -totalWidthB / 2.0f;
     float rightX = leftX + boxWidth + spacingB;
 
-    float normalAlpha = 0.4f;
-    float highlightAlpha = 0.6f;
+    float normalAlpha = 0.70f;
+    float highlightAlpha = 0.45f;
 
     bool isPermanentSelected = currentSelection == 0;
     bool isNormalSelected = currentSelection == 2;
 
-    renderImage(backgroundImageTexture, leftX, y, boxWidth, boxHeight);
-    renderImage(backgroundImageTexture, rightX, y, boxWidth, boxHeight);
+    float imageWidth = 0.4f;
+    float imageHeight = 0.5f;
+
+    //centering a div but worse
+    float leftImageX = leftX + (boxWidth - imageWidth) / 2.0f;
+    float rightImageX = rightX + (boxWidth - imageWidth) / 2.0f;
+    float imageY = y + (boxHeight - imageHeight) / 2.0f;
+
+    renderImage(backgroundImageTexture, leftImageX, imageY, imageWidth, imageHeight);
+    renderImage(backgroundImageTexture, rightImageX, imageY, imageWidth, imageHeight);
 
     boxRenderer.draw(leftX, y, boxWidth, boxHeight, isPermanentSelected ? highlightAlpha : normalAlpha);
     boxRenderer.draw(rightX, y, boxWidth, boxHeight, isNormalSelected ? highlightAlpha : normalAlpha);
-
 
 }
 
@@ -136,7 +143,7 @@ void LevelSelectMenu::initializeUIText() {
     uiText.push_back(Text("Back", startX + buttonWidth + spacing, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
     uiText.push_back(Text("Normal", startX + 2 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
 
-    float descScale = std::min(windowWidth, windowHeight) * 0.00075f;
+    float descScale = std::min(windowWidth, windowHeight) * 0.00055f;
 
     float permanentDescX = 0.25f * windowWidth;
     float normalDescX = 0.75f * windowWidth;
