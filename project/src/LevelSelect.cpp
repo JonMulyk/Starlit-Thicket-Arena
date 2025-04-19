@@ -117,7 +117,7 @@ void LevelSelectMenu::renderMenu() {
     //centering a div but worse
     float leftImageX = leftX + (boxWidth - imageWidth) / 2.0f;
     float rightImageX = rightX + (boxWidth - imageWidth) / 2.0f;
-    float imageY = y + (boxHeight - imageHeight) / 2.0f;
+    float imageY = y + (boxHeight - imageHeight - 0.5) / 2.0f;
 
     renderImage(backgroundImageTexture, leftImageX, imageY, imageWidth, imageHeight);
     renderImage(backgroundImageTexture, rightImageX, imageY, imageWidth, imageHeight);
@@ -126,7 +126,6 @@ void LevelSelectMenu::renderMenu() {
     boxRenderer.draw(rightX, y, boxWidth, boxHeight, isNormalSelected ? highlightAlpha : normalAlpha);
 
 }
-
 void LevelSelectMenu::initializeUIText() {
     glfwGetWindowSize(window.getGLFWwindow(), &windowWidth, &windowHeight);
 
@@ -143,16 +142,24 @@ void LevelSelectMenu::initializeUIText() {
     uiText.push_back(Text("Back", startX + buttonWidth + spacing, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
     uiText.push_back(Text("Normal", startX + 2 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
 
-    float descScale = std::min(windowWidth, windowHeight) * 0.00055f;
+    float descScale = std::min(windowWidth, windowHeight) * 0.00050f;
 
     float permanentDescX = 0.25f * windowWidth;
-    float normalDescX = 0.75f * windowWidth;
-    float descY = 0.7f * windowHeight;
+    float normalDescX = 0.75f * windowWidth; 
+    float initialDescY = 0.6f * windowHeight;
+    float descSpacing = 0.07f * windowHeight;
 
-    uiText.push_back(Text("Permanent: Trails stay forever", permanentDescX, descY, descScale, glm::vec3(1, 1, 1)));
-    uiText.push_back(Text("Normal: Trails disappear over time", normalDescX, descY, descScale, glm::vec3(1, 1, 1)));
+    uiText.push_back(Text("Normal: Trails disappear over time", normalDescX, initialDescY + 3 * descSpacing, descScale, glm::vec3(1, 1, 1)));
+    uiText.push_back(Text("The **Normal Path** is fleeting,", normalDescX, initialDescY + 2 * descSpacing, descScale, glm::vec3(1, 1, 1)));
+    uiText.push_back(Text("where trails fade with time", normalDescX, initialDescY + descSpacing, descScale, glm::vec3(1, 1, 1)));
+    uiText.push_back(Text("and choices are forgotten.", normalDescX, initialDescY, descScale, glm::vec3(1, 1, 1)));
 
+    uiText.push_back(Text("Permanent: Trails stay forever", permanentDescX, initialDescY + 3 * descSpacing, descScale, glm::vec3(1, 1, 1)));
+    uiText.push_back(Text("In the **Permanent Path**,", permanentDescX, initialDescY + 2 * descSpacing, descScale, glm::vec3(1, 1, 1)));
+    uiText.push_back(Text("your presence lingers,", permanentDescX, initialDescY + descSpacing, descScale, glm::vec3(1, 1, 1)));
+    uiText.push_back(Text("leaving a mark that lasts forever.", permanentDescX, initialDescY, descScale, glm::vec3(1, 1, 1)));
 }
+
 
 void LevelSelectMenu::compileShaders() {
     shader = new Shader("LevelSelectShader", "project/assets/shaders/mainMenuShader.vert", "project/assets/shaders/mainMenuShader.frag");
