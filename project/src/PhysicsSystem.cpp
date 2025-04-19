@@ -732,6 +732,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 
 			// reset fuel
 			if (playerIndex == 0 && gState.playerVehicle.fuel == -1) {
+				keyboardCommand.reset();
 				playerCommands[playerIndex]->reset();
 			} else if (playerIndex == 1 && gState.playerVehicle2.fuel == -1) {
 				playerCommands[playerIndex]->reset();
