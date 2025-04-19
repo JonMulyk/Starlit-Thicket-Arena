@@ -17,6 +17,7 @@ EndScreen::~EndScreen() {
 
 //main function to display menu
 void EndScreen::displayMenu() {
+	glViewport(0, 0, window.getWidth(), window.getHeight()); // reset viewport to ensure fullscreen
     glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     uiText.clear();
     initializeUIText();
