@@ -84,7 +84,7 @@ int main() {
     Texture grass("project/assets/textures/green-grass.jpg", true);
     Texture blueGrass("project/assets/textures/696.jpg", true);
     // Model Setup
-    std::vector<float> verts, coord;
+    std::vector<float> verts, coord, norms;
     InitManager::getCube(verts, coord);
     Model cube(lightingShader, container, verts, verts, coord);
     Model redBrick(lightingShader, gold, "project/assets/models/box.obj");
@@ -103,9 +103,11 @@ int main() {
     Skybox skybox("project/assets/textures/skybox/", skyboxShader);
     TransparentBoxRenderer boxRenderer;
 
-    Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
-    Model groundPlaneModel2(sceneShader, grass, "project/assets/models/reallySquareArena.obj");
-    Model groundPlaneModel3(sceneShader, blueGrass, "project/assets/models/reallySquareArena.obj");
+    InitManager::getGround(verts, norms, coord);
+    Model groundPlaneModel(sceneShader, neon, verts, verts, coord);
+    Model groundPlaneModel2(sceneShader, grass, verts, verts, coord);
+    Model groundPlaneModel3(sceneShader, blueGrass, verts, verts, coord);
+
     UIManager uiManager(window.getWidth(), window.getHeight(), uiShader);
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
