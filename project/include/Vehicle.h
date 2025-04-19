@@ -4,9 +4,13 @@
 #include "snippetvehicle2common/enginedrivetrain/EngineDrivetrain.h"
 #include "Command.h"
 #include "GameState.h"
+#include "PhysicsSystem.h"
 #include <random>
 
 using namespace physx;
+
+// forward declartion
+class PhysicsSystem;
 
 class Vehicle {
 public:
@@ -26,13 +30,14 @@ public:
 	void setPhysxCommand();
 
 	// The finite state machine
-	void update(GameState& gState);
+	void update(GameState& gState, PhysicsSystem& physSys);
 
 private:
 	// -- helpers
 	const float PI = 3.14159265f;
 	float steerToPoint(float x, float y);
 	float forwardSearch(GameState& gState);
+	void nearestPlayer(GameState& gState, PhysicsSystem& physSys, physx::PxVec3& loc, float& dist);
 
 	// -- direct attack using linear direction
 	void directAttack(GameState& gState, PxVec3 player);

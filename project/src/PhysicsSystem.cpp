@@ -827,7 +827,7 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 			}
 		}
 		if (!isPlayerControlled && (entity.name == "aiCar1" || entity.name == "aiCar2" || entity.name == "aiCar3")) {
-			entity.vehicle->update(gState);
+			entity.vehicle->update(gState, *this);
 
 			// Step the vehicle
 			entity.vehicle->forward = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
