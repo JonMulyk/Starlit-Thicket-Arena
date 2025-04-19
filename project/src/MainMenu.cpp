@@ -8,6 +8,7 @@ MainMenu::MainMenu(Windowing& window, TTF& textRenderer, Controller& controller)
     exitButton(0, 0, 0, 0, glm::vec3(0, 0, 0)) {
     compileShaders();
     initializeUIText();
+    backgroundRenderer = new BackgroundRenderer("project/assets/background/backgrounMainMenu.jpg", shader); //load background here
 }
 
 //dctsr
@@ -29,7 +30,7 @@ void MainMenu::displayMenu() {
 
     glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     bool inMenu = true;
-    backgroundRenderer = new BackgroundRenderer("project/assets/background/backgrounMainMenu.jpg", shader); //load background here
+    
 
     //audio.startMenuMusic();
     while (inMenu && !window.shouldClose()) {

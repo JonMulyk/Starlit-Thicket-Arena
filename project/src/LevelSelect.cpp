@@ -7,6 +7,7 @@ LevelSelectMenu::LevelSelectMenu(Windowing& window, TTF& textRenderer, Controlle
     backButton(0, 0, 0, 0, glm::vec3(0, 0, 0)) {
     initializeUIText();
     compileShaders();
+    backgroundRenderer = new BackgroundRenderer("project/assets/background/selectGameMode.jpg", shader);
     backgroundImageTexture = loadTexture("project/assets/background/download.png");
 }
 
@@ -34,7 +35,7 @@ int LevelSelectMenu::displayMenuLevel() {
     audio.startLevelMusic();
     */
     int selectedLevel = 0;
-    backgroundRenderer = new BackgroundRenderer("project/assets/background/selectGameMode.jpg", shader);
+
 
     while (selectedLevel == 0 && !window.shouldClose()) {
         window.clear();
