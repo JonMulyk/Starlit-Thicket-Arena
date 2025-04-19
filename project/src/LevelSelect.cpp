@@ -95,8 +95,15 @@ void LevelSelectMenu::renderMenu() {
     float leftX = -totalWidthB / 2.0f;
     float rightX = leftX + boxWidth + spacingB;
 
-    boxRenderer.draw(leftX, y, boxWidth, boxHeight, 0.5f);
-    boxRenderer.draw(rightX, y, boxWidth, boxHeight, 0.5f);
+    float normalAlpha = 0.4f;
+    float highlightAlpha = 0.8f;
+
+    bool isPermanentSelected = currentSelection == 0;
+    bool isNormalSelected = currentSelection == 2;
+
+    boxRenderer.draw(leftX, y, boxWidth, boxHeight, isPermanentSelected ? highlightAlpha : normalAlpha);
+    boxRenderer.draw(rightX, y, boxWidth, boxHeight, isNormalSelected ? highlightAlpha : normalAlpha);
+
 
 }
 
@@ -113,8 +120,18 @@ void LevelSelectMenu::initializeUIText() {
 
     uiText.clear();
     uiText.push_back(Text("Permanent", startX, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
-    uiText.push_back(Text("Back", startX + buttonWidth + spacing, buttonHeight, baseScale, glm::vec3(1, 1, 1))); // Swapped here
-    uiText.push_back(Text("Normal", startX + 2 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1))); // Swapped here
+    uiText.push_back(Text("Back", startX + buttonWidth + spacing, buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+    uiText.push_back(Text("Normal", startX + 2 * (buttonWidth + spacing), buttonHeight, baseScale, glm::vec3(1, 1, 1)));
+
+    float descScale = std::min(windowWidth, windowHeight) * 0.00075f;
+
+    float permanentDescX = 0.25f * windowWidth;
+    float normalDescX = 0.75f * windowWidth;
+    float descY = 0.7f * windowHeight;
+
+    uiText.push_back(Text("Permanent: Trails stay forever", permanentDescX, descY, descScale, glm::vec3(1, 1, 1)));
+    uiText.push_back(Text("Normal: Trails disappear over time", normalDescX, descY, descScale, glm::vec3(1, 1, 1)));
+
 }
 
 void LevelSelectMenu::compileShaders() {
