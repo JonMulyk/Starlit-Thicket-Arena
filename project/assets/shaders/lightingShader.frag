@@ -18,6 +18,8 @@ uniform vec3 viewPos;
 uniform vec3 lightColor;
 uniform sampler2D texture0;
 uniform Light light;
+uniform vec3 overrideColor;
+uniform bool useOverrideColor;
 
 void main()
 {
@@ -37,5 +39,13 @@ void main()
 	vec3 specular = light.specular * spec * lightColor;
 
 	vec3 result = (ambient + diffuse + specular) * texture(texture0, TexCoord).rgb;
-	FragColor = vec4(result, 1.0);
+
+	if(useOverrideColor)
+	{
+		FragColor = vec4(result * overrideColor, 1.0);
+	}
+	else
+	{
+		FragColor = vec4(result, 1.0);
+	}
 }
