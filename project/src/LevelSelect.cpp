@@ -32,6 +32,7 @@ int LevelSelectMenu::displayMenuLevel() {
         renderMenu();
         window.swapBuffer();
         glfwPollEvents();
+        
 
         handleKeyboardInput(selectedLevel);
         handleControllerInput(selectedLevel);
@@ -83,6 +84,18 @@ void LevelSelectMenu::renderMenu() {
     backButton.draw(shader, windowWidth, windowHeight);
 
     renderText(uiText);
+    float boxWidth = 0.6f;
+    float boxHeight = 1.2f;
+    float y = -0.6f;
+    float spacingB = 0.4f; // space between boxes
+
+    float totalWidthB = 2 * boxWidth + spacingB;
+    float leftX = -totalWidthB / 2.0f;
+    float rightX = leftX + boxWidth + spacingB;
+
+    boxRenderer.draw(leftX, y, boxWidth, boxHeight, 0.5f);
+    boxRenderer.draw(rightX, y, boxWidth, boxHeight, 0.5f);
+
 }
 
 void LevelSelectMenu::initializeUIText() {

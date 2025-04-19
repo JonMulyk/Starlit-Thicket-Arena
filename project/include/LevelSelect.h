@@ -11,6 +11,7 @@
 #include <vector>
 #include <BackgroundRenderer.h>
 #include <AudioSystem.h>
+#include <TransparentBoxRenderer.h>
 
 class LevelSelectMenu {
 public:
@@ -42,4 +43,5 @@ private:
     //bool audioInitialized;
     GameState& gameState;
     int currentSelection = 0; //change into enum later
+    TransparentBoxRenderer boxRenderer;
 };
