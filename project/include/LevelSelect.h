@@ -35,7 +35,9 @@ private:
     BackgroundRenderer* backgroundRenderer;
     TTF& textRenderer;
     int windowWidth, windowHeight;
-    Button level1Button, level2Button, level3Button, backButton, trailsButton;
+    Button permanentButton;
+    Button normalButton;
+    Button backButton;
     AudioSystem audio;
     bool audioInitialized;
     GameState& gameState;

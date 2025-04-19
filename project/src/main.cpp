@@ -165,20 +165,22 @@ int main() {
             gameState = GameStateEnum::PLAYING;
         }
 
-        if (selectedLevel == 1)
+        if (selectedLevel == 1) //permanent trails
         {
             gState.tempTrails = false;
             sceneModels.push_back(groundPlaneModel);
         }
-        if (selectedLevel == 2)
+        if (selectedLevel == 2) //temporary trails
         {
-            sceneModels.push_back(groundPlaneModel2);
             gState.tempTrails = true;
+            sceneModels.push_back(groundPlaneModel2);
         }
+        /*
         if (selectedLevel == 3)
         {
             sceneModels.push_back(groundPlaneModel3);
         }
+        */
 
         // Game setup
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
