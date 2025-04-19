@@ -19,6 +19,9 @@ unsigned int TextureFromFile(const char* path, const std::string& directory);
 
 class Model {
 public:
+    std::vector<Mesh> meshes;
+    std::string directory;
+
     // Constructor for manually provided data
     Model(
         Shader& shader,
@@ -28,7 +31,11 @@ public:
         std::vector<float> textCoords
     );
 
-
+    Model(
+        Shader& shader,
+        std::vector<float> vertices,
+        std::vector<float> normals
+    );
 
     // Constructor for loading an OBJ file with a texture
     Model(Shader& shader, Texture& texture, const std::string& model_path);
@@ -38,11 +45,11 @@ public:
     
     Shader& getShader();
 
-    void DrawAssimp(Shader& shader);
-
     void draw(std::string entityName = "");
-    std::vector<Mesh> meshes;
-    std::string directory;
+
+    static Model createRectangleModel(Shader& shader, float x, float y, float width, float height);
+    void updateVertices(const std::vector<float>& newVertices);
+
 
 private:
     Shader& m_shader;

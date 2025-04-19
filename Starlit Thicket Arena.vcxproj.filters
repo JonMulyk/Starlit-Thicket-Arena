@@ -153,6 +153,9 @@
     <ClCompile Include="project\src\PauseMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="project\src\FuelBar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="project\src\EndScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -177,6 +180,8 @@
     <None Include="project\assets\shaders\transparentBoxShader.frag" />
     <None Include="project\assets\shaders\overlayShader.vert" />
     <None Include="project\assets\shaders\overlayShader.frag" />
+    <None Include="project\assets\shaders\uiShader.vert" />
+    <None Include="project\assets\shaders\uiShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="project\include\Windowing.h">
@@ -1554,6 +1559,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\BackgroundRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\splitScreenSelect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="project\include\FuelBar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\EndScreen.h">

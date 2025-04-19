@@ -75,7 +75,8 @@ int main() {
 
     Shader shader("basicShader", "project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
     Shader lightingShader("lightingShader", "project/assets/shaders/lightingShader.vert", "project/assets/shaders/lightingShader.frag");
-    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Arial.ttf", window.getWidth(), window.getHeight());
+    Shader uiShader("uiShader", "project/assets/shaders/uiShader.vert", "project/assets/shaders/uiShader.frag");
+    TTF arial("project/assets/shaders/textShader.vert", "project/assets/shaders/textShader.frag", "project/assets/fonts/Paul-le1V.ttf", window.getWidth(), window.getHeight());
     Texture container("project/assets/textures/container.jpg", true);
     Texture gold("project/assets/textures/gold.jpg", true);
     Texture neon("project/assets/textures/neon.jpg", true);
@@ -105,7 +106,7 @@ int main() {
     Model groundPlaneModel(sceneShader, neon, "project/assets/models/reallySquareArena.obj");
     Model groundPlaneModel2(sceneShader, grass, "project/assets/models/reallySquareArena.obj");
     Model groundPlaneModel3(sceneShader, blueGrass, "project/assets/models/reallySquareArena.obj");
-    UIManager uiManager(window.getWidth(), window.getHeight());
+    UIManager uiManager(window.getWidth(), window.getHeight(), uiShader);
     int selectedLevel = -1;
     RenderingSystem renderer(shader, camera, window, arial, gState);
     RenderingSystem renderer2(shader, camera2, window, arial, gState);
@@ -209,12 +210,8 @@ int main() {
 
         physicsSystem->updateTransforms(gState.dynamicEntities);
 
-        // reset scoreboard
-        //gState.initializeScores(numberOfPlayers, numberOfAiCars);
-        if (gState.splitScreenEnabled) gState.initializeScores(2, 2);
-		else if (gState.splitScreenEnabled4) gState.initializeScores(4, 0);
-		else gState.initializeScores(1, 3);
-        uiManager.addScoreText(gState);
+        // reset UI
+        uiManager.initializeUIElements(gState);
 
 
         // Main Loop
@@ -309,7 +306,7 @@ int main() {
                 // Left half
                 glViewport(0, window.getHeight() / 2, window.getWidth(), window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
-                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera1 (a Camera instance)
+                renderer.updateRenderer(sceneModels, uiManager, skybox, 0);  // Using camera1 (a Camera instance)
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);
                 glEnable(GL_DEPTH_TEST);
@@ -318,7 +315,7 @@ int main() {
                 //print camera2 position
                 glViewport(0, 0, window.getWidth(), window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 1);
-                renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);  // Using camera2 (a Camera instance)
+                renderer2.updateRenderer(sceneModels, uiManager, skybox, 1);  // Using camera2 (a Camera instance)
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 1);
                 glEnable(GL_DEPTH_TEST);
@@ -332,7 +329,7 @@ int main() {
                 // top left
                 glViewport(0, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
-                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                renderer.updateRenderer(sceneModels, uiManager, skybox, 0);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);
                 glEnable(GL_DEPTH_TEST);
@@ -340,7 +337,7 @@ int main() {
                 // top right
                 glViewport(window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 1);
-                renderer2.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                renderer2.updateRenderer(sceneModels, uiManager, skybox, 1);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 1);
                 glEnable(GL_DEPTH_TEST);
@@ -348,7 +345,7 @@ int main() {
                 // bottom left
                 glViewport(0, 0, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 2);
-                renderer3.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                renderer3.updateRenderer(sceneModels, uiManager, skybox, 2);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 2);
                 glEnable(GL_DEPTH_TEST);
@@ -356,7 +353,7 @@ int main() {
                 // bottom right
                 glViewport(window.getWidth() / 2, 0, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 3);
-                renderer4.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                renderer4.updateRenderer(sceneModels, uiManager, skybox, 3);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 3);
                 glEnable(GL_DEPTH_TEST);
@@ -367,7 +364,7 @@ int main() {
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
 
                 // render everything except minimap
-                renderer.updateRenderer(sceneModels, uiManager.getUIText(), skybox);
+                renderer.updateRenderer(sceneModels, uiManager, skybox, 0);
                 // render minimap
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);
@@ -394,6 +391,7 @@ int main() {
             sceneModels.clear();
 
             gState.reset();
+            uiManager.resetFuel(gState);
             command.reset();
             audio.stopMusic(); 
             timer.reset();

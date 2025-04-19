@@ -90,8 +90,11 @@ void GameState::addScoreToVehicle(std::string name, uint64_t amount)
 	sortScores();
 }
 
-void GameState::initializeScores(uint16_t numberOfPlayers, uint16_t numberOfAiCars)
+void GameState::initializeScores()
 {
+	uint16_t numberOfPlayers = this->getNumberOfPlayers();
+	uint16_t numberOfAiCars = this->getNumberOfAI();
+
 	scores.clear();
 
 	for (unsigned int i = 1; i < numberOfPlayers+1; i++)
@@ -105,5 +108,37 @@ void GameState::initializeScores(uint16_t numberOfPlayers, uint16_t numberOfAiCa
 	}
 
 	sortScores();
+}
+
+uint16_t GameState::getNumberOfPlayers()
+{
+	if(this->splitScreenEnabled)
+	{
+		return 2;
+	}
+	else if(this->splitScreenEnabled4)
+	{
+		return 4;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
+uint16_t GameState::getNumberOfAI()
+{
+	if(this->splitScreenEnabled)
+	{
+		return 2;
+	}
+	else if(this->splitScreenEnabled4)
+	{
+		return 0;
+	}
+	else
+	{
+		return 3;
+	}
 }
 
