@@ -26,7 +26,7 @@ int LevelSelectMenu::displayMenuLevel() {
     audio.startLevelMusic();
 
     int selectedLevel = 0;
-    backgroundRenderer = new BackgroundRenderer("project/assets/background/levelSelect.jpg", shader);
+    backgroundRenderer = new BackgroundRenderer("project/assets/background/selectGameMode.jpg", shader);
 
     while (selectedLevel == 0 && !window.shouldClose()) {
         window.clear();
