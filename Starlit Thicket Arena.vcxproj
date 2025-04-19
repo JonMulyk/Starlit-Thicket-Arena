@@ -684,7 +684,7 @@
     <ClInclude Include="project\include\TTF.h" />
     <ClInclude Include="project\include\stb_image.h" />
     <ClInclude Include="project\include\RenderingSystem.h" />
-    <ClInclude Include="project\src\DynamicCamera.h" />
+    <ClInclude Include="project\include\DynamicCamera.h" />
     <ClInclude Include="project\src\StaticCamera.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1537,7 +1537,7 @@
     <ClInclude Include="project\src\StaticCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="project\src\DynamicCamera.h">
+    <ClInclude Include="project\include\DynamicCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="project\include\Button.h">

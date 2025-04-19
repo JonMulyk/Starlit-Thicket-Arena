@@ -147,11 +147,10 @@ void RenderingSystem::renderGroundPlane(Model& groundPlane)
 {
 	groundPlane.getShader().use();
 	this->camera.updateProjectionView(groundPlane.getShader(), window.getWidth(), window.getHeight());
-	shader.setFloat("repeats", 100.0f);
+	shader.setFloat("repeats", 20.0f);
 
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::scale(model, glm::vec3(23.0f, 1.0f, 23.0f)); // Scale the ground
-	model = glm::translate(model, glm::vec3(4.5f, 0.0f, 4.5f)); // translate ground
+	model = glm::scale(model, glm::vec3(110.0f, 1.0f, 110.0f)); // Scale the ground
 	groundPlane.getShader().setMat4("model", model);
 
 	groundPlane.draw();
