@@ -49,4 +49,5 @@ private:
     int currentSelection = 0; //change into enum later
     TransparentBoxRenderer boxRenderer;
     GLuint backgroundImageTexture;
+    GLuint backgroundImageTexture1;
 };

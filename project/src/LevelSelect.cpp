@@ -8,14 +8,18 @@ LevelSelectMenu::LevelSelectMenu(Windowing& window, TTF& textRenderer, Controlle
     initializeUIText();
     compileShaders();
     backgroundRenderer = new BackgroundRenderer("project/assets/background/selectGameMode.jpg", shader);
-    backgroundImageTexture = loadTexture("project/assets/background/download.png");
+    backgroundImageTexture = loadTexture("project/assets/background/longTrails.png");
+    backgroundImageTexture1 = loadTexture("project/assets/background/shortTrails.png");
 }
 
 LevelSelectMenu::~LevelSelectMenu() {
     if (backgroundImageTexture != 0) {
-        glDeleteTextures(1, &backgroundImageTexture);  // Free texture memory
+        glDeleteTextures(1, &backgroundImageTexture); 
     }
 
+    if (backgroundImageTexture1 != 0) {
+        glDeleteTextures(1, &backgroundImageTexture1);
+    }
     delete backgroundRenderer;
     backgroundRenderer = nullptr;
     uiText.clear();
@@ -106,7 +110,7 @@ void LevelSelectMenu::renderMenu() {
     float rightX = leftX + boxWidth + spacingB;
 
     float normalAlpha = 0.70f;
-    float highlightAlpha = 0.45f;
+    float highlightAlpha = 0.3f;
 
     bool isPermanentSelected = currentSelection == 0;
     bool isNormalSelected = currentSelection == 2;
@@ -117,11 +121,11 @@ void LevelSelectMenu::renderMenu() {
     //centering a div but worse
     float leftImageX = leftX + (boxWidth - imageWidth) / 2.0f;
     float rightImageX = rightX + (boxWidth - imageWidth) / 2.0f;
-    float imageY = y + (boxHeight - imageHeight - 0.5) / 2.0f;
+    float imageY = y + (boxHeight - imageHeight - 0.5f) / 2.0f;
 
     renderImage(backgroundImageTexture, leftImageX, imageY, imageWidth, imageHeight);
-    renderImage(backgroundImageTexture, rightImageX, imageY, imageWidth, imageHeight);
-
+    renderImage(backgroundImageTexture1, rightImageX, imageY, imageWidth, imageHeight);
+    
     boxRenderer.draw(leftX, y, boxWidth, boxHeight, isPermanentSelected ? highlightAlpha : normalAlpha);
     boxRenderer.draw(rightX, y, boxWidth, boxHeight, isNormalSelected ? highlightAlpha : normalAlpha);
 
@@ -146,13 +150,13 @@ void LevelSelectMenu::initializeUIText() {
 
     float permanentDescX = 0.25f * windowWidth;
     float normalDescX = 0.75f * windowWidth; 
-    float initialDescY = 0.6f * windowHeight;
-    float descSpacing = 0.07f * windowHeight;
+    float initialDescY = 0.6525f * windowHeight;
+    float descSpacing = 0.04f * windowHeight;
 
     uiText.push_back(Text("Normal: Trails disappear over time", normalDescX, initialDescY + 3 * descSpacing, descScale, glm::vec3(1, 1, 1)));
     uiText.push_back(Text("The **Normal Path** is fleeting,", normalDescX, initialDescY + 2 * descSpacing, descScale, glm::vec3(1, 1, 1)));
     uiText.push_back(Text("where trails fade with time", normalDescX, initialDescY + descSpacing, descScale, glm::vec3(1, 1, 1)));
-    uiText.push_back(Text("and choices are forgotten.", normalDescX, initialDescY, descScale, glm::vec3(1, 1, 1)));
+    uiText.push_back(Text("and choices are left behind.", normalDescX, initialDescY, descScale, glm::vec3(1, 1, 1)));
 
     uiText.push_back(Text("Permanent: Trails stay forever", permanentDescX, initialDescY + 3 * descSpacing, descScale, glm::vec3(1, 1, 1)));
     uiText.push_back(Text("In the **Permanent Path**,", permanentDescX, initialDescY + 2 * descSpacing, descScale, glm::vec3(1, 1, 1)));
@@ -253,6 +257,7 @@ void LevelSelectMenu::handleControllerInput(int& selectedLevel) {
 
 GLuint LevelSelectMenu::loadTexture(const char* filepath) {
     int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(filepath, &width, &height, &nrChannels, 0);
     if (!data) {
         std::cerr << "Failed to load texture" << std::endl;
@@ -273,6 +278,7 @@ GLuint LevelSelectMenu::loadTexture(const char* filepath) {
     glGenerateMipmap(GL_TEXTURE_2D);
 
     stbi_image_free(data);
+    stbi_set_flip_vertically_on_load(false);
     return textureID;
 }
 
