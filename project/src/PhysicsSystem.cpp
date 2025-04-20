@@ -691,8 +691,18 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 			timer = 0.f;
 
 		if (timer >= kStallLimit) {
-			bool respawn = respawnVehicle(entity);
-			if (!respawn) shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
+			//shatter vehicle
+			std::cout << "Vehicle " << entity.vehicle->name << " is stuck" << std::endl;
+			shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
+			entity.vehicle->vehicle.destroy();
+			for (int x = 0; x <= transformList.size(); x++) {
+				if (entity.transform == transformList[x]) {
+					rigidDynamicList.erase(rigidDynamicList.begin() + x);
+					transformList.erase(transformList.begin() + x);
+					break;
+				}
+			}
+			gState.dynamicEntities.erase(gState.dynamicEntities.begin() + (&entity - &gState.dynamicEntities[0]));
 			timer = 0.f;
 			continue;
 		}
@@ -1115,50 +1125,4 @@ void PhysicsSystem::update(double deltaTime) {
 	}
 
 	//updateCollisions();
-}
-
-
-static float randFloat(float min, float max)
-{
-	static std::mt19937 rng{ std::random_device{}() };           // one RNG
-	std::uniform_real_distribution<float> dist(min, max);
-	return dist(rng);
-}
-
-bool PhysicsSystem::getOpenSpawnTransform(physx::PxTransform& outPose)
-{
-	using namespace physx;
-
-	const float half = 95.0f;
-	const int   maxAttempts = 50;
-
-	for (int i = 0; i < maxAttempts; ++i) {
-		float x = randFloat(-half, half);
-		float z = randFloat(-half, half);
-		float rot = randFloat(0.f, physx::PxTwoPi);
-
-		if (!gState.gMap.isOccupied({ x, z })) {
-			outPose = physx::PxTransform({ x, 0.f, z },
-				physx::PxQuat(rot, { 0,1,0 }));
-			return true;
-		}
-	}
-	return false;
-}
-
-bool PhysicsSystem::respawnVehicle(Entity& entity)
-{
-	physx::PxTransform pose;
-	if (!getOpenSpawnTransform(pose)) return false;
-
-	removeAllTrailSegmentsByOwner(entity.vehicle->name);
-
-	auto* rb = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody;
-	rb->setGlobalPose(pose);
-
-	entity.transform->pos = { pose.p.x, pose.p.y, pose.p.z };
-	entity.transform->rot = { pose.q.x, pose.q.y, pose.q.z, pose.q.w };
-	entity.vehicle->prevPos = pose.p;
-	entity.vehicle->prevDir = pose.q.getBasisVector2();
-	return true;
 }

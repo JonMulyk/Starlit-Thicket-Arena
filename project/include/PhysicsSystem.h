@@ -185,7 +185,6 @@ public:
 	std::vector<physx::PxVec3> getAIPositions();
 	void update(double deltaTime);
 
-	bool getOpenSpawnTransform(physx::PxTransform& outPose);
 	bool respawnVehicle(Entity& entity);
 
 	void reset();
