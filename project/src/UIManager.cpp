@@ -60,7 +60,8 @@ void UIManager::addScoreText(GameState& gameState)
 		float farLeftX = static_cast<float>(windowWidth) * 0.0055f;
 
         // adding text to the vector
-        uiText.push_back(Text(scoreText, farLeftX, scoreHeight, this->textScale * 0.8f, glm::vec3(0.5, 0.8f, 0.2f), TTF::TEXT_POSITION::LEFT));
+        glm::vec3 color = gameState.getColorForScoreName(score.first);
+        uiText.push_back(Text(scoreText, farLeftX, scoreHeight, this->textScale * 0.8f, color, TTF::TEXT_POSITION::LEFT));
         scoreHeight -= heightIncrementOffset;
     }
 }

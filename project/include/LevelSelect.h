@@ -11,6 +11,7 @@
 #include <vector>
 #include <BackgroundRenderer.h>
 #include <AudioSystem.h>
+#include <TransparentBoxRenderer.h>
 
 class LevelSelectMenu {
 public:
@@ -27,6 +28,10 @@ private:
     void handleKeyboardInput(int& selectedLevel);
     void handleControllerInput(int& selectedLevel);
 
+    GLuint loadTexture(const char* filepath);
+
+    void renderImage(GLuint textureID, float x, float y, float width, float height);
+
     Controller& controller;
     std::vector<Text> uiText;
     Windowing& window;
@@ -42,4 +47,7 @@ private:
     //bool audioInitialized;
     GameState& gameState;
     int currentSelection = 0; //change into enum later
+    TransparentBoxRenderer boxRenderer;
+    GLuint backgroundImageTexture;
+    GLuint backgroundImageTexture1;
 };

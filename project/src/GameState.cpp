@@ -92,22 +92,45 @@ void GameState::addScoreToVehicle(std::string name, uint64_t amount)
 
 void GameState::initializeScores()
 {
+	std::cout << "INITIALIZING SCORE" << std::endl;
 	uint16_t numberOfPlayers = this->getNumberOfPlayers();
 	uint16_t numberOfAiCars = this->getNumberOfAI();
 
 	scores.clear();
+	scoreToColor.clear();
+	uint16_t colorIndex = 0;
 
 	for (unsigned int i = 1; i < numberOfPlayers+1; i++)
 	{
-		scores.emplace("player" + std::to_string(i), 0);
+		std::string name = "player" + std::to_string(i);
+		scores.emplace(name, 0);
+
+		scoreToColor.emplace(name, colors[colorIndex]);
+		colorIndex++;
 	}
 
 	for (unsigned int i = 1; i < numberOfAiCars+1; i++)
 	{
-		scores.emplace("ai" + std::to_string(i), 0);
+		std::string name = "ai" + std::to_string(i);
+		scores.emplace(name, 0);
+
+		scoreToColor.emplace(name, colors[colorIndex]);
+		colorIndex++;
 	}
 
 	sortScores();
+}
+
+glm::vec3 GameState::getColorForScoreName(std::string name)
+{
+
+	auto it = scoreToColor.find(name);
+	if (it != scoreToColor.end())
+	{
+		return it->second;
+	}
+
+	return glm::vec3(0.5, 0.8f, 0.2f);
 }
 
 uint16_t GameState::getNumberOfPlayers()

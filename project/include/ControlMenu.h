@@ -186,7 +186,6 @@ private:
         static bool aButtonPressed = false;
 
         if (!controller.isConnected()) return;
-
         if (!controller.isButtonPressed(XINPUT_GAMEPAD_B) && aButtonPressed) {
             inControls = false;
             aButtonPressed = false;
