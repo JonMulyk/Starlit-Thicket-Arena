@@ -121,7 +121,7 @@ private:
 
 	// respawn for stuck vehicles
 	std::unordered_map<std::string, float>  m_stationaryTime;   // seconds per car
-	const float                             kStallSpeed = 0.5f; // m/s
+	const float                             kStallSpeed = 0.3f; // m/s
 	const float                             kStallLimit = 3.0f; // seconds
 
 	// Initialize PhysX and vehicles
@@ -188,6 +188,10 @@ public:
 	bool respawnVehicle(Entity& entity);
 
 	void reset();
+
+	void handleStalledVehicles(float timestep);
+	void destroyVehicleAt(std::size_t idx);
+
 	bool playerDied = false;
 	bool player2Died = false;
 	bool player3Died = false;

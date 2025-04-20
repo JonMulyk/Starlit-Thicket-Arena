@@ -680,35 +680,6 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 	using namespace snippetvehicle2;
 
 	for (auto& entity : gState.dynamicEntities) {
-		if (entity.vehicle == nullptr) continue;    
-
-		float speed = getCarSpeed(&entity - &gState.dynamicEntities[0]); 
-		auto& timer = m_stationaryTime[entity.vehicle->name];
-
-		if (speed < kStallSpeed)
-			timer += timestep;
-		else
-			timer = 0.f;
-
-		if (timer >= kStallLimit) {
-			//shatter vehicle
-			std::cout << "Vehicle " << entity.vehicle->name << " is stuck" << std::endl;
-			shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
-			entity.vehicle->vehicle.destroy();
-			for (int x = 0; x <= transformList.size(); x++) {
-				if (entity.transform == transformList[x]) {
-					rigidDynamicList.erase(rigidDynamicList.begin() + x);
-					transformList.erase(transformList.begin() + x);
-					break;
-				}
-			}
-			gState.dynamicEntities.erase(gState.dynamicEntities.begin() + (&entity - &gState.dynamicEntities[0]));
-			timer = 0.f;
-			continue;
-		}
-	}
-
-	for (auto& entity : gState.dynamicEntities) {
 		bool isPlayerControlled = false;
 		int playerIndex = -1;
 		std::string name = entity.name;
@@ -935,6 +906,8 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 	gScene->fetchResults(true);
 	if(gState.tempTrails) updateTrailLifetime(timestep);
 	updateTrailSize();
+
+	handleStalledVehicles(timestep);
 }
 
 bool PhysicsSystem::getExplosion() {
@@ -1125,4 +1098,42 @@ void PhysicsSystem::update(double deltaTime) {
 	}
 
 	//updateCollisions();
+}
+
+void PhysicsSystem::handleStalledVehicles(float timestep)
+{
+	// 1st pass: figure out which vehicles must be blown up
+	std::vector<std::size_t> stalledIndices;
+
+	for (std::size_t i = 0; i < gState.dynamicEntities.size(); ++i)
+	{
+		auto& entity = gState.dynamicEntities[i];
+		if (!entity.vehicle) continue;
+
+		float speed = getCarSpeed(static_cast<int>(i));
+		auto& timer = m_stationaryTime[entity.vehicle->name];
+		timer = (speed < kStallSpeed) ? timer + timestep : 0.f;
+
+		if (timer >= kStallLimit)
+			stalledIndices.push_back(i);
+	}
+
+	// 2nd pass: destroy from back to front so indices stay valid
+	for (auto it = stalledIndices.rbegin(); it != stalledIndices.rend(); ++it)
+		destroyVehicleAt(*it);        // helper shown just below
+}
+
+void PhysicsSystem::destroyVehicleAt(std::size_t idx)
+{
+	auto& entity = gState.dynamicEntities[idx];
+
+	shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
+	entity.vehicle->vehicle.destroy();
+
+	// Remove matching transform / rigid body
+	transformList.erase(transformList.begin() + idx);
+	rigidDynamicList.erase(rigidDynamicList.begin() + idx);
+
+	// Finally remove the entity itself
+	gState.dynamicEntities.erase(gState.dynamicEntities.begin() + idx);
 }
