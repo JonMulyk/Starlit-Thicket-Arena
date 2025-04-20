@@ -150,7 +150,13 @@ void PhysicsSystem::initBoarder() {
 
 		// Rendering
 		for (int i = -25; i < 25; i++) {
-			gState.staticEntities.push_back(Entity("boarder", &pModels[6], new Transform()));
+			if (gState.tempTrails) {
+				gState.staticEntities.push_back(Entity("boarder", &pModels[6], new Transform()));
+			}
+			else {
+				gState.staticEntities.push_back(Entity("boarder", &pModels[7], new Transform()));
+			}
+			//gState.staticEntities.push_back(Entity("boarder", &pModels[wall.side], new Transform()));
 			if (wall.position.x == 0) {
 				gState.staticEntities.back().transform->pos = glm::vec3(
 					wallTransform.p.x + i * 4,
@@ -165,10 +171,14 @@ void PhysicsSystem::initBoarder() {
 					wallTransform.p.z + i * 4
 				);
 			}
-
-			gState.staticEntities.back().transform->scale = glm::vec3(0.1);
-			gState.staticEntities.back().transform->rot = glm::vec3(0, wall.rotationY, 0);
-
+			if (gState.tempTrails) {
+				gState.staticEntities.back().transform->scale = glm::vec3(0.04);
+				gState.staticEntities.back().transform->rot = glm::vec3(0, wall.rotationY, 0);
+			}
+			else {
+				gState.staticEntities.back().transform->scale = glm::vec3(5);
+				gState.staticEntities.back().transform->rot = glm::vec3(0, static_cast<float>(rand()), 0);
+			}
 		}
 
 
