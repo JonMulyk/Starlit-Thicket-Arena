@@ -680,6 +680,25 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 	using namespace snippetvehicle2;
 
 	for (auto& entity : gState.dynamicEntities) {
+		if (entity.vehicle == nullptr) continue;    
+
+		float speed = getCarSpeed(&entity - &gState.dynamicEntities[0]); 
+		auto& timer = m_stationaryTime[entity.vehicle->name];
+
+		if (speed < kStallSpeed)
+			timer += timestep;
+		else
+			timer = 0.f;
+
+		if (timer >= kStallLimit) {
+			bool respawn = respawnVehicle(entity);
+			if (!respawn) shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
+			timer = 0.f;
+			continue;
+		}
+	}
+
+	for (auto& entity : gState.dynamicEntities) {
 		bool isPlayerControlled = false;
 		int playerIndex = -1;
 		std::string name = entity.name;
@@ -1096,4 +1115,50 @@ void PhysicsSystem::update(double deltaTime) {
 	}
 
 	//updateCollisions();
+}
+
+
+static float randFloat(float min, float max)
+{
+	static std::mt19937 rng{ std::random_device{}() };           // one RNG
+	std::uniform_real_distribution<float> dist(min, max);
+	return dist(rng);
+}
+
+bool PhysicsSystem::getOpenSpawnTransform(physx::PxTransform& outPose)
+{
+	using namespace physx;
+
+	const float half = 95.0f;
+	const int   maxAttempts = 50;
+
+	for (int i = 0; i < maxAttempts; ++i) {
+		float x = randFloat(-half, half);
+		float z = randFloat(-half, half);
+		float rot = randFloat(0.f, physx::PxTwoPi);
+
+		if (!gState.gMap.isOccupied({ x, z })) {
+			outPose = physx::PxTransform({ x, 0.f, z },
+				physx::PxQuat(rot, { 0,1,0 }));
+			return true;
+		}
+	}
+	return false;
+}
+
+bool PhysicsSystem::respawnVehicle(Entity& entity)
+{
+	physx::PxTransform pose;
+	if (!getOpenSpawnTransform(pose)) return false;
+
+	removeAllTrailSegmentsByOwner(entity.vehicle->name);
+
+	auto* rb = entity.vehicle->vehicle.mPhysXState.physxActor.rigidBody;
+	rb->setGlobalPose(pose);
+
+	entity.transform->pos = { pose.p.x, pose.p.y, pose.p.z };
+	entity.transform->rot = { pose.q.x, pose.q.y, pose.q.z, pose.q.w };
+	entity.vehicle->prevPos = pose.p;
+	entity.vehicle->prevDir = pose.q.getBasisVector2();
+	return true;
 }

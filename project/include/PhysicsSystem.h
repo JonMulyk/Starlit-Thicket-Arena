@@ -111,13 +111,18 @@ private:
 		float remainingLifetime;
 	};
 	std::vector<TrailSegment> trailSegments;
-	float trailLifetime = 5.0f; // seconds
+	float trailLifetime = 3.0f; // seconds
 	unsigned int trailCounter = 0;
 	float simulationTime = 0.0f; // running simulation time
 	void updateTrailLifetime(float dt);
 	void removeAllTrailSegmentsByOwner(const std::string& owner);
 	void updateTrailSize();
 	void updateWinCondition(float dt);
+
+	// respawn for stuck vehicles
+	std::unordered_map<std::string, float>  m_stationaryTime;   // seconds per car
+	const float                             kStallSpeed = 0.5f; // m/s
+	const float                             kStallLimit = 3.0f; // seconds
 
 	// Initialize PhysX and vehicles
 	void initPhysX();
@@ -179,6 +184,9 @@ public:
 	// Return positions of all AI vehicles
 	std::vector<physx::PxVec3> getAIPositions();
 	void update(double deltaTime);
+
+	bool getOpenSpawnTransform(physx::PxTransform& outPose);
+	bool respawnVehicle(Entity& entity);
 
 	void reset();
 	bool playerDied = false;

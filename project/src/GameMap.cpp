@@ -475,3 +475,14 @@ bool GameMap::castRayTo(float x0, float y0, float x1, float y1) {
 		float(toGridSpace(x1)), float(toGridSpace(y1))
 	);
 }
+
+bool GameMap::isOccupied(float x, float z) const
+{
+	int gx = toGridSpace(x);
+	int gz = toGridSpace(z);
+
+	if (outOfBound(gx) || outOfBound(gz))
+		return true;
+
+	return grid[gx][gz] == 0;
+}

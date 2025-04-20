@@ -84,4 +84,7 @@ public:
 
     // a supercover DDA algorithm for finding obstructions between two points
 	bool checkCollisions(int x0, int y0, int x1, int y1);
+
+	bool isOccupied(float x, float z) const;
+	bool isOccupied(const physx::PxVec2& p) const { return isOccupied(p.x, p.y); }
 };
