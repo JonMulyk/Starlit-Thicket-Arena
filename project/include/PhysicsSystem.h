@@ -119,7 +119,7 @@ private:
 	void updateTrailSize();
 	void updateWinCondition(float dt);
 
-	// respawn for stuck vehicles
+	// explode stuck vehicles
 	std::unordered_map<std::string, float>  m_stationaryTime;   // seconds per car
 	const float                             kStallSpeed = 0.3f; // m/s
 	const float                             kStallLimit = 2.1f; // seconds
@@ -184,8 +184,6 @@ public:
 	// Return positions of all AI vehicles
 	std::vector<physx::PxVec3> getAIPositions();
 	void update(double deltaTime);
-
-	bool respawnVehicle(Entity& entity);
 
 	void reset();
 
