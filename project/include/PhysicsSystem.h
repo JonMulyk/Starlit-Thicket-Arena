@@ -11,6 +11,7 @@
 #include <map>
 #include <iostream>
 #include <string>
+#include <stdlib.h>
 
 #include "Transform.h"
 #include "Model.h"
