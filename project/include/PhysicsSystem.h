@@ -112,13 +112,18 @@ private:
 		float remainingLifetime;
 	};
 	std::vector<TrailSegment> trailSegments;
-	float trailLifetime = 5.0f; // seconds
+	float trailLifetime = 4.0f; // seconds
 	unsigned int trailCounter = 0;
 	float simulationTime = 0.0f; // running simulation time
 	void updateTrailLifetime(float dt);
 	void removeAllTrailSegmentsByOwner(const std::string& owner);
 	void updateTrailSize();
 	void updateWinCondition(float dt);
+
+	// explode stuck vehicles
+	std::unordered_map<std::string, float>  m_stationaryTime;   // seconds per car
+	const float                             kStallSpeed = 0.3f; // m/s
+	const float                             kStallLimit = 2.1f; // seconds
 
 	// Initialize PhysX and vehicles
 	void initPhysX();
@@ -182,6 +187,10 @@ public:
 	void update(double deltaTime);
 
 	void reset();
+
+	void handleStalledVehicles(float timestep);
+	void destroyVehicleAt(std::size_t i);
+
 	bool playerDied = false;
 	bool player2Died = false;
 	bool player3Died = false;
