@@ -663,6 +663,7 @@ void PhysicsSystem::reintialize() {
 	}
 	//std::cout << gState.dynamicEntities.size() << " " << gState.staticEntities.size() << " " << actors.size() << "\n";
 	gState.gMap.resetMap();
+	m_stationaryTime.clear();
 	initVehicles(3);
 }
 
@@ -906,7 +907,6 @@ void PhysicsSystem::stepPhysics(float timestep, Command& keyboardCommand, const 
 	gScene->fetchResults(true);
 	if(gState.tempTrails) updateTrailLifetime(timestep);
 	updateTrailSize();
-
 	handleStalledVehicles(timestep);
 }
 
@@ -1100,9 +1100,7 @@ void PhysicsSystem::update(double deltaTime) {
 	//updateCollisions();
 }
 
-void PhysicsSystem::handleStalledVehicles(float timestep)
-{
-	// 1st pass: figure out which vehicles must be blown up
+void PhysicsSystem::handleStalledVehicles(float timestep) {
 	std::vector<std::size_t> stalledIndices;
 
 	for (std::size_t i = 0; i < gState.dynamicEntities.size(); ++i)
@@ -1118,22 +1116,56 @@ void PhysicsSystem::handleStalledVehicles(float timestep)
 			stalledIndices.push_back(i);
 	}
 
-	// 2nd pass: destroy from back to front so indices stay valid
-	for (auto it = stalledIndices.rbegin(); it != stalledIndices.rend(); ++it)
-		destroyVehicleAt(*it);        // helper shown just below
+	for (auto it = stalledIndices.rbegin(); it != stalledIndices.rend(); ++it) destroyVehicleAt(*it);
 }
 
-void PhysicsSystem::destroyVehicleAt(std::size_t idx)
-{
-	auto& entity = gState.dynamicEntities[idx];
+void PhysicsSystem::destroyVehicleAt(std::size_t i) {
+	auto& entity = gState.dynamicEntities[i];
+	std::string name = entity.name;
+	std::cout << name << " got stuck" << std::endl;
+
+	if (name == "playerCar") {
+		deadCars[0] = 1;
+		playerDied = true;
+	}
+	if (name == "aiCar1") {
+		deadCars[1] = 1;
+		player2Died = true;
+	}
+	if (name == "aiCar2") {
+		deadCars[2] = 1;
+		player3Died = true;
+	}
+	if (name == "aiCar3") {
+		deadCars[3] = 1;
+		player4Died = true;
+	}
 
 	shatter(entity.vehicle->prevPos, entity.vehicle->prevDir);
 	entity.vehicle->vehicle.destroy();
 
-	// Remove matching transform / rigid body
-	transformList.erase(transformList.begin() + idx);
-	rigidDynamicList.erase(rigidDynamicList.begin() + idx);
+	transformList.erase(transformList.begin() + i);
+	rigidDynamicList.erase(rigidDynamicList.begin() + i);
 
-	// Finally remove the entity itself
-	gState.dynamicEntities.erase(gState.dynamicEntities.begin() + idx);
+	gState.dynamicEntities.erase(gState.dynamicEntities.begin() + i);
+
+	const int deadCount = playerDied + player2Died + player3Died + player4Died;
+
+	if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4)
+	{
+		if (playerDied || deadCount >= 3)
+			pendingReinit = true;
+	}
+	else if (gState.splitScreenEnabled)
+	{
+		if ((playerDied && player2Died) || deadCount >= 3)
+			pendingReinit = true;
+	}
+	else if (gState.splitScreenEnabled4)
+	{
+		if (deadCount >= 3)
+			pendingReinit = true;
+	}
+
+	if (pendingReinit) reinitTime = 0.0;
 }

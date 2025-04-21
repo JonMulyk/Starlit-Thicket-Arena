@@ -122,7 +122,7 @@ private:
 	// respawn for stuck vehicles
 	std::unordered_map<std::string, float>  m_stationaryTime;   // seconds per car
 	const float                             kStallSpeed = 0.3f; // m/s
-	const float                             kStallLimit = 3.0f; // seconds
+	const float                             kStallLimit = 2.1f; // seconds
 
 	// Initialize PhysX and vehicles
 	void initPhysX();
