@@ -188,7 +188,7 @@ public:
 	void reset();
 
 	void handleStalledVehicles(float timestep);
-	void destroyVehicleAt(std::size_t idx);
+	void destroyVehicleAt(std::size_t i);
 
 	bool playerDied = false;
 	bool player2Died = false;
