@@ -535,7 +535,7 @@ void PhysicsSystem::updateCollisions() {
 	if (gContactReportCallback->checkCollision()) {
 		std::string colliding1 = collisionPair.first->getName();
 		std::string colliding2 = collisionPair.second->getName();
-		std::cout << colliding1 << std::endl;
+		//std::cout << colliding1 << std::endl;
 		if (colliding1 == "playerVehicle") {
 			deadCars[0] = 1;
 			playerDied = true;
@@ -1122,7 +1122,7 @@ void PhysicsSystem::handleStalledVehicles(float timestep) {
 void PhysicsSystem::destroyVehicleAt(std::size_t i) {
 	auto& entity = gState.dynamicEntities[i];
 	std::string name = entity.name;
-	std::cout << name << " got stuck" << std::endl;
+	//std::cout << name << " got stuck" << std::endl;
 
 	if (name == "playerCar") {
 		deadCars[0] = 1;
