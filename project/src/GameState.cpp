@@ -57,8 +57,8 @@ std::string GameState::physicsToUiNameConversion(std::string physicsName)
 	if (splitScreenEnabled == true && splitScreenEnabled4 == false) {
 		if (physicsName == "playerVehicle") { return "player1"; }
 		if (physicsName == "vehicle1") { return "player2"; }
-		if (physicsName == "vehicle2") { return "ai2"; }
-		if (physicsName == "vehicle3") { return "ai3"; }
+		if (physicsName == "vehicle2") { return "ai1"; }
+		if (physicsName == "vehicle3") { return "ai2"; }
 	}
 	if (splitScreenEnabled == false && splitScreenEnabled4 == true) {
 		if (physicsName == "playerVehicle") { return "player1"; }

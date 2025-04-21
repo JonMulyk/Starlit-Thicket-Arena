@@ -585,7 +585,9 @@ void PhysicsSystem::updateCollisions() {
 						gState.staticEntities.erase(gState.staticEntities.begin() + g);
 					}
 				}
-				gState.addScoreToVehicle(colliding2, 1);
+				if (colliding1 != colliding2) {
+					gState.addScoreToVehicle(colliding2, 1);
+				}
 			}
 		}
 
@@ -661,6 +663,75 @@ void PhysicsSystem::reintialize() {
 			gState.staticEntities.erase(gState.staticEntities.begin() + g);
 		}
 	}
+
+	// -- Update random scores
+	// two player
+	if (gState.splitScreenEnabled) {
+		// if both ai are alive
+		if (!player3Died && !player4Died) {
+			int chance = rand() % 5;
+
+			// 0,1
+			if (chance <= 1) {
+				gState.addScoreToVehicle("vehicle2", 1);
+			}
+			// 2, 3
+			else if (chance <= 3) {
+				gState.addScoreToVehicle("vehicle3", 1);
+			}
+		}
+	}
+	// single player
+	else if (!gState.splitScreenEnabled4 && playerDied) {
+		// get number of players alive
+		int alive = !player2Died + !player3Died + !player4Died;
+
+		// two alive
+		if (alive == 2) {
+			// get the names
+			std::vector<string> names;
+			if (!player2Died) {
+				names.push_back("vehicle1");
+			}
+			if (!player3Died) {
+				names.push_back("vehicle2");
+			}
+			if (!player4Died) {
+				names.push_back("vehicle3");
+			}
+
+			// get the odds
+			int chance = rand() % 5;
+			
+			// if 4/5 odds
+			if (chance < 4) {
+				// bin down to 0,1
+				chance /= 2;
+				// add score to the name
+				gState.addScoreToVehicle(names[chance], 1);
+			}
+		}
+
+		// 3 alive
+		else if (alive == 3) {
+			for (int i = 0; i <= 1; i++) {
+				// get number
+				int chance = rand() % 7;
+
+				// add scores
+				if (chance <= 1) {
+					gState.addScoreToVehicle("vehicle1", 1);
+				}
+				else if (chance <= 3) {
+					gState.addScoreToVehicle("vehicle2", 1);
+				}
+				else if (chance <= 5) {
+					gState.addScoreToVehicle("vehicle3", 1);
+				}
+			}
+		}
+	}
+
 	//std::cout << gState.dynamicEntities.size() << " " << gState.staticEntities.size() << " " << actors.size() << "\n";
 	gState.gMap.resetMap();
 	initVehicles(3);
