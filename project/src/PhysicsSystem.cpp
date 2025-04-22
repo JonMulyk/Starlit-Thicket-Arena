@@ -640,7 +640,8 @@ void PhysicsSystem::updateCollisions() {
 			if ((playerDied && player2Died) || totalDead >= 3) {
 				pendingReinit = true;
 				reinitTime = 0.0;
-
+				if (deadCars[0] == 0) gState.addScoreToVehicle("playerVehicle", 1);
+				if (deadCars[1] == 0) gState.addScoreToVehicle("vehicle1", 1);
 				std::string randomAI = pickRandomAliveAI();
 				if (!randomAI.empty()) {
 					gState.addScoreToVehicle(randomAI, 1);
@@ -653,9 +654,10 @@ void PhysicsSystem::updateCollisions() {
 				reinitTime = 0.0;
 
 				// Award to the last vehicle standing
-				for (auto& entity : gState.dynamicEntities) {
-					gState.addScoreToVehicle(entity.vehicle->name, 1);
-				}
+				if (deadCars[0] == 0) gState.addScoreToVehicle("playerVehicle", 1);
+				if (deadCars[1] == 0) gState.addScoreToVehicle("vehicle1", 1);
+				if (deadCars[2] == 0) gState.addScoreToVehicle("vehicle2", 1);
+				if (deadCars[3] == 0) gState.addScoreToVehicle("vehicle3", 1);
 			}
 		}
 
