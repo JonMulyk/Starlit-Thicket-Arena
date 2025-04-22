@@ -192,12 +192,6 @@ int main() {
             sceneModels.push_back(groundPlaneModel2);
             skyboxSelected = true;
         }
-        /*
-        if (selectedLevel == 3)
-        {
-            sceneModels.push_back(groundPlaneModel3);
-        }
-        */
 
         // Game setup
         glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -272,16 +266,50 @@ int main() {
 
             physicsSystem->update(timer.getFrameTime());
 
-            if (physicsSystem->playerDied || physicsSystem->deadCars[0] == 1) {
-                audio.stopCarSounds(); 
+            // 2 players
+            if (gState.splitScreenEnabled) {
                 audio.stopAISounds();
-            }
-			else if (physicsSystem->player2Died) audio.stopAISounds(physicsSystem->getCarPos("aiCar1"));
-			else if (physicsSystem->player3Died) audio.stopAISounds(physicsSystem->getCarPos("aiCar2"));
-			else if (physicsSystem->player4Died) audio.stopAISounds(physicsSystem->getCarPos("aiCar3"));
-            else {
-                audio.startCarSounds();  
+                if (physicsSystem->playerDied && physicsSystem->player2Died) {
+                    audio.stopCarSounds();
+                } else {
+                    audio.startCarSounds();
+                }
                 audio.update();
+            }
+            // 4 players
+            else if (gState.splitScreenEnabled4) {
+                audio.stopAISounds();
+                if (physicsSystem->playerDied &&
+                    physicsSystem->player2Died &&
+                    physicsSystem->player3Died &&
+                    physicsSystem->player4Died
+                    ) {
+                    audio.stopCarSounds();
+                }
+                else {
+                    audio.startCarSounds();
+                }
+                audio.update();
+            }
+            // single player
+            else {
+                if (physicsSystem->playerDied) {
+                    audio.stopCarSounds(); 
+                    audio.stopAISounds();
+                }
+                else {
+                    audio.startCarSounds();  
+                    audio.update();
+                }
+                if (physicsSystem->player2Died) {
+                    audio.stopAISounds(physicsSystem->getCarPos("aiCar1"));
+                }
+                if (physicsSystem->player3Died) {
+                    audio.stopAISounds(physicsSystem->getCarPos("aiCar2"));
+                }
+                if (physicsSystem->player4Died) {
+                    audio.stopAISounds(physicsSystem->getCarPos("aiCar3"));
+                }
             }
 
             physicsSystem->update(timer.getFrameTime());
