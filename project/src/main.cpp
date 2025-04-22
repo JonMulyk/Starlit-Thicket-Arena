@@ -93,14 +93,18 @@ int main() {
     Model Rtrail(lightingShader, "project/assets/models/Rtree/RTree.obj");
     Model Ytrail(lightingShader, "project/assets/models/Ytree/YTree.obj");
     Model tireModel(lightingShader, "project/assets/models/tire1/tire1.obj");
-    Model secondCar(lightingShader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
+    Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
+    Model hedge(lightingShader, "project/assets/models/hedge/hedgeTextured.obj");
+    Model plant(lightingShader, "project/assets/models/plant/plant.obj");
     std::vector<Model> sceneModels;
     GameStateEnum gameState = GameStateEnum::MENU;
 
     // Skybox
     Shader skyboxShader("project/assets/shaders/skyboxShader.vert", "project/assets/shaders/skyboxShader.frag");
     Shader sceneShader("project/assets/shaders/CameraShader.vert", "project/assets/shaders/FragShader.frag");
-    Skybox skybox("project/assets/textures/skybox/", skyboxShader);
+    Skybox skybox0("project/assets/textures/skybox/", skyboxShader);
+    Skybox skybox1("project/assets/textures/skybox1/", skyboxShader);
+    boolean skyboxSelected = true;
     TransparentBoxRenderer boxRenderer;
 
     InitManager::getGround(verts, norms, coord);
@@ -130,7 +134,7 @@ int main() {
     EndScreen endMenu(window, arial, controller1, audio, gState);
     splitScreenSelect splitMenu(window, arial, controller1);
 
-    std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube };
+    std::vector<Model> models = { Gtrail, Btrail, Rtrail, Ytrail, secondCar, cube, hedge, plant};
 
     // Minimap 
     Shader minimapShader("minimapShader", "project/assets/shaders/minimapShader.vert", "project/assets/shaders/minimapShader.frag");
@@ -180,11 +184,13 @@ int main() {
         {
             gState.tempTrails = false;
             sceneModels.push_back(groundPlaneModel);
+            skyboxSelected = false;
         }
         if (selectedLevel == 2) //temporary trails
         {
             gState.tempTrails = true;
             sceneModels.push_back(groundPlaneModel2);
+            skyboxSelected = true;
         }
         /*
         if (selectedLevel == 3)
@@ -322,7 +328,10 @@ int main() {
                 // Left half
                 glViewport(0, window.getHeight() / 2, window.getWidth(), window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
-                renderer.updateRenderer(sceneModels, uiManager, skybox, 0);  // Using camera1 (a Camera instance)
+                if (skyboxSelected)
+                    renderer.updateRenderer(sceneModels, uiManager, skybox0, 0);  // Using camera1 (a Camera instance)
+                else
+                    renderer.updateRenderer(sceneModels, uiManager, skybox1, 0);  // Using camera1 (a Camera instance)
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);
                 glEnable(GL_DEPTH_TEST);
@@ -331,7 +340,10 @@ int main() {
                 //print camera2 position
                 glViewport(0, 0, window.getWidth(), window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 1);
-                renderer2.updateRenderer(sceneModels, uiManager, skybox, 1);  // Using camera2 (a Camera instance)
+                if (skyboxSelected)
+                    renderer2.updateRenderer(sceneModels, uiManager, skybox0, 1);  // Using camera2 (a Camera instance)
+                else
+                    renderer2.updateRenderer(sceneModels, uiManager, skybox1, 1);  // Using camera2 (a Camera instance)
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 1);
                 glEnable(GL_DEPTH_TEST);
@@ -345,7 +357,10 @@ int main() {
                 // top left
                 glViewport(0, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
-                renderer.updateRenderer(sceneModels, uiManager, skybox, 0);
+                if (skyboxSelected)
+                    renderer.updateRenderer(sceneModels, uiManager, skybox0, 0);
+                else
+                    renderer.updateRenderer(sceneModels, uiManager, skybox1, 0);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);
                 glEnable(GL_DEPTH_TEST);
@@ -353,7 +368,10 @@ int main() {
                 // top right
                 glViewport(window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 1);
-                renderer2.updateRenderer(sceneModels, uiManager, skybox, 1);
+                if (skyboxSelected)
+                    renderer2.updateRenderer(sceneModels, uiManager, skybox0, 1);
+                else
+                    renderer2.updateRenderer(sceneModels, uiManager, skybox1, 1);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 1);
                 glEnable(GL_DEPTH_TEST);
@@ -361,7 +379,10 @@ int main() {
                 // bottom left
                 glViewport(0, 0, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 2);
-                renderer3.updateRenderer(sceneModels, uiManager, skybox, 2);
+                if (skyboxSelected)
+                    renderer3.updateRenderer(sceneModels, uiManager, skybox0, 2);
+                else 
+                    renderer3.updateRenderer(sceneModels, uiManager, skybox1, 2);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 2);
                 glEnable(GL_DEPTH_TEST);
@@ -369,7 +390,10 @@ int main() {
                 // bottom right
                 glViewport(window.getWidth() / 2, 0, window.getWidth() / 2, window.getHeight() / 2);
                 uiManager.updateUIText(timer, roundDuration, gState, 3);
-                renderer4.updateRenderer(sceneModels, uiManager, skybox, 3);
+                if (skyboxSelected)
+                    renderer4.updateRenderer(sceneModels, uiManager, skybox0, 3);
+                else
+                    renderer4.updateRenderer(sceneModels, uiManager, skybox1, 3);
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 3);
                 glEnable(GL_DEPTH_TEST);
@@ -380,7 +404,10 @@ int main() {
                 uiManager.updateUIText(timer, roundDuration, gState, 0);
 
                 // render everything except minimap
-                renderer.updateRenderer(sceneModels, uiManager, skybox, 0);
+                if (skyboxSelected)
+                    renderer.updateRenderer(sceneModels, uiManager, skybox0, 0);
+                else 
+                    renderer.updateRenderer(sceneModels, uiManager, skybox1, 0);
                 // render minimap
                 glDisable(GL_DEPTH_TEST);
                 renderer.renderMinimap(minimapShader, minimapCamera, 0);
