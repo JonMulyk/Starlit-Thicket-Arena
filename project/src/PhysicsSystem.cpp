@@ -601,22 +601,65 @@ void PhysicsSystem::updateCollisions() {
 			}
 		}
 
+		// Helper lambda to pick random element
+		auto pickRandomAliveAI = [this]() -> std::string {
+			std::vector<std::string> aliveAIs;
+			for (auto& entity : gState.dynamicEntities) {
+				if (entity.name == "aiCar1" || entity.name == "aiCar2" || entity.name == "aiCar3") {
+					aliveAIs.push_back(entity.vehicle->name);
+				}
+			}
+			if (!aliveAIs.empty()) {
+				std::random_device rd;
+				std::mt19937 gen(rd());
+				std::uniform_int_distribution<> dis(0, aliveAIs.size() - 1);
+				return aliveAIs[dis(gen)];
+			}
+			return ""; // No alive AI
+		};
+
+		int totalDead = playerDied + player2Died + player3Died + player4Died;
 		if (!gState.splitScreenEnabled && !gState.splitScreenEnabled4) {
-			if (playerDied || ((playerDied + player2Died + player3Died + player4Died) >= 3)) {
+			if (playerDied) {
 				pendingReinit = true;
 				reinitTime = 0.0;
+				std::string randomAI = pickRandomAliveAI();
+				if (!randomAI.empty()) {
+					gState.addScoreToVehicle(randomAI, 1);
+				}
+			}
+			if (totalDead >= 3) {
+				pendingReinit = true;
+				reinitTime = 0.0;
+				gState.addScoreToVehicle("playerVehicle", 1);
 			}
 		}
-		else if (gState.splitScreenEnabled) { // 2-player mode
-			if ((playerDied && player2Died) || ((playerDied + player2Died + player3Died + player4Died) >= 3)) { //if both players die or there is only one car left
+		else if (gState.splitScreenEnabled) {
+			if (playerDied && player2Died) {
 				pendingReinit = true;
 				reinitTime = 0.0;
+				std::string randomAI = pickRandomAliveAI();
+				if (!randomAI.empty()) {
+					gState.addScoreToVehicle(randomAI, 1);
+				}
 			}
-		}
-		else if (gState.splitScreenEnabled4) { // 4-player mode
-			if ((playerDied + player2Died + player3Died + player4Died) >= 3) { //if 3 people have died then reset
+			if (totalDead >= 3) {
 				pendingReinit = true;
 				reinitTime = 0.0;
+				if (!playerDied) gState.addScoreToVehicle("playerVehicle", 1);
+				if (!player2Died) gState.addScoreToVehicle("vehicle1", 1);
+			}
+			
+		}
+		else if (gState.splitScreenEnabled4) {
+			if (totalDead >= 3) {
+				pendingReinit = true;
+				reinitTime = 0.0;
+				// Award to the last vehicle standing
+				if (!playerDied) gState.addScoreToVehicle("playerVehicle", 1);
+				if (!player2Died) gState.addScoreToVehicle("vehicle1", 1);
+				if (!player3Died) gState.addScoreToVehicle("vehicle2", 1);
+				if (!player4Died) gState.addScoreToVehicle("vehicle3", 1);
 			}
 		}
 
