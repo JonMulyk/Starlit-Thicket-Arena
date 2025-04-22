@@ -93,7 +93,7 @@ int main() {
     Model Rtrail(lightingShader, "project/assets/models/Rtree/RTree.obj");
     Model Ytrail(lightingShader, "project/assets/models/Ytree/YTree.obj");
     Model tireModel(lightingShader, "project/assets/models/tire1/tire1.obj");
-    Model secondCar(shader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
+    Model secondCar(lightingShader, "project/assets/models/bike/Futuristic_Car_2.1_obj.obj");
     Model hedge(lightingShader, "project/assets/models/hedge/hedgeTextured.obj");
     Model plant(lightingShader, "project/assets/models/plant/plant.obj");
     std::vector<Model> sceneModels;

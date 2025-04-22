@@ -86,7 +86,7 @@ private:
         controlsText.push_back(Text("R - Right", keyboardX, windowHeight * 0.6, baseScale, glm::vec3(1, 1, 1)));
         controlsText.push_back(Text("space - Boost", keyboardX, windowHeight * 0.55, baseScale, glm::vec3(1, 1, 1)));
         controlsText.push_back(Text("mouse - Camera", keyboardX, windowHeight * 0.50, baseScale, glm::vec3(1, 1, 1)));
-        controlsText.push_back(Text("scroll wheel - zoom", keyboardX, windowHeight * 0.45, baseScale, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("p - pause", keyboardX, windowHeight * 0.45, baseScale, glm::vec3(1, 1, 1)));
         //controlsText.push_back(Text("escape - Exit", keyboardX, windowHeight * 0.40, baseScale, glm::vec3(1, 1, 1))); //we don't need this
 
         //controller
@@ -94,6 +94,7 @@ private:
         controlsText.push_back(Text("Right Joystick - Camera", controllerX, windowHeight * 0.65, baseScale, glm::vec3(1, 1, 1)));
         controlsText.push_back(Text("Right Trigger - Accelerate", controllerX, windowHeight * 0.60, baseScale, glm::vec3(1, 1, 1)));
         controlsText.push_back(Text("B - Boost", controllerX, windowHeight * 0.55, baseScale, glm::vec3(1, 1, 1)));
+        controlsText.push_back(Text("Menu Button - Pause", controllerX, windowHeight * 0.50, baseScale, glm::vec3(1, 1, 1)));
 
 
         controlsText.push_back(Text("Press B or Backspace to return", 0.5f * windowWidth, windowHeight * 0.25, baseScale, glm::vec3(1, 1, 1)));
