@@ -74,7 +74,8 @@ const std::vector<Text>& UIManager::getUIText() const
 
 void UIManager::updateUIText(TimeSeconds& timer, double roundDuration, GameState& gameState, int player)
 {
-	uiText[0].setTextToRender("FPS: " + std::to_string(timer.getFPS()));
+	//uiText[0].setTextToRender("FPS: " + std::to_string(timer.getFPS()));
+	uiText[0].setTextToRender("");
 	uiText[1].setTextToRender(timer.formatTimeToHumanReadable(timer.getRemainingTime(roundDuration)));
     if (fuelTextEnabled)
     {
