@@ -268,31 +268,23 @@ int main() {
 
             // 2 players
             if (gState.splitScreenEnabled) {
+                audio.stopAISounds();
                 if (physicsSystem->playerDied && physicsSystem->player2Died) {
                     audio.stopCarSounds();
-                    audio.stopAISounds();
                 } else {
                     audio.startCarSounds();
                 }
-
-                if (physicsSystem->player3Died) {
-                    audio.stopAISounds(physicsSystem->getCarPos("aiCar1"));
-                }
-                if (physicsSystem->player4Died) {
-                    audio.stopAISounds(physicsSystem->getCarPos("aiCar2"));
-                }
-
                 audio.update();
             }
             // 4 players
             else if (gState.splitScreenEnabled4) {
+                audio.stopAISounds();
                 if (physicsSystem->playerDied &&
                     physicsSystem->player2Died &&
                     physicsSystem->player3Died &&
                     physicsSystem->player4Died
                     ) {
                     audio.stopCarSounds();
-                    audio.stopAISounds();
                 }
                 else {
                     audio.startCarSounds();
