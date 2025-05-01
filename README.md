@@ -3,7 +3,7 @@
 
 # Demo
 ![alt text](docs/title_screen.png)
-Here is a [link]() to a video demo showing some of the game features.
+Here is a [link](https://www.youtube.com/watch?v=F-NbZPO1jzI) to a video demo showing some of the game features.
 
 # Features
 ## Game Modes
